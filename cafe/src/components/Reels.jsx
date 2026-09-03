@@ -315,6 +315,7 @@ export default function Reels() {
               <video
                 ref={el => videoRefs.current[index] = el}
                 src={reel.src}
+                autoPlay
                 muted
                 loop
                 playsInline

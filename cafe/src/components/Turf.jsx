@@ -144,13 +144,13 @@ export default function Turf() {
       <div className="absolute inset-0 z-0">
         <video
           ref={videoRef}
+          src={turfVideo}
+          autoPlay
           muted
           loop
           playsInline
           className="w-full h-full object-cover"
-        >
-          <source src={turfVideo} type="video/mp4" />
-        </video>
+        />
       </div>
 
       {/* Cinematic overlays */}
