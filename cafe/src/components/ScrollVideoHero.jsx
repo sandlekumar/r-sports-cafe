@@ -293,114 +293,85 @@ export default function ScrollVideoHero() {
           </div>
         </div>
 
-        {/* ── DESKTOP: Title + CTA BELOW the video box ─────────────────── */}
-        {!isMobile && (
+        {/* ── Title + CTA BELOW the video box (Responsive) ─────────────────── */}
+        <div
+          className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+          style={{ transform: isMobile ? 'none' : 'translate3d(calc(var(--mx)*2px),calc(var(--my)*2px),0)' }}
+        >
+          {/* Positioned below the video frame: video is at 50%/50% with 42-45vh height */}
           <div
-            className="absolute inset-0 w-full h-full z-20 pointer-events-none"
-            style={{ transform: 'translate3d(calc(var(--mx)*2px),calc(var(--my)*2px),0)' }}
+            className="absolute left-0 w-full flex flex-col items-center text-center select-none px-4"
+            style={{ top: isMobile ? '68vh' : '74vh' }}
           >
-            {/* Positioned below the video frame: video is at 50%/50% with 45vh height, 
-                so bottom edge is ~72.5vh. We start title area just below that. */}
+            {/* Warm amber halo */}
             <div
-              className="absolute left-0 w-full flex flex-col items-center text-center select-none px-4"
-              style={{ top: '74vh' }}
+              ref={titleGlowRef}
+              className="absolute pointer-events-none opacity-0"
+              style={{
+                width: isMobile ? '100vw' : '600px', height: '200px',
+                left: '50%', top: '0',
+                transform: 'translateX(-50%)',
+                background: 'radial-gradient(ellipse, rgba(231,201,138,0.22) 0%, rgba(231,201,138,0.05) 50%, transparent 70%)',
+                zIndex: 0,
+              }}
+            />
+
+            {/* Title with sweep */}
+            <div
+              className="relative inline-block pb-4 pt-2 px-2 md:px-10 z-10 overflow-hidden"
+              style={{ perspective: '800px' }}
             >
-              
-              {/* Warm amber halo */}
               <div
-                ref={titleGlowRef}
-                className="absolute pointer-events-none opacity-0"
+                ref={sweepRef}
+                className="absolute top-0 bottom-0 pointer-events-none z-30"
                 style={{
-                  width: '600px', height: '200px',
-                  left: '50%', top: '0',
-                  transform: 'translateX(-50%)',
-                  background: 'radial-gradient(ellipse, rgba(231,201,138,0.22) 0%, rgba(231,201,138,0.05) 50%, transparent 70%)',
-                  zIndex: 0,
+                  width: '280px', left: 0,
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,248,220,0.7) 35%, rgba(255,230,140,0.95) 50%, rgba(255,248,220,0.7) 65%, transparent 100%)',
                 }}
               />
 
-              {/* Title with sweep */}
-              <div
-                className="relative inline-block pb-4 pt-2 px-10 z-10 overflow-hidden"
-                style={{ perspective: '800px' }}
+              <h1
+                className="font-sans font-semibold uppercase relative z-10 flex flex-wrap justify-center text-[#111111]"
+                style={{
+                  fontSize: 'clamp(24px, 5.5vw, 52px)',
+                  letterSpacing: 'clamp(0.04em, 1.5vw, 0.3em)',
+                  lineHeight: 1.15,
+                  filter: 'drop-shadow(0 0 28px rgba(231,201,138,0.3))',
+                }}
               >
-                <div
-                  ref={sweepRef}
-                  className="absolute top-0 bottom-0 pointer-events-none z-30"
-                  style={{
-                    width: '280px', left: 0,
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,248,220,0.7) 35%, rgba(255,230,140,0.95) 50%, rgba(255,248,220,0.7) 65%, transparent 100%)',
-                  }}
-                />
+                {TITLE_CHARS.map((char, i) => (
+                  <span
+                    key={i}
+                    className="svh-title-char inline-block opacity-0"
+                    style={{
+                      whiteSpace: char === ' ' ? 'pre' : 'normal',
+                      willChange: 'opacity, transform, filter, color',
+                      transformOrigin: '50% 100%',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </h1>
 
-                <h1
-                  className="font-sans font-semibold uppercase relative z-10 flex flex-wrap justify-center text-[#111111]"
-                  style={{
-                    fontSize: 'clamp(28px, 4vw, 52px)',
-                    letterSpacing: 'clamp(0.08em, 1vw, 0.3em)',
-                    lineHeight: 1.15,
-                    filter: 'drop-shadow(0 0 28px rgba(231,201,138,0.3))',
-                  }}
-                >
-                  {TITLE_CHARS.map((char, i) => (
-                    <span
-                      key={i}
-                      className="svh-title-char inline-block opacity-0"
-                      style={{
-                        whiteSpace: char === ' ' ? 'pre' : 'normal',
-                        willChange: 'opacity, transform, filter, color',
-                        transformOrigin: '50% 100%',
-                        display: 'inline-block',
-                      }}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </h1>
-
-                <div
-                  className="svh-energy-line absolute left-[4%] right-[4%] bottom-2 h-px opacity-0 z-0"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(231,201,138,0.9) 50%, transparent 100%)',
-                    boxShadow: '0 0 12px 1px rgba(231,201,138,0.6)',
-                    transformOrigin: 'center center',
-                  }}
-                />
-              </div>
-
-              {/* Desktop CTA below title */}
               <div
-                ref={ctaBoxRef}
-                className="opacity-0 mt-4 flex flex-col items-center gap-4 pointer-events-auto z-20"
-              >
-                <p
-                  className="font-inter font-medium uppercase text-[11px] text-center"
-                  style={{ color: 'rgba(17,17,17,0.6)', letterSpacing: '0.15em' }}
-                >
-                  SPORTS, FOOD & GOOD TIMES IN THOOTHUKUDI
-                </p>
-              </div>
+                className="svh-energy-line absolute left-[4%] right-[4%] bottom-2 h-px opacity-0 z-0"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(231,201,138,0.9) 50%, transparent 100%)',
+                  boxShadow: '0 0 12px 1px rgba(231,201,138,0.6)',
+                  transformOrigin: 'center center',
+                }}
+              />
             </div>
-          </div>
-        )}
 
-        {/* ── MOBILE: Glassmorphism CTA card below video ──────────────────── */}
-        {isMobile && (
-          <div className="absolute inset-0 w-full h-full z-20 pointer-events-none">
-            {/* Hidden refs for GSAP (still needed for timeline targets) */}
-            <div ref={titleGlowRef} className="hidden" />
-            <div ref={sweepRef} className="hidden" />
-            <span className="svh-title-char hidden" />
-            <div className="svh-energy-line hidden" />
-
-            {/* Glass CTA card — positioned in bottom third of viewport */}
+            {/* Glassmorphism CTA card (Desktop & Mobile) */}
             <div
               ref={ctaBoxRef}
-              className="absolute left-1/2 -translate-x-1/2 opacity-0 pointer-events-auto"
-              style={{ bottom: '8vh', width: '88vw', maxWidth: '400px' }}
+              className="opacity-0 mt-2 md:mt-4 flex flex-col items-center gap-4 pointer-events-auto z-20 w-[88vw] max-w-[400px]"
             >
               <div
-                className="rounded-[24px] px-6 py-7 flex flex-col items-center gap-4 text-center"
+                className="rounded-[24px] px-6 py-5 md:py-7 flex flex-col items-center gap-3 text-center w-full"
                 style={{
                   background: 'rgba(255, 253, 248, 0.55)',
                   backdropFilter: 'blur(20px) saturate(1.4)',
@@ -411,7 +382,7 @@ export default function ScrollVideoHero() {
               >
                 {/* Brand name */}
                 <h2
-                  className="font-sans font-bold uppercase tracking-[0.12em] text-[18px]"
+                  className="font-sans font-bold uppercase tracking-[0.12em] text-[16px] md:text-[18px]"
                   style={{ color: '#1B1B1B' }}
                 >
                   R SPORTS & CAFE
@@ -425,24 +396,16 @@ export default function ScrollVideoHero() {
 
                 {/* Tagline */}
                 <p
-                  className="font-inter font-medium uppercase text-[8px] tracking-[0.18em]"
+                  className="font-inter font-medium uppercase text-[8px] md:text-[9px] tracking-[0.18em]"
                   style={{ color: 'rgba(27,27,27,0.55)' }}
                 >
                   PLAY &bull; EAT &bull; CHILL &bull; REPEAT
                 </p>
 
-                {/* Location */}
-                <p
-                  className="font-inter text-[10px]"
-                  style={{ color: 'rgba(27,27,27,0.5)' }}
-                >
-                  Thoothukudi, Tamil Nadu
-                </p>
-
                 {/* Reserve Table Button */}
                 <Link
                   to="/booking"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-sans font-semibold text-[11px] uppercase tracking-[0.15em] transition-all duration-300 active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 md:py-3.5 mt-1 rounded-full font-sans font-semibold text-[10px] md:text-[11px] uppercase tracking-[0.15em] transition-all duration-300 hover:scale-[1.02] active:scale-95"
                   style={{
                     background: '#1B1B1B',
                     color: '#FFF8E7',
@@ -457,7 +420,7 @@ export default function ScrollVideoHero() {
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Scroll Indicator */}
         <div
