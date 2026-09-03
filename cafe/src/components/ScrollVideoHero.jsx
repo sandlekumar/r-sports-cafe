@@ -161,17 +161,17 @@ export default function ScrollVideoHero() {
         0.72
       );
 
-      // ── PHASE 4 (0.82–0.92): Title + CTA box reveal ────────────────────
+      // ── PHASE 4 (0.74–0.92): Title + CTA box reveal ────────────────────
       tl.fromTo(titleGlowRef.current,
         { opacity: 0, scale: 0.6 },
         { opacity: 1, scale: 1, duration: 0.06, ease: 'power3.out' },
-        0.82
+        0.74
       );
 
       tl.fromTo('.svh-energy-line',
         { scaleX: 0, opacity: 0 },
         { scaleX: 1, opacity: 1, duration: 0.05, ease: 'expo.out' },
-        0.82
+        0.74
       );
 
       tl.fromTo('.svh-title-char',
@@ -181,13 +181,13 @@ export default function ScrollVideoHero() {
           stagger: 0.002, duration: 0.05, ease: 'power4.out',
           transformOrigin: '50% 100%',
         },
-        0.83
+        0.75
       );
 
       tl.fromTo(sweepRef.current,
         { left: '-50%', x: 0, opacity: 0, skewX: -20 },
         { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.06, ease: 'power3.inOut' },
-        0.835
+        0.755
       );
 
       tl.to('.svh-title-char', {
@@ -196,13 +196,13 @@ export default function ScrollVideoHero() {
           { color: '#111111', textShadow: '0 0 0px transparent', duration: 0.02 },
         ],
         stagger: 0.003,
-      }, 0.84);
+      }, 0.76);
 
       // Mobile/Desktop CTA box fade in
       tl.fromTo(ctaBoxRef.current,
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
-        0.86
+        0.78
       );
 
       // Golden border on video frame
@@ -210,7 +210,7 @@ export default function ScrollVideoHero() {
         border: '1px solid rgba(235,203,139,0.6)',
         boxShadow: '0 0 50px rgba(235,203,139,0.3), 0 30px 80px rgba(0,0,0,0.22)',
         duration: 0.04, ease: 'power2.inOut',
-      }, 0.87);
+      }, 0.79);
 
       // ── PHASE 5 (0.92–1.0): Exit — dissolve & lift ──────────────────────
       tl.to(
