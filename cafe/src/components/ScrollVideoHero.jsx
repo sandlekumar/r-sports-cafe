@@ -236,7 +236,7 @@ export default function ScrollVideoHero() {
       style={{
         '--mx': 0,
         '--my': 0,
-        height: isMobile ? '180vh' : '500vh',
+        height: isMobile ? '300vh' : '500vh',
       }}
     >
       <div ref={pinRef} className="w-full h-[100dvh] relative overflow-hidden bg-cream">
@@ -301,7 +301,7 @@ export default function ScrollVideoHero() {
           {/* Positioned below the video frame: video is at 50%/50% with 42-45vh height */}
           <div
             className="absolute left-0 w-full flex flex-col items-center text-center select-none px-4"
-            style={{ top: isMobile ? '68vh' : '74vh' }}
+            style={{ top: isMobile ? '72vh' : '74vh' }}
           >
             {/* Warm amber halo */}
             <div
