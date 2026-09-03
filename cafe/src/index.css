@@ -1,0 +1,473 @@
+@import "tailwindcss";
+
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-sandalBg text-darkText font-sans antialiased overflow-x-hidden;
+  }
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Lenis smooth scroll ────────────────────────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overflow: clip; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* ─── Scroll indicator ───────────────────────────────────────────────────── */
+@keyframes scroll-line {
+  0%        { transform: translateY(-100%); }
+  80%, 100% { transform: translateY(200%); }
+}
+.animate-scroll-line {
+  animation: scroll-line 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* ─── Shimmer Skeleton Loading ───────────────────────────────────────────── */
+@keyframes shimmer-skeleton {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer-skeleton 1.6s ease-in-out infinite !important;
+}
+
+/* ─── GPU-accelerated utility classes ───────────────────────────────────── */
+.will-change-transform { will-change: transform; }
+.will-change-opacity   { will-change: opacity; }
+
+/* ─── Global paper grain noise overlay ────────────────────────────────────── */
+/* GPU-composited: will-change promotes to own layer, no scroll repaint */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.038'/%3E%3C/svg%3E")
+    repeat;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ─── Glass panel breathing drift ───────────────────────────────────────── */
+@keyframes float-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%       { transform: translate3d(2px, -3px, 0) rotate(0.3deg); }
+}
+@keyframes float-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%       { transform: translate3d(-3px, 2px, 0) rotate(-0.3deg); }
+}
+@keyframes float-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%       { transform: translate3d(3px, 3px, 0) rotate(0.15deg); }
+}
+.animate-float-1 { animation: float-1 20s ease-in-out infinite; }
+.animate-float-2 { animation: float-2 24s ease-in-out infinite; }
+.animate-float-3 { animation: float-3 28s ease-in-out infinite; }
+
+/* ─── SCENE 07 — Cinematic light sweep (10 s cycle) ─────────────────────── */
+@keyframes light-sweep {
+  0%          { transform: translateX(-160%) skewX(-25deg); }
+  25%, 100%   { transform: translateX(260%) skewX(-25deg); }
+}
+.animate-light-sweep {
+  animation: light-sweep 10s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+/* ─── Logo shimmer ───────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%        { background-position: -200% 0; }
+  12%       { background-position:  200% 0; }
+  100%      { background-position:  200% 0; }
+}
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #111111 0%, #111111 40%,
+    rgba(255,255,255,0.6) 50%,
+    #111111 60%, #111111 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 20s ease-in-out infinite;
+}
+
+/* ─── Reflection mask ────────────────────────────────────────────────────── */
+.reflection-mask {
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.06) 0%, transparent 55%);
+  mask-image:         linear-gradient(to bottom, rgba(0,0,0,0.06) 0%, transparent 55%);
+}
+
+/* ─── Multi-layer floating depth shadow ──────────────────────────────────── */
+.shadow-premium-depth {
+  box-shadow:
+    0  2px   4px rgba(0,0,0,0.01),
+    0 10px  20px rgba(0,0,0,0.025),
+    0 25px  50px rgba(0,0,0,0.04),
+    0 60px 120px rgba(0,0,0,0.06);
+}
+
+/* ─── SCENE 02 — Ambient dust particles ─────────────────────────────────── */
+@keyframes dust-1 {
+  0%, 100% { transform: translate3d(  0px,   0px, 0); opacity: 0.06; }
+  33%       { transform: translate3d( 12px, -14px, 0); opacity: 0.12; }
+  66%       { transform: translate3d( -8px,   8px, 0); opacity: 0.08; }
+}
+@keyframes dust-2 {
+  0%, 100% { transform: translate3d(  0px,   0px, 0); opacity: 0.08; }
+  33%       { transform: translate3d(-14px,  10px, 0); opacity: 0.14; }
+  66%       { transform: translate3d( 10px,  -6px, 0); opacity: 0.06; }
+}
+@keyframes dust-3 {
+  0%, 100% { transform: translate3d(  0px,   0px, 0); opacity: 0.05; }
+  33%       { transform: translate3d( 16px,  12px, 0); opacity: 0.10; }
+  66%       { transform: translate3d( -6px, -10px, 0); opacity: 0.07; }
+}
+.animate-dust-1 { animation: dust-1 18s ease-in-out infinite; }
+.animate-dust-2 { animation: dust-2 23s ease-in-out infinite; }
+.animate-dust-3 { animation: dust-3 20s ease-in-out infinite; }
+
+/* ─── 3D Cursor Utilities ────────────────────────────────────────────────── */
+body.no-cursor, body.no-cursor * {
+  cursor: none !important;
+}
+
+/* ─── Gold Shimmer Text ──────────────────────────────────────────────────── */
+@keyframes shimmer-gold {
+  0%        { background-position: -200% 0; }
+  12%       { background-position:  200% 0; }
+  100%      { background-position:  200% 0; }
+}
+.shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    #D4AF37 0%, #D4AF37 40%,
+    #FFF8DC 50%,
+    #D4AF37 60%, #D4AF37 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer-gold 6s ease-in-out infinite;
+}
+
+/* ─── Gold Gradient Text ─────────────────────────────────────────────────── */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 40%, #D4AF37 70%, #B8860B 100%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ─── Animated Gold Underline (hover) ────────────────────────────────────── */
+.hover-underline-gold {
+  position: relative;
+}
+.hover-underline-gold::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #D4AF37, #F5E6A3);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-underline-gold:hover::after {
+  transform: scaleX(1);
+}
+
+@keyframes gold-pulse {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50%      { opacity: 0.25; transform: scale(1.05); }
+}
+.animate-gold-pulse {
+  animation: gold-pulse 4s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TURF PAGE — Premium Stadium Aesthetic
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Turf grain overlay ─────────────────────────────────────────────────── */
+.turf-grain-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")
+    repeat;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 9998;
+  mix-blend-mode: overlay;
+  transform: translateZ(0);
+}
+
+/* ─── Turf stadium smoke ─────────────────────────────────────────────────── */
+@keyframes turf-smoke-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); opacity: 0.03; }
+  25%  { transform: translate3d(30px, -20px, 0) scale(1.1); opacity: 0.06; }
+  50%  { transform: translate3d(-15px, -40px, 0) scale(1.15); opacity: 0.04; }
+  75%  { transform: translate3d(20px, -15px, 0) scale(1.05); opacity: 0.05; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.03; }
+}
+.turf-smoke {
+  animation: turf-smoke-drift 25s ease-in-out infinite;
+}
+.turf-smoke-2 {
+  animation: turf-smoke-drift 32s ease-in-out infinite reverse;
+}
+
+/* ─── Turf floodlight beam ───────────────────────────────────────────────── */
+@keyframes turf-beam-pulse {
+  0%, 100% { opacity: 0.04; }
+  50%      { opacity: 0.08; }
+}
+.turf-beam {
+  animation: turf-beam-pulse 6s ease-in-out infinite;
+}
+.turf-beam-2 {
+  animation: turf-beam-pulse 8s ease-in-out infinite 2s;
+}
+
+/* ─── Stadium light sweep ────────────────────────────────────────────────── */
+@keyframes turf-light-sweep {
+  0%          { transform: translateX(-200%) skewX(-20deg); opacity: 0; }
+  10%         { opacity: 0.6; }
+  30%, 100%   { transform: translateX(300%) skewX(-20deg); opacity: 0; }
+}
+.turf-light-sweep {
+  animation: turf-light-sweep 8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+/* ─── Floating particles ─────────────────────────────────────────────────── */
+@keyframes turf-particle-float {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.15; }
+  25%      { transform: translate3d(15px, -25px, 0); opacity: 0.4; }
+  50%      { transform: translate3d(-10px, -50px, 0); opacity: 0.2; }
+  75%      { transform: translate3d(20px, -30px, 0); opacity: 0.35; }
+}
+
+/* ─── Lime glow effect ───────────────────────────────────────────────────── */
+.turf-glow-lime {
+  box-shadow: 0 0 20px rgba(124, 252, 0, 0.15), 0 0 60px rgba(124, 252, 0, 0.05);
+}
+.turf-glow-lime-strong {
+  box-shadow: 0 0 30px rgba(124, 252, 0, 0.3), 0 0 80px rgba(124, 252, 0, 0.1);
+}
+.turf-glow-gold {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2), 0 0 60px rgba(212, 175, 55, 0.06);
+}
+.turf-glow-red {
+  box-shadow: 0 0 15px rgba(139, 37, 0, 0.2);
+}
+
+/* ─── Field line draw animation ──────────────────────────────────────────── */
+@keyframes turf-field-draw {
+  0%   { stroke-dashoffset: 1000; opacity: 0; }
+  10%  { opacity: 0.4; }
+  100% { stroke-dashoffset: 0; opacity: 0.4; }
+}
+.turf-field-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+.turf-field-line-animate {
+  animation: turf-field-draw 3s ease-out forwards;
+}
+
+/* ─── Scoreboard number style ────────────────────────────────────────────── */
+.turf-scoreboard {
+  font-family: 'Oswald', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Lime gradient text ─────────────────────────────────────────────────── */
+.turf-text-lime-gradient {
+  background: linear-gradient(135deg, #7CFC00 0%, #ADFF2F 50%, #7CFC00 100%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ─── Gold shimmer sweep on text ─────────────────────────────────────────── */
+@keyframes turf-gold-shimmer {
+  0%   { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+.turf-shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    #F7F5EF 0%, #F7F5EF 35%,
+    #D4AF37 45%, #FFF8DC 50%, #D4AF37 55%,
+    #F7F5EF 65%, #F7F5EF 100%
+  );
+  background-size: 300% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: turf-gold-shimmer 4s ease-in-out infinite;
+}
+
+/* ─── Magnetic button ────────────────────────────────────────────────────── */
+.turf-magnetic-btn {
+  transition: box-shadow 0.4s ease;
+}
+.turf-magnetic-btn:hover {
+  box-shadow: 0 0 40px rgba(124, 252, 0, 0.25), 0 0 100px rgba(124, 252, 0, 0.08);
+}
+
+/* ─── Section backgrounds ────────────────────────────────────────────────── */
+.turf-section-forest {
+  background: linear-gradient(180deg, #070707 0%, #0E1D13 50%, #070707 100%);
+}
+
+/* ─── Glass morphism (subtle) ────────────────────────────────────────────── */
+.turf-glass {
+  background: rgba(14, 29, 19, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(124, 252, 0, 0.06);
+}
+
+/* ─── Prefers reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .turf-smoke,
+  .turf-smoke-2,
+  .turf-beam,
+  .turf-beam-2,
+  .turf-light-sweep,
+  .turf-shimmer-gold {
+    animation: none !important;
+  }
+  .turf-grain-overlay {
+    display: none;
+  }
+}
+
+/* ─── Touch device: disable custom cursor ────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .turf-cursor-custom {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EVENTS SECTION — "Deep Red Scrapbook Stamp"
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Scalloped card border (postage stamp perforation) ──────────────────── */
+.ev-stamp-mask {
+  -webkit-mask: 
+    linear-gradient(#000 0 0) center/calc(100% - 12px) calc(100% - 12px) no-repeat,
+    radial-gradient(circle at 8px 8px, transparent 0, transparent 4.5px, black 5px) -8px -8px / 16px 16px;
+  -webkit-mask-composite: source-over;
+  mask: 
+    linear-gradient(#000 0 0) center/calc(100% - 12px) calc(100% - 12px) no-repeat,
+    radial-gradient(circle at 8px 8px, transparent 0, transparent 4.5px, black 5px) -8px -8px / 16px 16px;
+  mask-composite: add;
+}
+
+/* ─── Circular postal ink stamp ──────────────────────────────────────────── */
+.ev-ink-stamp {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  z-index: 20;
+  pointer-events: none;
+  text-align: center;
+  padding: 10px;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
+  /* A slight rotation is usually added inline */
+}
+
+/* ─── White version of ink stamp for dark background cards ───────────────── */
+.ev-ink-stamp-dark {
+  border-color: rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  mix-blend-mode: multiply;
+}
+
+/* ─── Stamp "thunk" settle animation ─────────────────────────────────────── */
+@keyframes stamp-settle {
+  0%   { transform: rotate(-20deg) scale(1.15); opacity: 0.5; }
+  40%  { transform: rotate(-5deg) scale(0.97); opacity: 1; }
+  70%  { transform: rotate(-10deg) scale(1.02); }
+  100% { transform: rotate(-8deg) scale(1); }
+}
+.stamp-settle {
+  animation: stamp-settle 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ─── Floating 3D shadow for cards ───────────────────────────────────────── */
+.ev-stamp-shadow {
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.4)) drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+}
+
+/* ─── Ribbon/Banner Style ────────────────────────────────────────────────── */
+.ev-ribbon {
+  position: relative;
+  background: #d32f2f;
+  color: white;
+  padding: 8px 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: inline-block;
+}
+.ev-ribbon::before, .ev-ribbon::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  border: 4px solid transparent;
+}
+.ev-ribbon::before {
+  left: 0;
+  border-top-color: #9a0007;
+  border-right-color: #9a0007;
+}
+.ev-ribbon::after {
+  right: 0;
+  border-top-color: #9a0007;
+  border-left-color: #9a0007;
+}
+
+/* ─── SEO Utility ────────────────────────────────────────────────────────── */
+.seo-text {
+  display: none;
+}
