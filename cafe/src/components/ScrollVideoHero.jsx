@@ -57,10 +57,16 @@ export default function ScrollVideoHero() {
     };
   }, [isMobile]);
 
+  /* ── Responsive window tracker ───────────────────────────────────────── */
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   /* ── Frame scrub + GSAP timeline ─────────────────────────────────────── */
   useEffect(() => {
-    const mobile = window.innerWidth < 768;
-    setIsMobile(mobile);
+    const mobile = isMobile;
 
     const video = videoRef.current;
     if (!video) return;
@@ -226,7 +232,7 @@ export default function ScrollVideoHero() {
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
 
   return (
     <div
