@@ -3,14 +3,20 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  html, body {
+    @apply overflow-x-hidden w-full m-0 p-0;
+  }
+  #root {
+    @apply overflow-x-hidden w-full;
+  }
   body {
-    @apply bg-sandalBg text-darkText font-sans antialiased overflow-x-hidden;
+    @apply bg-sandalBg text-darkText font-sans antialiased;
   }
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { display: none; }
-* { -ms-overflow-style: none; scrollbar-width: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; }
 
 /* ─── Lenis smooth scroll ────────────────────────────────────────────────── */
 html.lenis, html.lenis body { height: auto; }
@@ -471,3 +477,6 @@ body.no-cursor, body.no-cursor * {
 .seo-text {
   display: none;
 }
+
+@keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+.animate-fade-in-up { animation: fade-in-up 1s ease-out forwards; }
