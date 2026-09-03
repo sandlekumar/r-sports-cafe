@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../config.js';
 import '../admin.css';
 
 /* ─── Greeting helper ─────────────────────────────────────────────────────── */
@@ -277,10 +278,10 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const [statsRes, bookingsRes, tablesRes, customersRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/overview', { headers: getHeaders() }),
-        fetch(`http://localhost:5000/api/admin/bookings?status=${statusFilter}&search=${search}`, { headers: getHeaders() }),
-        fetch('http://localhost:5000/api/admin/tables', { headers: getHeaders() }),
-        fetch('http://localhost:5000/api/admin/customers', { headers: getHeaders() }),
+        fetch(`${API_BASE_URL}/admin/overview`, { headers: getHeaders() }),
+        fetch(`${API_BASE_URL}/admin/bookings?status=${statusFilter}&search=${search}`, { headers: getHeaders() }),
+        fetch(`${API_BASE_URL}/admin/tables`, { headers: getHeaders() }),
+        fetch(`${API_BASE_URL}/admin/customers`, { headers: getHeaders() }),
       ]);
       if (statsRes.ok)    { const d = await statsRes.json();    if (d.success) setStats(d.data); }
       if (bookingsRes.ok) { const d = await bookingsRes.json(); if (d.success) setBookings(d.data); }
@@ -293,7 +294,7 @@ export default function AdminDashboard() {
   const fetchEvents = async () => {
     setEventsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/admin/events', { headers: getHeaders() });
+      const res = await fetch(`${API_BASE_URL}/admin/events`, { headers: getHeaders() });
       const d = await res.json();
       if (d.success) setEvents(d.data);
     } catch (err) { console.error('Failed to load events:', err); }
@@ -303,7 +304,7 @@ export default function AdminDashboard() {
   const fetchMenuItems = async () => {
     setMenuLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/admin/menu', { headers: getHeaders() });
+      const res = await fetch(`${API_BASE_URL}/admin/menu`, { headers: getHeaders() });
       const d = await res.json();
       if (d.success) setMenuItems(d.data);
     } catch (err) { console.error('Failed to load menu items:', err); }
@@ -313,7 +314,7 @@ export default function AdminDashboard() {
   const fetchReels = async () => {
     setReelsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/admin/reels', { headers: getHeaders() });
+      const res = await fetch(`${API_BASE_URL}/admin/reels`, { headers: getHeaders() });
       const d = await res.json();
       if (d.success) setReels(d.data);
     } catch (err) { console.error('Failed to load reels:', err); }
@@ -328,7 +329,7 @@ export default function AdminDashboard() {
   const handleStatusChange = async (bookingId, newStatus) => {
     setUpdatingId(bookingId);
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/bookings/${bookingId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/admin/bookings/${bookingId}/status`, {
         method: 'PATCH', headers: getHeaders(), body: JSON.stringify({ status: newStatus }),
       });
       const data = await response.json();
@@ -367,7 +368,7 @@ export default function AdminDashboard() {
     if (!eventForm.title || !eventForm.date) { setEventFormError('Title and date are required.'); return; }
     setEventSaving(true); setEventFormError('');
     try {
-      const url = editingEvent ? `http://localhost:5000/api/admin/events/${editingEvent._id}` : `http://localhost:5000/api/admin/events`;
+      const url = editingEvent ? `${API_BASE_URL}/admin/events/${editingEvent._id}` : `${API_BASE_URL}/admin/events`;
       const method = editingEvent ? 'PUT' : 'POST';
       const res = await fetch(url, { method, headers: getHeaders(), body: JSON.stringify(eventForm) });
       const d = await res.json();
@@ -379,7 +380,7 @@ export default function AdminDashboard() {
 
   const handleDeleteEvent = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/events/${id}`, { method: 'DELETE', headers: getHeaders() });
+      const res = await fetch(`${API_BASE_URL}/admin/events/${id}`, { method: 'DELETE', headers: getHeaders() });
       const d = await res.json();
       if (d.success) { setDeleteConfirm(null); fetchEvents(); }
     } catch (err) { console.error('Failed to delete event:', err); }
@@ -391,7 +392,7 @@ export default function AdminDashboard() {
     const formData = new FormData();
     formData.append('photo', file);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/events/${eventId}/photo`, {
+      const res = await fetch(`${API_BASE_URL}/admin/events/${eventId}/photo`, {
         method: 'POST', headers: getAuthHeaders(), body: formData,
       });
       const d = await res.json();
@@ -436,8 +437,8 @@ export default function AdminDashboard() {
     setMenuFormError('');
     try {
       const url = editingMenuItem
-        ? `http://localhost:5000/api/admin/menu/${editingMenuItem._id}`
-        : `http://localhost:5000/api/admin/menu`;
+        ? `${API_BASE_URL}/admin/menu/${editingMenuItem._id}`
+        : `${API_BASE_URL}/admin/menu`;
       const method = editingMenuItem ? 'PUT' : 'POST';
       const res = await fetch(url, { method, headers: getHeaders(), body: JSON.stringify(menuForm) });
       const d = await res.json();
@@ -454,7 +455,7 @@ export default function AdminDashboard() {
 
   const handleDeleteMenuItem = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/menu/${id}`, { method: 'DELETE', headers: getHeaders() });
+      const res = await fetch(`${API_BASE_URL}/admin/menu/${id}`, { method: 'DELETE', headers: getHeaders() });
       const d = await res.json();
       if (d.success) {
         setMenuDeleteConfirm(null);
@@ -471,7 +472,7 @@ export default function AdminDashboard() {
     const formData = new FormData();
     formData.append('photo', file);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/menu/${itemId}/photo`, {
+      const res = await fetch(`${API_BASE_URL}/admin/menu/${itemId}/photo`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: formData,
@@ -491,7 +492,7 @@ export default function AdminDashboard() {
     const formData = new FormData();
     formData.append('video', file);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/menu/${itemId}/video`, {
+      const res = await fetch(`${API_BASE_URL}/admin/menu/${itemId}/video`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: formData,
@@ -538,8 +539,8 @@ export default function AdminDashboard() {
     setReelFormError('');
     try {
       const url = editingReel
-        ? `http://localhost:5000/api/admin/reels/${editingReel._id}`
-        : `http://localhost:5000/api/admin/reels`;
+        ? `${API_BASE_URL}/admin/reels/${editingReel._id}`
+        : `${API_BASE_URL}/admin/reels`;
       const method = editingReel ? 'PUT' : 'POST';
       const res = await fetch(url, { method, headers: getHeaders(), body: JSON.stringify(reelForm) });
       const d = await res.json();
@@ -556,7 +557,7 @@ export default function AdminDashboard() {
 
   const handleDeleteReel = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/reels/${id}`, { method: 'DELETE', headers: getHeaders() });
+      const res = await fetch(`${API_BASE_URL}/admin/reels/${id}`, { method: 'DELETE', headers: getHeaders() });
       const d = await res.json();
       if (d.success) {
         setReelDeleteConfirm(null);
@@ -573,7 +574,7 @@ export default function AdminDashboard() {
     const formData = new FormData();
     formData.append('video', file);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/reels/${reelId}/video`, {
+      const res = await fetch(`${API_BASE_URL}/admin/reels/${reelId}/video`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: formData,
@@ -592,7 +593,7 @@ export default function AdminDashboard() {
     setBookingFormError('');
     setBookingSaving(true);
     try {
-      const res = await fetch('http://localhost:5000/api/public/table-bookings', {
+      const res = await fetch(`${API_BASE_URL}/public/table-bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -990,7 +991,7 @@ export default function AdminDashboard() {
                             {/* Trending toggle */}
                             <button
                               onClick={async () => {
-                                await fetch(`http://localhost:5000/api/admin/events/${ev._id}`, {
+                                await fetch(`${API_BASE_URL}/admin/events/${ev._id}`, {
                                   method: 'PUT', headers: getHeaders(), body: JSON.stringify({ is_trending: !ev.is_trending }),
                                 });
                                 fetchEvents();
@@ -1005,7 +1006,7 @@ export default function AdminDashboard() {
                             {/* Featured toggle */}
                             <button
                               onClick={async () => {
-                                await fetch(`http://localhost:5000/api/admin/events/${ev._id}`, {
+                                await fetch(`${API_BASE_URL}/admin/events/${ev._id}`, {
                                   method: 'PUT', headers: getHeaders(), body: JSON.stringify({ is_featured: !ev.is_featured }),
                                 });
                                 fetchEvents();
@@ -1161,7 +1162,7 @@ export default function AdminDashboard() {
                             {/* Trending toggle */}
                             <button
                               onClick={async () => {
-                                await fetch(`http://localhost:5000/api/admin/menu/${item._id}`, {
+                                await fetch(`${API_BASE_URL}/admin/menu/${item._id}`, {
                                   method: 'PUT',
                                   headers: getHeaders(),
                                   body: JSON.stringify({ is_trending: !item.is_trending }),
