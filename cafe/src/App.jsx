@@ -16,7 +16,6 @@ import Cursor3D from './components/cursor/Cursor3D';
 import SectionColorMorph from './components/SectionColorMorph';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
-import ScrollReveal from './components/ScrollReveal';
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -72,28 +71,28 @@ export default function App() {
         <ScrollVideoHero />
 
         {/* Philosophy / About Section */}
-        <ScrollReveal><Philosophy /></ScrollReveal>
+        <Philosophy />
 
         {/* Exclusive VIP Events Section */}
-        <ScrollReveal><Events /></ScrollReveal>
+        <Events />
 
         {/* Interactive Luxury Menu Section */}
-        <ScrollReveal><Menu /></ScrollReveal>
+        <Menu />
 
         {/* High-End Sports Club Campaign Turf Section */}
-        <ScrollReveal><Turf /></ScrollReveal>
+        <Turf />
 
         {/* Pinned Film Strip Horizontal Gallery Section */}
-        <ScrollReveal><Gallery /></ScrollReveal>
+        <Gallery />
 
         {/* Instagram-Style Video Reels Section */}
-        <ScrollReveal><Reels /></ScrollReveal>
+        <Reels />
 
         {/* Awwwards-Level Reviews Section */}
-        <ScrollReveal><Reviews /></ScrollReveal>
+        <Reviews />
 
         {/* Luxury Booking Form Section */}
-        <ScrollReveal><Booking /></ScrollReveal>
+        <Booking />
 
         {/* Hyper-Aesthetic Luxury Footer */}
         <footer className="bg-night text-lightText pt-32 pb-12 px-6 md:px-20 border-t-2 border-t-gold/20 relative overflow-hidden">

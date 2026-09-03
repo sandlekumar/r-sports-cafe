@@ -7,21 +7,15 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function SmoothScroll({ children }) {
   useEffect(() => {
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    if (isTouch) {
-      window.__lenis = { stop: () => {}, start: () => {} };
-      return () => { window.__lenis = null; };
-    }
-
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
+      smoothTouch: false,
+      touchMultiplier: 1,
       wheelMultiplier: 1.2,
-      touchMultiplier: 1.2,
       infinite: false,
     });
 

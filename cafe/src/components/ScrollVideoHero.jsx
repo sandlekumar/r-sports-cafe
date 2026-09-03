@@ -71,9 +71,9 @@ export default function ScrollVideoHero() {
     ctxCanvas.imageSmoothingEnabled = true;
     ctxCanvas.imageSmoothingQuality = mobile ? 'medium' : 'high';
 
-    // On mobile load every 15th frame for performance (~60 frames total)
+    // On mobile load every 3rd frame for performance
     const totalFrames = 903;
-    const frameStep = mobile ? 15 : 1;
+    const frameStep = mobile ? 3 : 1;
     const images = [];
 
     for (let i = 1; i <= totalFrames; i += frameStep) {

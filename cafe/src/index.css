@@ -71,13 +71,6 @@ html.lenis, html.lenis body { height: auto; }
   transform: translateZ(0);
 }
 
-/* ─── Performance Optimization ──────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .noise-overlay {
-    display: none !important;
-  }
-}
-
 /* ─── Glass panel breathing drift ───────────────────────────────────────── */
 @keyframes float-1 {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
