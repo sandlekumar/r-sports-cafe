@@ -123,14 +123,14 @@ export default function Philosophy() {
       </div>
       {/* Background Watermark Faded Text */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
-        <span className="font-sans font-bold text-[9vw] text-neutral-900 opacity-[0.02] tracking-[0.08em] whitespace-nowrap">
+        <span className="font-sans font-bold text-[12vw] md:text-[9vw] text-neutral-900 opacity-[0.02] tracking-[0.08em] whitespace-nowrap">
           R SPORTS & CAFE
         </span>
       </div>
 
       {/* Large Decorative Quotation Mark in Background */}
       <div className="absolute -top-10 left-6 md:top-12 md:left-20 pointer-events-none select-none z-0">
-        <span className="font-sans font-bold text-[300px] md:text-[500px] text-sandalAccent opacity-[0.12] leading-none select-none">
+        <span className="font-sans font-bold text-[180px] md:text-[500px] text-sandalAccent opacity-[0.06] md:opacity-[0.12] leading-none select-none">
           “
         </span>
       </div>

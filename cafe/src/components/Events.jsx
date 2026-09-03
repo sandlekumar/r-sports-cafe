@@ -43,8 +43,8 @@ const getVariant = (pos, isMobile) => {
   if (isMobile) {
     switch (pos) {
       case 'center': return { x: 0, y: 0, rotate: 0, scale: 1, zIndex: 30, opacity: 1 };
-      case 'left': return { x: -60, y: -20, rotate: -8, scale: 0.85, zIndex: 10, opacity: 0.3 };
-      case 'right': return { x: 60, y: -20, rotate: 8, scale: 0.85, zIndex: 10, opacity: 0.3 };
+      case 'left': return { x: -45, y: -15, rotate: -6, scale: 0.90, zIndex: 10, opacity: 0.4 };
+      case 'right': return { x: 45, y: -15, rotate: 6, scale: 0.90, zIndex: 10, opacity: 0.4 };
       case 'bottomRight': return { x: 0, y: 30, rotate: 0, scale: 0.8, zIndex: 5, opacity: 0.1 };
       default: return { opacity: 0 };
     }
@@ -166,6 +166,15 @@ export default function Events() {
 
       {/* Interactive Card Canvas Area */}
       <div className="relative w-full max-w-6xl h-[520px] sm:h-[620px] md:h-[720px] flex items-center justify-center my-auto z-10">
+        {/* Mobile Swipe Indicator */}
+        {isMobile && (
+          <div className="absolute -top-6 sm:-top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[#111111]/50 pointer-events-none z-50">
+            <svg className="w-4 h-4 animate-bounce-horizontal rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <span className="font-sans text-[10px] uppercase tracking-widest font-semibold">Swipe to explore</span>
+            <svg className="w-4 h-4 animate-bounce-horizontal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </div>
+        )}
+        
         {displayEvents.map((event, idx) => {
           const pos = getPosition(idx);
           const isCenter = pos === 'center';
