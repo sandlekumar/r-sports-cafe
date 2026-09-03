@@ -198,7 +198,7 @@ export default function ScrollVideoHero() {
         stagger: 0.003,
       }, 0.84);
 
-      // Desktop CTA box fade in
+      // Mobile/Desktop CTA box fade in
       tl.fromTo(ctaBoxRef.current,
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
@@ -236,7 +236,7 @@ export default function ScrollVideoHero() {
       style={{
         '--mx': 0,
         '--my': 0,
-        height: isMobile ? '350vh' : '500vh',
+        height: isMobile ? '180vh' : '500vh',
       }}
     >
       <div ref={pinRef} className="w-full h-[100dvh] relative overflow-hidden bg-cream">
@@ -395,11 +395,12 @@ export default function ScrollVideoHero() {
 
             {/* Glass CTA card — positioned in bottom third of viewport */}
             <div
-              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto"
+              ref={ctaBoxRef}
+              className="absolute left-1/2 -translate-x-1/2 opacity-0 pointer-events-auto"
               style={{ bottom: '8vh', width: '88vw', maxWidth: '400px' }}
             >
               <div
-                className="rounded-[24px] px-6 py-7 flex flex-col items-center gap-4 text-center animate-fade-in-up"
+                className="rounded-[24px] px-6 py-7 flex flex-col items-center gap-4 text-center"
                 style={{
                   background: 'rgba(255, 253, 248, 0.55)',
                   backdropFilter: 'blur(20px) saturate(1.4)',
