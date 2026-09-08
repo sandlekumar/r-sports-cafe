@@ -205,7 +205,7 @@ export default function Events() {
                   style={{ aspectRatio: isCenter ? (isMobile ? '16/11' : '16/10') : '1/1' }}
                 >
                   {event.photo ? (
-                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]" alt="" />
+                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]" alt="" loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
                       <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>

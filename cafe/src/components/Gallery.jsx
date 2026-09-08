@@ -204,6 +204,8 @@ export default function Gallery() {
                   ref={(el) => (imageRefs.current[idx] = el)}
                   src={item.src}
                   alt={item.title}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105"
                 />
               </div>
@@ -243,6 +245,8 @@ export default function Gallery() {
                   <img
                     src={item.src}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </div>

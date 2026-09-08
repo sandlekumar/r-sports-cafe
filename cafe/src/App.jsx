@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 import SmoothScroll from './components/SmoothScroll';
 import Preloader from './components/Preloader';
@@ -8,14 +8,19 @@ import Events from './components/Events';
 import Philosophy from './components/Philosophy';
 import Menu from './components/Menu';
 import Turf from './components/Turf';
-import Gallery from './components/Gallery';
-import Reels from './components/Reels';
-import Reviews from './components/Reviews';
-import Booking from './components/Booking';
-import Cursor3D from './components/cursor/Cursor3D';
 import SectionColorMorph from './components/SectionColorMorph';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
+
+// Lazy load below-fold heavy components
+const Gallery = lazy(() => import('./components/Gallery'));
+const Reels = lazy(() => import('./components/Reels'));
+const Reviews = lazy(() => import('./components/Reviews'));
+const Booking = lazy(() => import('./components/Booking'));
+
+// Lazy load Cursor3D — loads THREE.js (~600KB), only on desktop
+const Cursor3D = lazy(() => import('./components/cursor/Cursor3D'));
+const isDesktop = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)').matches;
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -62,8 +67,12 @@ export default function App() {
         {/* Background color morph between sections */}
         <SectionColorMorph />
 
-        {/* 3D Custom Cursor Overlay */}
-        <Cursor3D />
+        {/* 3D Custom Cursor Overlay — desktop only, lazy loaded */}
+        {isDesktop && (
+          <Suspense fallback={null}>
+            <Cursor3D />
+          </Suspense>
+        )}
 
         {/* Premium Luxury Navbar (Moved to main.jsx for global presence) */}
 
@@ -82,17 +91,20 @@ export default function App() {
         {/* High-End Sports Club Campaign Turf Section */}
         <Turf />
 
-        {/* Pinned Film Strip Horizontal Gallery Section */}
-        <Gallery />
+        {/* Below-fold heavy sections — lazy loaded */}
+        <Suspense fallback={null}>
+          {/* Pinned Film Strip Horizontal Gallery Section */}
+          <Gallery />
 
-        {/* Instagram-Style Video Reels Section */}
-        <Reels />
+          {/* Instagram-Style Video Reels Section */}
+          <Reels />
 
-        {/* Awwwards-Level Reviews Section */}
-        <Reviews />
+          {/* Awwwards-Level Reviews Section */}
+          <Reviews />
 
-        {/* Luxury Booking Form Section */}
-        <Booking />
+          {/* Luxury Booking Form Section */}
+          <Booking />
+        </Suspense>
 
         {/* Hyper-Aesthetic Luxury Footer */}
         <footer className="bg-night text-lightText pt-32 pb-12 px-6 md:px-20 border-t-2 border-t-gold/20 relative overflow-hidden">

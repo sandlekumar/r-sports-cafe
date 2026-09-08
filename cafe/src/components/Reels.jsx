@@ -3,21 +3,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-
-import reel1 from '../assets/reels/AQNzVLhQTdWKCShaaaWlnvQOT_4tt9gK0FdvK5S2bYdMoh03GqEckpE67yg1tL1JPKODukbUGq9BFEwpCuwJlPFXMdW_v2XdW-I0cDE.mp4';
-import reel2 from '../assets/reels/AQOLp1N__PVA7dZLkBpvZmIduLLNp0RyYX6A5CiLnkTpdJ0sQqm966i_ViFWEaSu-SxFcRAqKuntLh6aJkY_aYLZvZ1Ch06jjeZMHF0.mp4';
-import reel3 from '../assets/reels/AQOokh-zcmZeKyqmRUcP_hou1Xx3Fgdgf3UZsLEF0CoQf0h6rK8y12LrqWQ01ekXngZAcTAN441zvitWtRO65HjexiarNScpg5NDfaQ.mp4';
-import reel4 from '../assets/reels/AQPF4qzhN5QzQa4gIIuBCuY3GaORcmO4P8KLUwyMw9LlFQvrYqe5clVRd6wiouHNW5g98wNcI5YLwVDrq0_okQwmfyRsNhLrc3ko9g0.mp4';
-import reel5 from '../assets/reels/AQPSAUoTHL4yeDZQyGTBGWHyVR1mx6UkTra8ooj3HE5A0EO9sR1UY7Jat-yFy7sVEBcRuLtCYMfkI0GsP98q4s1s9ls8ZhLenrgns0I.mp4';
 import './Reels.css';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/* ─── Reels Data ─────────────────────────────────────────────────────────── */
+/* ─── Reel video filenames (NOT imported — loaded lazily) ────────────── */
+const REEL_FILENAMES = [
+  'AQNzVLhQTdWKCShaaaWlnvQOT_4tt9gK0FdvK5S2bYdMoh03GqEckpE67yg1tL1JPKODukbUGq9BFEwpCuwJlPFXMdW_v2XdW-I0cDE.mp4',
+  'AQOLp1N__PVA7dZLkBpvZmIduLLNp0RyYX6A5CiLnkTpdJ0sQqm966i_ViFWEaSu-SxFcRAqKuntLh6aJkY_aYLZvZ1Ch06jjeZMHF0.mp4',
+  'AQOokh-zcmZeKyqmRUcP_hou1Xx3Fgdgf3UZsLEF0CoQf0h6rK8y12LrqWQ01ekXngZAcTAN441zvitWtRO65HjexiarNScpg5NDfaQ.mp4',
+  'AQPF4qzhN5QzQa4gIIuBCuY3GaORcmO4P8KLUwyMw9LlFQvrYqe5clVRd6wiouHNW5g98wNcI5YLwVDrq0_okQwmfyRsNhLrc3ko9g0.mp4',
+  'AQPSAUoTHL4yeDZQyGTBGWHyVR1mx6UkTra8ooj3HE5A0EO9sR1UY7Jat-yFy7sVEBcRuLtCYMfkI0GsP98q4s1s9ls8ZhLenrgns0I.mp4',
+];
+
+/* ─── Reels Data (uses lazy string paths, NOT bundled imports) ──────── */
 const DEFAULT_REELS = [
   {
     id: 1,
-    src: reel1,
+    src: `/src/assets/reels/${REEL_FILENAMES[0]}`,
     handle: '@rsports.cafe',
     caption: 'Match day energy hits different ⚡',
     likes: '2.4K',
@@ -26,7 +29,7 @@ const DEFAULT_REELS = [
   },
   {
     id: 2,
-    src: reel2,
+    src: `/src/assets/reels/${REEL_FILENAMES[1]}`,
     handle: '@rsports.cafe',
     caption: 'Night sessions under the lights 🌙',
     likes: '3.1K',
@@ -35,7 +38,7 @@ const DEFAULT_REELS = [
   },
   {
     id: 3,
-    src: reel3,
+    src: `/src/assets/reels/${REEL_FILENAMES[2]}`,
     handle: '@rsports.cafe',
     caption: 'From the kitchen to the pitch 🍕⚽',
     likes: '1.8K',
@@ -44,7 +47,7 @@ const DEFAULT_REELS = [
   },
   {
     id: 4,
-    src: reel4,
+    src: `/src/assets/reels/${REEL_FILENAMES[3]}`,
     handle: '@rsports.cafe',
     caption: 'Weekend vibes at R Sports 🔥',
     likes: '4.2K',
@@ -53,7 +56,7 @@ const DEFAULT_REELS = [
   },
   {
     id: 5,
-    src: reel5,
+    src: `/src/assets/reels/${REEL_FILENAMES[4]}`,
     handle: '@rsports.cafe',
     caption: 'Action-packed moments ⚽🔥',
     likes: '5.1K',
@@ -73,6 +76,24 @@ export default function Reels() {
   const [playingStates, setPlayingStates] = useState(() => DEFAULT_REELS.map(() => false));
   const [progressStates, setProgressStates] = useState(() => DEFAULT_REELS.map(() => 0));
   const progressIntervals = useRef([]);
+  const [sectionVisible, setSectionVisible] = useState(false);
+
+  // Only start loading videos when section is in view
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setSectionVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   // Fetch live reels from backend API
   useEffect(() => {
@@ -136,21 +157,27 @@ export default function Reels() {
     }
   }, { scope: sectionRef });
 
-  /* ── Scroll-based video play/pause ──────────────────────────────────── */
+  /* ── Scroll-based video play/pause — only for visible adjacent videos ── */
   useEffect(() => {
+    if (!sectionVisible) return;
+    
     const observers = videoRefs.current.map((video, i) => {
       if (!video) return null;
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            video.play().catch(() => {});
-            setPlayingStates(prev => { const n = [...prev]; n[i] = true; return n; });
+            // Only play center and adjacent videos
+            const distance = Math.abs(i - carouselIndex);
+            if (distance <= 1) {
+              video.play().catch(() => {});
+              setPlayingStates(prev => { const n = [...prev]; n[i] = true; return n; });
+            }
           } else {
             video.pause();
             setPlayingStates(prev => { const n = [...prev]; n[i] = false; return n; });
           }
         },
-        { threshold: 0.5 }
+        { threshold: 0.3 }
       );
       observer.observe(video);
       return observer;
@@ -159,12 +186,18 @@ export default function Reels() {
     return () => {
       observers.forEach(obs => obs?.disconnect());
     };
-  }, []);
+  }, [sectionVisible, carouselIndex]);
 
-  /* ── Progress tracking ──────────────────────────────────────────────── */
+  /* ── Progress tracking — only for visible center reel ──────────────── */
   useEffect(() => {
+    if (!sectionVisible) return;
+    
     const intervals = videoRefs.current.map((video, i) => {
       if (!video) return null;
+      // Only track progress for center and adjacent cards
+      const distance = Math.abs(i - carouselIndex);
+      if (distance > 1) return null;
+      
       return setInterval(() => {
         if (video.duration) {
           setProgressStates(prev => {
@@ -173,11 +206,11 @@ export default function Reels() {
             return n;
           });
         }
-      }, 100);
+      }, 200); // Reduced from 100ms to 200ms
     });
     progressIntervals.current = intervals;
     return () => intervals.forEach(id => id && clearInterval(id));
-  }, []);
+  }, [sectionVisible, carouselIndex]);
 
   const toggleMute = (index) => {
     const video = videoRefs.current[index];
@@ -221,6 +254,13 @@ export default function Reels() {
     if (index < carouselIndex - 1) return 'hidden-left';
     if (index > carouselIndex + 1) return 'hidden-right';
     return '';
+  };
+
+  /* ── Should this reel have its video loaded? ────────────────────────── */
+  const shouldLoadVideo = (index) => {
+    if (!sectionVisible) return false;
+    // Load center + 1 adjacent on each side
+    return Math.abs(index - carouselIndex) <= 1;
   };
 
   /* ── Fullscreen Reel Viewer ─────────────────────────────────────────── */
@@ -305,23 +345,33 @@ export default function Reels() {
             >
               {reelsList.map((reel, index) => {
                 const positionClass = getCardClass(index);
+                const loadVideo = shouldLoadVideo(index);
                 return (
                   <div
                     key={reel.id}
                     className={`reels-carousel-card group relative bg-white border-[6px] md:border-[8px] border-white overflow-hidden ${positionClass}`}
                     onClick={() => handleCardClick(index)}
                   >
-              {/* Video */}
-              <video
-                ref={el => videoRefs.current[index] = el}
-                src={reel.src}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              {/* Video — only load if adjacent to active */}
+              {loadVideo ? (
+                <video
+                  ref={el => videoRefs.current[index] = el}
+                  src={reel.src}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-neutral-800 to-neutral-900 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-white/20 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white/40 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5,3 19,12 5,21" />
+                    </svg>
+                  </div>
+                </div>
+              )}
 
               {/* Cinematic overlays */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none z-10" />

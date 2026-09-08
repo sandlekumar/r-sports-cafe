@@ -4,10 +4,11 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import video1 from '../assets/hero-video-opt.mp4';
-import video2 from '../assets/turf.mp4';
-import video3 from '../assets/hero-video-opt.mp4';
-import video4 from '../assets/turf.mp4';
+// Use URL constructor to avoid Vite bundling these large video files
+const video1 = new URL('../assets/hero-video-opt.mp4', import.meta.url).href;
+const video2 = new URL('../assets/turf.mp4', import.meta.url).href;
+const video3 = video1; // Same video reused
+const video4 = video2; // Same video reused
 
 import burgerImg from '../assets/signature_burger.png';
 import pizzaImg from '../assets/signature_pizza.png';

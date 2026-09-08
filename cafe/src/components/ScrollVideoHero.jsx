@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import muralPng from '../assets/architectural-sketch-collage.png.png';
+
+// Use string path to avoid Vite bundling the 2.6MB image
+const muralPngPath = new URL('../assets/architectural-sketch-collage.png.png', import.meta.url).href;
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,6 +32,7 @@ export default function ScrollVideoHero() {
   const titleGlowRef  = useRef(null);
   const videoRef      = useRef(null);
   const scrollIndicatorRef = useRef(null);
+  const muralImgRef   = useRef(null);
 
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' && window.innerWidth < 768
@@ -64,44 +67,246 @@ export default function ScrollVideoHero() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  /* ── Frame scrub + GSAP timeline ─────────────────────────────────────── */
+  /* ── Lazy load mural image on intersection ──────────────────────────── */
+  useEffect(() => {
+    if (!muralImgRef.current) return;
+    const img = muralImgRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          img.src = muralPngPath;
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(img);
+    return () => observer.disconnect();
+  }, []);
+
+  /* ── Frame scrub (desktop) / Video (mobile) + GSAP timeline ──────── */
   useEffect(() => {
     const mobile = isMobile;
+    const canvasEl = videoRef.current;
+    if (!canvasEl) return;
 
-    const video = videoRef.current;
-    if (!video) return;
-    const ctxCanvas = video.getContext('2d');
+    // ── MOBILE: Use a simple <video> approach with progress scrubbing ──
+    if (mobile) {
+      // On mobile, we use a video element instead of canvas frame scrubbing
+      // The video is already rendered in JSX below as a <video> tag
+      // Just set up the GSAP timeline for shrink/title animations
 
-    video.width = mobile ? 960 : 1920;
-    video.height = mobile ? 540 : 1080;
-    ctxCanvas.imageSmoothingEnabled = true;
-    ctxCanvas.imageSmoothingQuality = mobile ? 'medium' : 'high';
+      const ctx = gsap.context(() => {
+        if (imageFrameRef.current) {
+          gsap.set(imageFrameRef.current, { xPercent: -50, yPercent: -50 });
+        }
 
-    // On mobile load every 3rd frame for performance
-    const totalFrames = 903;
-    const frameStep = mobile ? 3 : 1;
-    const images = [];
+        // Scroll indicator entrance
+        if (scrollIndicatorRef.current) {
+          gsap.fromTo(scrollIndicatorRef.current,
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 1.8 }
+          );
+        }
 
-    for (let i = 1; i <= totalFrames; i += frameStep) {
-      const img = new Image();
-      img.src = `/assets/hero-frames/frame_${i.toString().padStart(5, '0')}.jpg`;
-      images.push(img);
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.3,
+            pin: pinRef.current,
+            pinSpacing: false,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // Fade scroll indicator
+        tl.to(scrollIndicatorRef.current, {
+          opacity: 0, y: -30, duration: 0.05, ease: 'power1.out',
+        }, 0);
+
+        // Video scrub: control video currentTime via scroll
+        const videoEl = canvasEl; // on mobile, this is the <video> element
+        if (videoEl && videoEl.tagName === 'VIDEO') {
+          // Wait for metadata to load
+          const onMeta = () => {
+            tl.to({ progress: 0 }, {
+              progress: 1,
+              ease: 'none',
+              duration: 0.60,
+              onUpdate: function() {
+                const p = this.progress();
+                if (videoEl.duration) {
+                  videoEl.currentTime = p * videoEl.duration;
+                }
+              },
+            }, 0);
+          };
+          if (videoEl.readyState >= 1) onMeta();
+          else videoEl.addEventListener('loadedmetadata', onMeta, { once: true });
+        }
+
+        // ── PHASE 2: Video shrinks
+        const shrinkW = '92vw';
+        const shrinkH = '42vh';
+        const shrinkR = '16px';
+
+        tl.to(imageFrameRef.current, {
+          width: shrinkW, height: shrinkH, borderRadius: shrinkR,
+          border: '1px solid rgba(17,17,17,0.12)',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
+          duration: 0.12, ease: 'power4.inOut',
+        }, 0.60);
+
+        // ── PHASE 3: Mural bleeds in
+        tl.fromTo(artworkRef.current,
+          { opacity: 0, scale: 1.05 },
+          { opacity: 0.5, scale: 1, duration: 0.10, ease: 'power4.out' },
+          0.72
+        );
+
+        // ── PHASE 4: Title + CTA
+        tl.fromTo(titleGlowRef.current,
+          { opacity: 0, scale: 0.6 },
+          { opacity: 1, scale: 1, duration: 0.06, ease: 'power3.out' },
+          0.74
+        );
+
+        tl.fromTo('.svh-energy-line',
+          { scaleX: 0, opacity: 0 },
+          { scaleX: 1, opacity: 1, duration: 0.05, ease: 'expo.out' },
+          0.74
+        );
+
+        tl.fromTo('.svh-title-char',
+          { opacity: 0, rotationX: 40, scale: 0.78, y: 12 },
+          {
+            opacity: 1, rotationX: 0, scale: 1, y: 0,
+            stagger: 0.002, duration: 0.05, ease: 'power4.out',
+            transformOrigin: '50% 100%',
+          },
+          0.75
+        );
+
+        tl.fromTo(sweepRef.current,
+          { left: '-50%', x: 0, opacity: 0, skewX: -20 },
+          { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.06, ease: 'power3.inOut' },
+          0.755
+        );
+
+        tl.to('.svh-title-char', {
+          keyframes: [
+            { color: '#F0D080', textShadow: '0 0 20px rgba(240,200,100,0.8)', duration: 0.02 },
+            { color: '#111111', textShadow: '0 0 0px transparent', duration: 0.02 },
+          ],
+          stagger: 0.003,
+        }, 0.76);
+
+        tl.fromTo(ctaBoxRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
+          0.78
+        );
+
+        tl.to(imageFrameRef.current, {
+          border: '1px solid rgba(235,203,139,0.6)',
+          boxShadow: '0 0 50px rgba(235,203,139,0.3), 0 30px 80px rgba(0,0,0,0.22)',
+          duration: 0.04, ease: 'power2.inOut',
+        }, 0.79);
+
+        // ── PHASE 5: Exit
+        tl.to(
+          [artworkRef.current, '.svh-title-char', titleGlowRef.current,
+           '.svh-energy-line', ctaBoxRef.current],
+          { opacity: 0, y: -10, duration: 0.04, ease: 'power3.in', stagger: 0.002 },
+          0.92
+        );
+        tl.to(imageFrameRef.current,
+          { yPercent: -175, scale: 0.96, opacity: 0, duration: 0.08, ease: 'power3.inOut' },
+          0.92
+        );
+      }, containerRef);
+
+      return () => ctx.revert();
     }
 
-    const frameCount = images.length;
-    const imageObj = { frame: 0 };
+    // ── DESKTOP: Progressive frame loading in batches ──────────────────
+    const ctxCanvas = canvasEl.getContext('2d');
+    canvasEl.width = 1920;
+    canvasEl.height = 1080;
+    ctxCanvas.imageSmoothingEnabled = true;
+    ctxCanvas.imageSmoothingQuality = 'high';
 
-    images[0].onload = () => {
-      ctxCanvas.drawImage(images[0], 0, 0, video.width, video.height);
+    const totalFrames = 903;
+    const images = new Array(totalFrames);
+    let loadedCount = 0;
+    let firstFrameDrawn = false;
+
+    // Load frame helper
+    const loadFrame = (index) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          images[index] = img;
+          loadedCount++;
+          // Draw first frame immediately
+          if (index === 0 && !firstFrameDrawn) {
+            ctxCanvas.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
+            firstFrameDrawn = true;
+          }
+          resolve();
+        };
+        img.onerror = resolve;
+        img.src = `/assets/hero-frames/frame_${(index + 1).toString().padStart(5, '0')}.jpg`;
+      });
     };
 
+    // Progressive loading: load in batches of 60
+    const BATCH_SIZE = 60;
+    let cancelled = false;
+
+    const loadBatch = async (startIdx) => {
+      const end = Math.min(startIdx + BATCH_SIZE, totalFrames);
+      const promises = [];
+      for (let i = startIdx; i < end; i++) {
+        if (cancelled) return;
+        promises.push(loadFrame(i));
+      }
+      await Promise.all(promises);
+      if (!cancelled && end < totalFrames) {
+        // Use requestIdleCallback for non-blocking loading
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(() => loadBatch(end));
+        } else {
+          setTimeout(() => loadBatch(end), 16);
+        }
+      }
+    };
+
+    // Start loading first batch immediately (frames 0-59)
+    loadBatch(0);
+
+    const imageObj = { frame: 0 };
+
     const renderFrame = () => {
-      const idx = Math.min(Math.round(imageObj.frame), frameCount - 1);
+      const idx = Math.min(Math.round(imageObj.frame), totalFrames - 1);
       const img = images[idx];
-      if (img && img.complete) {
-        ctxCanvas.drawImage(img, 0, 0, video.width, video.height);
-      } else if (img) {
-        img.onload = () => ctxCanvas.drawImage(img, 0, 0, video.width, video.height);
+      if (img) {
+        ctxCanvas.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
+      } else {
+        // Find nearest loaded frame
+        for (let d = 1; d <= 10; d++) {
+          if (images[idx - d]) {
+            ctxCanvas.drawImage(images[idx - d], 0, 0, canvasEl.width, canvasEl.height);
+            break;
+          }
+          if (images[idx + d]) {
+            ctxCanvas.drawImage(images[idx + d], 0, 0, canvasEl.width, canvasEl.height);
+            break;
+          }
+        }
       }
     };
 
@@ -123,7 +328,7 @@ export default function ScrollVideoHero() {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: mobile ? 0.3 : 0.5,
+          scrub: 0.5,
           pin: pinRef.current,
           pinSpacing: false,
           anticipatePin: 1,
@@ -137,7 +342,7 @@ export default function ScrollVideoHero() {
       }, 0);
 
       tl.to(imageObj, {
-        frame: frameCount - 1,
+        frame: totalFrames - 1,
         snap: 'frame',
         ease: 'none',
         duration: 0.60,
@@ -145,18 +350,16 @@ export default function ScrollVideoHero() {
       }, 0);
 
       // ── PHASE 2 (0.60–0.72): Video shrinks to cinematic box ─────────────
-      const shrinkW = mobile ? '92vw' : '75vw';
-      const shrinkH = mobile ? '42vh' : '45vh';
-      const shrinkR = mobile ? '16px' : '28px';
+      const shrinkW = '75vw';
+      const shrinkH = '45vh';
+      const shrinkR = '28px';
 
       tl.to(imageFrameRef.current, {
         width: shrinkW,
         height: shrinkH,
         borderRadius: shrinkR,
         border: '1px solid rgba(17,17,17,0.12)',
-        boxShadow: mobile
-          ? '0 15px 40px rgba(0,0,0,0.12)'
-          : '0 30px 80px rgba(0,0,0,0.22), 0 10px 30px rgba(0,0,0,0.14)',
+        boxShadow: '0 30px 80px rgba(0,0,0,0.22), 0 10px 30px rgba(0,0,0,0.14)',
         duration: 0.12, ease: 'power4.inOut',
       }, 0.60);
 
@@ -231,7 +434,10 @@ export default function ScrollVideoHero() {
       );
     }, containerRef);
 
-    return () => ctx.revert();
+    return () => {
+      cancelled = true;
+      ctx.revert();
+    };
   }, [isMobile]);
 
   return (
@@ -265,7 +471,7 @@ export default function ScrollVideoHero() {
           ))}
         </div>
 
-        {/* ── Architectural mural ─────────────────────────────────────────── */}
+        {/* ── Architectural mural (lazy loaded) ────────────────────────────── */}
         <div
           className="absolute inset-0 w-full h-full z-0 pointer-events-none"
           style={{ transform: isMobile ? 'none' : 'translate3d(calc(var(--mx)*9px),calc(var(--my)*9px),0)' }}
@@ -275,7 +481,12 @@ export default function ScrollVideoHero() {
             className="absolute inset-0 w-full h-full"
             style={{ transformOrigin: 'center center', opacity: 0, willChange: 'opacity, transform' }}
           >
-            <img src={muralPng} alt="" className="w-full h-full pointer-events-none" style={{ objectFit: 'cover' }} />
+            <img
+              ref={muralImgRef}
+              alt=""
+              className="w-full h-full pointer-events-none"
+              style={{ objectFit: 'cover' }}
+            />
           </div>
         </div>
 
@@ -291,10 +502,24 @@ export default function ScrollVideoHero() {
               willChange: 'transform, opacity, border-radius, width, height',
             }}
           >
-            <canvas
-              ref={videoRef}
-              className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
-            />
+            {isMobile ? (
+              /* Mobile: Use video element with scroll-based scrubbing — 3.5MB vs 43MB of frames */
+              <video
+                ref={videoRef}
+                muted
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
+              >
+                <source src={new URL('../assets/hero-video-opt.mp4', import.meta.url).href} type="video/mp4" />
+              </video>
+            ) : (
+              /* Desktop: Canvas-based frame scrubbing */
+              <canvas
+                ref={videoRef}
+                className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
+              />
+            )}
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           </div>
         </div>

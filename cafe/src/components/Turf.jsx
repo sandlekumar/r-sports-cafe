@@ -1,10 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import turfVideo from '../assets/turf.mp4';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+// Use string path instead of import to prevent Vite from bundling the 5.7MB video
+const TURF_VIDEO_PATH = new URL('../assets/turf.mp4', import.meta.url).href;
 
 export default function Turf() {
   const containerRef = useRef(null);
@@ -14,6 +16,24 @@ export default function Turf() {
   const ctaRef = useRef(null);
   const videoRef = useRef(null);
   const headingRef = useRef(null);
+  const [videoSrc, setVideoSrc] = useState(null);
+
+  // Lazy load video: only set src when section is near viewport
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVideoSrc(TURF_VIDEO_PATH);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px' }
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   useGSAP(() => {
     const container = containerRef.current;
@@ -132,7 +152,7 @@ export default function Turf() {
         }
       );
     }
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [videoSrc] });
 
   return (
     <section 
@@ -140,17 +160,21 @@ export default function Turf() {
       className="relative min-h-[100dvh] flex flex-col justify-center items-center py-32 px-6 overflow-hidden select-none"
       id="turf"
     >
-      {/* Background Cinematic Video */}
+      {/* Background Cinematic Video — lazy loaded */}
       <div className="absolute inset-0 z-0">
-        <video
-          ref={videoRef}
-          src={turfVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-        />
+        {videoSrc ? (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-b from-neutral-900 to-black" />
+        )}
       </div>
 
       {/* Cinematic overlays */}
@@ -210,4 +234,3 @@ export default function Turf() {
     </section>
   );
 }
-

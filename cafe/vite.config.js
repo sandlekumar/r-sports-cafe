@@ -11,4 +11,21 @@ export default defineConfig({
     port: 5173,
     allowedHosts: true,
   },
+  build: {
+    // Increase chunk size warning limit (THREE.js is inherently large)
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate THREE.js into its own chunk (~600KB) so it's only
+          // loaded on desktop when Cursor3D lazy-loads
+          three: ['three'],
+          // Separate animation libraries
+          'framer-motion': ['framer-motion'],
+          // GSAP suite
+          gsap: ['gsap', '@gsap/react'],
+        },
+      },
+    },
+  },
 })
