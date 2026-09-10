@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { apiClient } from '../services/apiClient';
 
 const BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 
@@ -72,8 +73,7 @@ export default function Events() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/events?tab=upcoming`);
-        const d = await res.json();
+        const d = await apiClient('/events?tab=upcoming');
         if (d.success && d.data?.length > 0) {
           setEvents(d.data);
         }
@@ -205,7 +205,7 @@ export default function Events() {
                   style={{ aspectRatio: isCenter ? (isMobile ? '16/11' : '16/10') : '1/1' }}
                 >
                   {event.photo ? (
-                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]" alt="" loading="lazy" decoding="async" />
+                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]" alt={event.title || 'Event image'} loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
                       <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>

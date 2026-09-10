@@ -16,14 +16,11 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Separate THREE.js into its own chunk (~600KB) so it's only
-          // loaded on desktop when Cursor3D lazy-loads
-          three: ['three'],
-          // Separate animation libraries
-          'framer-motion': ['framer-motion'],
-          // GSAP suite
-          gsap: ['gsap', '@gsap/react'],
+        // Vite 8 (rolldown) requires manualChunks to be a function, not an object
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) return 'three';
+          if (id.includes('node_modules/framer-motion')) return 'framer-motion';
+          if (id.includes('node_modules/gsap') || id.includes('node_modules/@gsap')) return 'gsap';
         },
       },
     },

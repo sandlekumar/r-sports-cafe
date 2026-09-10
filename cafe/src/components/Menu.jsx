@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { apiClient } from '../services/apiClient';
 
 // Use URL constructor to avoid Vite bundling these large video files
 const video1 = new URL('../assets/hero-video-opt.mp4', import.meta.url).href;
@@ -10,10 +11,10 @@ const video2 = new URL('../assets/turf.mp4', import.meta.url).href;
 const video3 = video1; // Same video reused
 const video4 = video2; // Same video reused
 
-import burgerImg from '../assets/signature_burger.png';
-import pizzaImg from '../assets/signature_pizza.png';
-import juiceImg from '../assets/signature_juice.png';
-import coffeeImg from '../assets/signature_coffee.png';
+import burgerImg from '../assets/signature_burger.webp';
+import pizzaImg from '../assets/signature_pizza.webp';
+import juiceImg from '../assets/signature_juice.webp';
+import coffeeImg from '../assets/signature_coffee.webp';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -122,11 +123,20 @@ const textVariants = {
 };
 
 // ─── Menu Card Media Sub-Component with IntersectionObserver & Guardrails ────
-function MenuCardMedia({ item, direction, activeIndex }) {
+function MenuCardMedia({ item, direction, activeIndex, sectionVisible }) {
   const shouldReduceMotion = useReducedMotion();
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const [isSlowConnection, setIsSlowConnection] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  );
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Check connection speed guardrail
   useEffect(() => {
@@ -176,11 +186,17 @@ function MenuCardMedia({ item, direction, activeIndex }) {
     ? (typeof rawPhoto === 'string' && rawPhoto.startsWith('/uploads') ? `${SERVER_URL}${rawPhoto}` : rawPhoto)
     : null;
 
+  // Gate: only play video when desktop + fast connection + section is near viewport.
+  // sectionVisible is set by an IO (200px rootMargin) on the Menu section in the
+  // parent — without this, canPlayVideo is true on first render for any desktop
+  // visitor with a good connection, immediately pulling ~9 MB of video.
   const canPlayVideo =
+    sectionVisible &&
     Boolean(videoUrl) &&
     Boolean(item.is_trending) &&
     !shouldReduceMotion &&
-    !isSlowConnection;
+    !isSlowConnection &&
+    !isMobile;
 
   return (
     <div
@@ -194,10 +210,10 @@ function MenuCardMedia({ item, direction, activeIndex }) {
             key={`video-${item.id || activeIndex}`}
             src={videoUrl}
             poster={photoUrl}
-            autoPlay
             loop
             muted
             playsInline
+            preload="none"
             custom={direction}
             variants={imageVariants}
             initial="enter"
@@ -242,8 +258,7 @@ export default function Menu() {
   useEffect(() => {
     let cancelled = false;
     const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
-    fetch(`${SERVER_URL}/api/menu`)
-      .then((res) => res.json())
+    apiClient('/menu')
       .then((d) => {
         if (!cancelled && d.success && d.data.length > 0) {
           setMenuItems(
@@ -287,6 +302,26 @@ export default function Menu() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [paginate]);
+
+  // ── Section visibility gate — prevents video elements from mounting until
+  // the user is within 200px of the section. Without this, canPlayVideo is true
+  // on first render for any desktop visitor, immediately pulling ~9 MB of video.
+  const [sectionVisible, setSectionVisible] = useState(false);
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setSectionVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   const item = menuItems[activeIndex] || DEFAULT_MENU_ITEMS[0];
 
@@ -451,7 +486,7 @@ export default function Menu() {
           <button
             onClick={() => paginate(-1)}
             aria-label="Previous menu item"
-            className="menu-showcase-nav absolute left-0 md:-left-7 z-30 text-lightText"
+            className="menu-showcase-nav absolute left-2 md:-left-7 z-30 text-lightText bg-black/20 md:bg-transparent p-3 md:p-0 rounded-full backdrop-blur-md md:backdrop-blur-none"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <polyline points="15 18 9 12 15 6" />
@@ -461,7 +496,7 @@ export default function Menu() {
           <button
             onClick={() => paginate(1)}
             aria-label="Next menu item"
-            className="menu-showcase-nav absolute right-0 md:-right-7 z-30 text-lightText"
+            className="menu-showcase-nav absolute right-2 md:-right-7 z-30 text-lightText bg-black/20 md:bg-transparent p-3 md:p-0 rounded-full backdrop-blur-md md:backdrop-blur-none"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <polyline points="9 18 15 12 9 6" />
@@ -469,7 +504,7 @@ export default function Menu() {
           </button>
 
           {/* Card Media Container */}
-          <MenuCardMedia item={item} direction={direction} activeIndex={activeIndex} />
+          <MenuCardMedia item={item} direction={direction} activeIndex={activeIndex} sectionVisible={sectionVisible} />
         </div>
 
         {/* ════ RIGHT: meta + pagination ════ */}

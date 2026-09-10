@@ -4,13 +4,14 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { AnimatePresence } from 'framer-motion'
 import './index.css'
-import App from './App.jsx'
-import TurfPage from './pages/TurfPage.jsx'
+
 import PageTransition from './components/PageTransition.jsx'
 import Navbar from './components/Navbar.jsx'
 import { initGA } from './utils/analytics.js'
 
 // Lazy-loaded pages
+const App = React.lazy(() => import('./App.jsx'))
+const TurfPage = React.lazy(() => import('./pages/TurfPage.jsx'))
 const MenuPage = React.lazy(() => import('./pages/MenuPage.jsx'))
 const EventsPage = React.lazy(() => import('./pages/EventsPage.jsx'))
 const GalleryPage = React.lazy(() => import('./pages/GalleryPage.jsx'))
@@ -32,6 +33,14 @@ const Lazy = ({ children }) => (
   </Suspense>
 );
 
+// Home route handles its own heavy animations (Preloader, SmoothScroll, GSAP).
+// CSS transforms from PageTransition break GSAP ScrollTrigger's fixed positioning!
+const LazyHome = ({ children }) => (
+  <Suspense fallback={<PageLoader />}>
+    {children}
+  </Suspense>
+);
+
 // Animated routes wrapper — uses useLocation for exit animations
 function AnimatedRoutes() {
   const location = useLocation();
@@ -39,8 +48,8 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<App />} />
-        <Route path="/turf" element={<PageTransition><TurfPage /></PageTransition>} />
+        <Route path="/" element={<LazyHome><App /></LazyHome>} />
+        <Route path="/turf" element={<Lazy><TurfPage /></Lazy>} />
         <Route path="/menu" element={<Lazy><MenuPage /></Lazy>} />
         <Route path="/events" element={<Lazy><EventsPage /></Lazy>} />
         <Route path="/gallery" element={<Lazy><GalleryPage /></Lazy>} />

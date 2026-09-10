@@ -1,8 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import luxuryInterior from '../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.jpg';
-import sketchBg from '../assets/architectural-sketch-collage.png.png';
+
+// Asset URL strings — Vite hashes these at build time for cache-busting.
+// We hold the URL here but deliberately never assign it to an <img src> until
+// the section is near the viewport (IntersectionObserver below). This is the
+// only reliable way to block the fetch: new URL() and import are identical to
+// the browser — neither causes a fetch; the fetch happens when src is set.
+const luxuryInteriorUrl = new URL('../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.webp', import.meta.url).href;
+const sketchBgUrl = new URL('../assets/architectural-sketch-collage.png.webp', import.meta.url).href;
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +26,31 @@ export default function Philosophy() {
   const word2 = "EAT.";
   const word3 = "CHILL.";
   const word4 = "REPEAT.";
+
+  // ── Deferred src assignment: don't set img src until section is near viewport ──
+  // loading="lazy" alone is unreliable for eagerly-mounted components — the browser
+  // can fetch within its 1250px distance threshold even before the user scrolls.
+  // Holding src in JS and assigning it only on IntersectionObserver entry is the
+  // only guaranteed way to block the fetch entirely.
+  useEffect(() => {
+    const section = sectionRef.current;
+    const sketch = sketchRef.current;
+    const interior = imageRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (sketch && !sketch.src) sketch.src = sketchBgUrl;
+          if (interior && !interior.src) interior.src = luxuryInteriorUrl;
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '1000px' }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -39,8 +70,8 @@ export default function Philosophy() {
           { yPercent: 100, opacity: 0 },
           {
             yPercent: 0, opacity: 1,
-            stagger: 0.03, duration: 1.4, ease: 'power4.out',
-            scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none none' },
+            stagger: 0.02, duration: 1.0, ease: 'power4.out',
+            scrollTrigger: { trigger: section, start: 'top 90%', toggleActions: 'play none none none' },
           }
         );
       }
@@ -51,8 +82,8 @@ export default function Philosophy() {
           imageRef.current,
           { scale: 1.25 },
           {
-            scale: 1.0, duration: 2.5, ease: 'power3.out',
-            scrollTrigger: { trigger: imageContainerRef.current, start: 'top 85%' },
+            scale: 1.0, duration: 1.8, ease: 'power3.out',
+            scrollTrigger: { trigger: imageContainerRef.current, start: 'top 95%' },
           }
         );
 
@@ -72,8 +103,8 @@ export default function Philosophy() {
           sketchRef.current,
           { opacity: 0, y: 40 },
           {
-            opacity: 0.15, y: 0, duration: 1.8, ease: 'power2.out',
-            scrollTrigger: { trigger: section, start: 'top 85%' },
+            opacity: 0.15, y: 0, duration: 1.2, ease: 'power2.out',
+            scrollTrigger: { trigger: section, start: 'top 95%' },
           }
         );
 
@@ -94,8 +125,8 @@ export default function Philosophy() {
           fadeElements,
           { y: 40, opacity: 0 },
           {
-            y: 0, opacity: 1, stagger: 0.15, duration: 1.2, ease: 'power3.out',
-            scrollTrigger: { trigger: section, start: 'top 65%' },
+            y: 0, opacity: 1, stagger: 0.1, duration: 0.9, ease: 'power3.out',
+            scrollTrigger: { trigger: section, start: 'top 85%' },
           }
         );
       }
@@ -107,17 +138,15 @@ export default function Philosophy() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[100dvh] bg-sandalBg text-darkText py-24 md:py-48 px-6 sm:px-12 md:px-24 overflow-hidden border-t border-borderGlass flex flex-col justify-center select-none"
+      className="relative min-h-[100dvh] bg-sandalBg text-darkText py-16 md:py-32 lg:py-48 px-6 sm:px-12 md:px-24 overflow-hidden border-t border-borderGlass flex flex-col justify-center select-none"
       id="philosophy"
     >
       {/* ── Sketch Collage Background ──────────────────────────────────────── */}
       <div className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0">
         <img
           ref={sketchRef}
-          src={sketchBg}
           alt=""
           aria-hidden="true"
-          loading="lazy"
           decoding="async"
           className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform mix-blend-multiply"
           style={{ opacity: 0 }}
@@ -193,10 +222,10 @@ export default function Philosophy() {
 
           {/* Short Brand Story */}
           <div ref={brandStoryRef} className="opacity-0 max-w-lg space-y-6">
-            <p className="font-inter font-normal text-[18px] leading-[1.8] tracking-[-0.01em] text-darkText/80 max-w-[600px]">
+            <p className="font-inter font-normal text-[16px] md:text-[18px] leading-[1.8] tracking-[-0.01em] text-darkText/80 max-w-[600px]">
               Welcome to R Sports & Cafe — where great games, good food and easy evenings come together.
             </p>
-            <p className="font-inter font-normal text-[18px] leading-[1.8] tracking-[-0.01em] text-darkText/60 max-w-[600px]">
+            <p className="font-inter font-normal text-[16px] md:text-[18px] leading-[1.8] tracking-[-0.01em] text-darkText/60 max-w-[600px]">
               Play with your crew. Stay for the food. End it with coffee and dessert.
             </p>
           </div>
@@ -215,9 +244,7 @@ export default function Philosophy() {
             <div className="absolute inset-0 bg-[#1a1a1a]/5 mix-blend-multiply z-10 pointer-events-none" />
             <img 
               ref={imageRef}
-              src={luxuryInterior}
               alt="Elite luxury sports cafe modern minimalist design interior"
-              loading="lazy"
               decoding="async"
               className="w-full h-[120%] object-cover absolute top-0 left-0 will-change-transform scale-125"
             />

@@ -40,16 +40,32 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Multer storage configuration
-const storage = multer.diskStorage({
+const sharp = require('sharp');
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegStatic = require('ffmpeg-static');
+ffmpeg.setFfmpegPath(ffmpegStatic);
+
+const uploadPhoto = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+});
+
+const videoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, 'tmp-' + file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
-const upload = multer({ storage: storage });
+
+const uploadVideo = multer({
+  storage: videoStorage,
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB, pre-transcode
+  fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('video/')),
+});
 
 // Removed in-memory events data store
 
@@ -59,7 +75,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Admin overview
-app.get('/api/admin/overview', async (req, res) => {
+app.get('/api/admin/overview', protectAdmin, async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -90,7 +106,7 @@ app.get('/api/admin/overview', async (req, res) => {
   }
 });
 
-app.get('/api/admin/tables', async (req, res) => {
+app.get('/api/admin/tables', protectAdmin, async (req, res) => {
   try {
     const areas = await Area.find();
     const tables = await Table.find().populate('area');
@@ -104,7 +120,7 @@ app.get('/api/admin/tables', async (req, res) => {
 });
 
 // Bookings API
-app.get('/api/admin/bookings', async (req, res) => {
+app.get('/api/admin/bookings', protectAdmin, async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate('customer')
@@ -117,7 +133,7 @@ app.get('/api/admin/bookings', async (req, res) => {
   }
 });
 
-app.patch('/api/admin/bookings/:id/status', async (req, res) => {
+app.patch('/api/admin/bookings/:id/status', protectAdmin, async (req, res) => {
   try {
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
@@ -136,7 +152,7 @@ app.patch('/api/admin/bookings/:id/status', async (req, res) => {
 });
 
 // Customers
-app.get('/api/admin/customers', async (req, res) => {
+app.get('/api/admin/customers', protectAdmin, async (req, res) => {
   try {
     const customers = await Customer.find().sort({ createdAt: -1 });
     res.json({
@@ -163,7 +179,7 @@ app.get('/api/events', async (req, res) => {
 });
 
 // GET all events for admin dashboard
-app.get('/api/admin/events', async (req, res) => {
+app.get('/api/admin/events', protectAdmin, async (req, res) => {
   try {
     const events = await Event.find().sort({ createdAt: -1 });
     res.json({ success: true, data: events });
@@ -173,7 +189,7 @@ app.get('/api/admin/events', async (req, res) => {
 });
 
 // POST new event
-app.post('/api/admin/events', async (req, res) => {
+app.post('/api/admin/events', protectAdmin, async (req, res) => {
   try {
     const newEvent = await Event.create(req.body);
     res.json({ success: true, data: newEvent });
@@ -183,7 +199,7 @@ app.post('/api/admin/events', async (req, res) => {
 });
 
 // PUT (update) existing event
-app.put('/api/admin/events/:id', async (req, res) => {
+app.put('/api/admin/events/:id', protectAdmin, async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!event) return res.status(404).json({ success: false, error: { message: 'Event not found' } });
@@ -194,7 +210,7 @@ app.put('/api/admin/events/:id', async (req, res) => {
 });
 
 // DELETE event
-app.delete('/api/admin/events/:id', async (req, res) => {
+app.delete('/api/admin/events/:id', protectAdmin, async (req, res) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) return res.status(404).json({ success: false, error: { message: 'Event not found' } });
@@ -205,13 +221,21 @@ app.delete('/api/admin/events/:id', async (req, res) => {
 });
 
 // POST event photo upload
-app.post('/api/admin/events/:id/photo', upload.single('photo'), async (req, res) => {
+app.post('/api/admin/events/:id/photo', protectAdmin, uploadPhoto.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, error: { message: 'No photo uploaded' } });
     }
 
-    const photoUrl = '/uploads/' + req.file.filename;
+    const filename = 'photo-' + Date.now() + '-' + Math.round(Math.random() * 1E9) + '.webp';
+    const outputPath = path.join(__dirname, 'uploads', filename);
+
+    await sharp(req.file.buffer)
+      .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(outputPath);
+
+    const photoUrl = '/uploads/' + filename;
     
     const event = await Event.findByIdAndUpdate(
       req.params.id,
@@ -250,6 +274,16 @@ app.post('/api/admin/login', async (req, res) => {
 /* -------------------------------------------------------------------------- */
 /* PUBLIC BOOKINGS & AVAILABILITY API                                         */
 /* -------------------------------------------------------------------------- */
+
+// Get all areas
+app.get('/api/areas', async (req, res) => {
+  try {
+    const areas = await Area.find();
+    res.json({ success: true, data: areas });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Check availability
 app.get('/api/availability', async (req, res) => {
@@ -341,10 +375,19 @@ app.delete('/api/admin/menu/:id', protectAdmin, async (req, res) => {
   }
 });
 
-app.post('/api/admin/menu/:id/photo', protectAdmin, upload.single('photo'), async (req, res) => {
+app.post('/api/admin/menu/:id/photo', protectAdmin, uploadPhoto.single('photo'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No photo uploaded' });
-    const photoUrl = '/uploads/' + req.file.filename;
+    
+    const filename = 'photo-' + Date.now() + '-' + Math.round(Math.random() * 1E9) + '.webp';
+    const outputPath = path.join(__dirname, 'uploads', filename);
+
+    await sharp(req.file.buffer)
+      .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(outputPath);
+
+    const photoUrl = '/uploads/' + filename;
     const item = await MenuItem.findByIdAndUpdate(req.params.id, { photoUrl }, { new: true });
     res.json({ success: true, data: item || { _id: req.params.id, photoUrl } });
   } catch (error) {
@@ -401,13 +444,52 @@ app.delete('/api/admin/reels/:id', protectAdmin, async (req, res) => {
   }
 });
 
-app.post('/api/admin/reels/:id/video', protectAdmin, upload.single('video'), async (req, res) => {
+app.post('/api/admin/reels/:id/video', protectAdmin, uploadVideo.single('video'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No video uploaded' });
-    const videoUrl = '/uploads/' + req.file.filename;
-    const reel = await Reel.findByIdAndUpdate(req.params.id, { videoUrl }, { new: true });
-    res.json({ success: true, data: reel || { _id: req.params.id, videoUrl } });
+    
+    const inputPath = req.file.path;
+    const filename = 'video-' + Date.now() + '-' + Math.round(Math.random() * 1E9) + '.mp4';
+    const outputPath = path.join(__dirname, 'uploads', filename);
+    const thumbFilename = 'thumb-' + Date.now() + '-' + Math.round(Math.random() * 1E9) + '.jpg';
+
+    // Generate thumbnail at 1s mark
+    await new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .screenshots({
+          timestamps: [1],
+          filename: thumbFilename,
+          folder: path.join(__dirname, 'uploads')
+        })
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    // Transcode video
+    await new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .outputOptions([
+          '-vf scale=-2:720',
+          '-b:v 2500k',
+          '-maxrate 2500k',
+          '-bufsize 5000k'
+        ])
+        .toFormat('mp4')
+        .on('end', resolve)
+        .on('error', reject)
+        .save(outputPath);
+    });
+
+    try { fs.unlinkSync(inputPath); } catch (e) {}
+
+    const videoUrl = '/uploads/' + filename;
+    const thumbnailUrl = '/uploads/' + thumbFilename;
+    const reel = await Reel.findByIdAndUpdate(req.params.id, { videoUrl, thumbnailUrl }, { new: true });
+    res.json({ success: true, data: reel || { _id: req.params.id, videoUrl, thumbnailUrl } });
   } catch (error) {
+    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      try { fs.unlinkSync(req.file.path); } catch (e) {}
+    }
     res.status(500).json({ success: false, error: error.message });
   }
 });

@@ -20,7 +20,7 @@ export const getAvailability = ({ date, time, guests, areaId }) => {
  * @param {Object} data - full booking payload
  */
 export const submitTableBooking = (data) =>
-  apiClient('/table-bookings', {
+  apiClient('/bookings', {
     method: 'POST',
     body: JSON.stringify(data),
   });

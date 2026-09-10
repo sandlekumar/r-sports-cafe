@@ -4,11 +4,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-import img1 from '../assets/tasteandplay/AHRPTWlu1JR_lh5ts1vV40632tiaqc_nhb_MS8dPelsIKVfO9cRWbf8KWukivxwU5Zzge_GCqfsMnKpzbUEuzoNR9rzoSlQCPFqkKEvhc9282SoYzNnKRfe3DsRaKCqYsLYxoFcrohlAMebbJ-cw2768-h1848-k-no.jpg';
-import img2 from '../assets/tasteandplay/AHRPTWmyrrvDFAlqsutszgAbh8gJ7aTwYJFhbCUWUIZkKyiLq58KozZ34fTsHPNJoKIuBU72JZajnuiSWaw7bmfHGejtuf3a8N7LQmUCKIiDNSXFF8LKkL86WRiQTliQq0F0SBpRKxJDXEVINykNw2768-h1848-k-no.jpg';
-import img3 from '../assets/tasteandplay/AHRPTWneCVL46nqAjOtuJbFWajiaGMg8gEBcUh1TaK23CN93aR_UB0JND9GEM7O7gCNDc0H_2MJ8bdA41WajR7-WvCJNIY7ubKU_AM7sDSjlFzuZSlNgDc6V5kay9SiuoqmBiRrT-QxTMpQ-5Hg_w2768-h1848-k-no.jpg';
-import img4 from '../assets/tasteandplay/AHRPTWnepL3dlkb8RRpoq7W3g_jCmC7eULpDijSq81ecK7UqXV7mXvhMt7wiHjRBr7Y6SaAxS2rypxiEusSoCVvQ79Tl0R-gf89wdVz4qNvIR09FeMrHEzla3AJVJNRMm7_S5gqV6QTL80A2LsGxw2768-h1848-k-no.jpg';
-import img5 from '../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.jpg';
+// Asset URL strings — Vite hashes at build time. The IntersectionObserver
+// below withholds src assignment until the section nears the viewport.
+const img1 = new URL('../assets/tasteandplay/AHRPTWlu1JR_lh5ts1vV40632tiaqc_nhb_MS8dPelsIKVfO9cRWbf8KWukivxwU5Zzge_GCqfsMnKpzbUEuzoNR9rzoSlQCPFqkKEvhc9282SoYzNnKRfe3DsRaKCqYsLYxoFcrohlAMebbJ-cw2768-h1848-k-no.webp', import.meta.url).href;
+const img2 = new URL('../assets/tasteandplay/AHRPTWmyrrvDFAlqsutszgAbh8gJ7aTwYJFhbCUWUIZkKyiLq58KozZ34fTsHPNJoKIuBU72JZajnuiSWaw7bmfHGejtuf3a8N7LQmUCKIiDNSXFF8LKkL86WRiQTliQq0F0SBpRKxJDXEVINykNw2768-h1848-k-no.webp', import.meta.url).href;
+const img3 = new URL('../assets/tasteandplay/AHRPTWneCVL46nqAjOtuJbFWajiaGMg8gEBcUh1TaK23CN93aR_UB0JND9GEM7O7gCNDc0H_2MJ8bdA41WajR7-WvCJNIY7ubKU_AM7sDSjlFzuZSlNgDc6V5kay9SiuoqmBiRrT-QxTMpQ-5Hg_w2768-h1848-k-no.webp', import.meta.url).href;
+const img4 = new URL('../assets/tasteandplay/AHRPTWnepL3dlkb8RRpoq7W3g_jCmC7eULpDijSq81ecK7UqXV7mXvhMt7wiHjRBr7Y6SaAxS2rypxiEusSoCVvQ79Tl0R-gf89wdVz4qNvIR09FeMrHEzla3AJVJNRMm7_S5gqV6QTL80A2LsGxw2768-h1848-k-no.webp', import.meta.url).href;
+const img5 = new URL('../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.webp', import.meta.url).href;
 
 const galleryItems = [
   {
@@ -57,10 +59,30 @@ export default function Gallery() {
   const [mobileActive, setMobileActive] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
+  // ── Deferred src assignment for all 5 gallery images ──
+  // Don't set src at all until the section is near the viewport. loading="lazy"
+  // is unreliable when Suspense may trigger the render before scroll begins.
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const section = triggerRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Assign src to every mounted img ref in one pass
+          imageRefs.current.forEach((img, i) => {
+            if (img && !img.src) img.src = galleryItems[i]?.src ?? '';
+          });
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px' }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -202,9 +224,7 @@ export default function Gallery() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10 pointer-events-none mix-blend-multiply" />
                 <img
                   ref={(el) => (imageRefs.current[idx] = el)}
-                  src={item.src}
                   alt={item.title}
-                  loading="lazy"
                   decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105"
                 />
@@ -243,9 +263,8 @@ export default function Gallery() {
                 </div>
                 <div className="relative overflow-hidden w-full aspect-[16/10] bg-neutral-100 rounded-xl mb-4 shadow-md">
                   <img
-                    src={item.src}
+                    ref={(el) => (imageRefs.current[idx] = el)}
                     alt={item.title}
-                    loading="lazy"
                     decoding="async"
                     className="w-full h-full object-cover"
                   />

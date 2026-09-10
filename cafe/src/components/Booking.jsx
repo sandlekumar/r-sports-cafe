@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { trackEvent } from '../utils/analytics';
+import { apiClient } from '../services/apiClient';
 
-import bgImage from '../assets/tasteandplay/hero.jpg';
+import bgImage from '../assets/tasteandplay/hero.webp';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,18 +56,10 @@ export default function Booking() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${API_URL}/bookings`, {
+      await apiClient('/bookings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(formData),
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to submit booking');
-      }
       
       setIsSubmitted(true);
       setTimeout(() => {

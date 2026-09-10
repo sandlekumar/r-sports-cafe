@@ -11,6 +11,7 @@ import Turf from './components/Turf';
 import SectionColorMorph from './components/SectionColorMorph';
 import SEO from './components/SEO';
 import LocalBusinessSchema from './components/LocalBusinessSchema';
+import { apiClient } from './services/apiClient';
 
 // Lazy load below-fold heavy components
 const Gallery = lazy(() => import('./components/Gallery'));
@@ -18,25 +19,31 @@ const Reels = lazy(() => import('./components/Reels'));
 const Reviews = lazy(() => import('./components/Reviews'));
 const Booking = lazy(() => import('./components/Booking'));
 
-// Lazy load Cursor3D — loads THREE.js (~600KB), only on desktop
-const Cursor3D = lazy(() => import('./components/cursor/Cursor3D'));
-const isDesktop = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)').matches;
+// Dynamic import of Cursor3D happens inside App's useEffect to prevent Vite from
+// injecting modulepreload link tags for Three.js into the main index.html.
 
 export default function App() {
   const [email, setEmail] = useState('');
   const [joinStatus, setJoinStatus] = useState('');
+  const [Cursor3DComponent, setCursor3DComponent] = useState(null);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)');
+    if (mq.matches) {
+      import('./components/cursor/Cursor3D').then((module) => {
+        setCursor3DComponent(() => module.default);
+      }).catch(() => {});
+    }
+  }, []);
 
   const handleJoin = async () => {
     if (!email) return;
     try {
       setJoinStatus('Joining...');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${API_URL}/newsletter`, {
+      await apiClient('/newsletter/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      if (!response.ok) throw new Error('Failed to subscribe');
       setJoinStatus('Joined!');
       setEmail('');
       setTimeout(() => setJoinStatus(''), 3000);
@@ -67,12 +74,8 @@ export default function App() {
         {/* Background color morph between sections */}
         <SectionColorMorph />
 
-        {/* 3D Custom Cursor Overlay — desktop only, lazy loaded */}
-        {isDesktop && (
-          <Suspense fallback={null}>
-            <Cursor3D />
-          </Suspense>
-        )}
+        {/* 3D Custom Cursor Overlay — desktop only, dynamically loaded to avoid modulepreload on mobile */}
+        {Cursor3DComponent && <Cursor3DComponent />}
 
         {/* Premium Luxury Navbar (Moved to main.jsx for global presence) */}
 

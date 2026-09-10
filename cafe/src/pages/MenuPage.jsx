@@ -4,15 +4,15 @@ import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 
 // Asset imports
-import burgerImg from '../assets/signature_burger.png';
-import pizzaImg from '../assets/signature_pizza.png';
-import coffeeImg from '../assets/signature_coffee.png';
-import juiceImg from '../assets/signature_juice.png';
-import chickenImg from '../assets/menu_chicken.png';
-import fishImg from '../assets/menu_fish.png';
-import latteImg from '../assets/menu_latte.png';
-import shrimpImg from '../assets/menu_shrimp.png';
-import teaImg from '../assets/menu_tea.png';
+import burgerImg from '../assets/signature_burger.webp';
+import pizzaImg from '../assets/signature_pizza.webp';
+import coffeeImg from '../assets/signature_coffee.webp';
+import juiceImg from '../assets/signature_juice.webp';
+import chickenImg from '../assets/menu_chicken.webp';
+import fishImg from '../assets/menu_fish.webp';
+import latteImg from '../assets/menu_latte.webp';
+import shrimpImg from '../assets/menu_shrimp.webp';
+import teaImg from '../assets/menu_tea.webp';
 
 // Video loops
 import coffeeVideo from '../assets/hero-video-opt.mp4';

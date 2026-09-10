@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Use string path to avoid Vite bundling the 2.6MB image
-const muralPngPath = new URL('../assets/architectural-sketch-collage.png.png', import.meta.url).href;
+const muralPngPath = new URL('../assets/architectural-sketch-collage.png.webp', import.meta.url).href;
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -84,231 +84,12 @@ export default function ScrollVideoHero() {
     return () => observer.disconnect();
   }, []);
 
-  /* ── Frame scrub (desktop) / Video (mobile) + GSAP timeline ──────── */
+  /* ── Video scroll-scrub + GSAP timeline ──────────────────────────── */
   useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
     const mobile = isMobile;
-    const canvasEl = videoRef.current;
-    if (!canvasEl) return;
-
-    // ── MOBILE: Use a simple <video> approach with progress scrubbing ──
-    if (mobile) {
-      // On mobile, we use a video element instead of canvas frame scrubbing
-      // The video is already rendered in JSX below as a <video> tag
-      // Just set up the GSAP timeline for shrink/title animations
-
-      const ctx = gsap.context(() => {
-        if (imageFrameRef.current) {
-          gsap.set(imageFrameRef.current, { xPercent: -50, yPercent: -50 });
-        }
-
-        // Scroll indicator entrance
-        if (scrollIndicatorRef.current) {
-          gsap.fromTo(scrollIndicatorRef.current,
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 1.8 }
-          );
-        }
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 0.3,
-            pin: pinRef.current,
-            pinSpacing: false,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        // Fade scroll indicator
-        tl.to(scrollIndicatorRef.current, {
-          opacity: 0, y: -30, duration: 0.05, ease: 'power1.out',
-        }, 0);
-
-        // Video scrub: control video currentTime via scroll
-        const videoEl = canvasEl; // on mobile, this is the <video> element
-        if (videoEl && videoEl.tagName === 'VIDEO') {
-          // Wait for metadata to load
-          const onMeta = () => {
-            tl.to({ progress: 0 }, {
-              progress: 1,
-              ease: 'none',
-              duration: 0.60,
-              onUpdate: function() {
-                const p = this.progress();
-                if (videoEl.duration) {
-                  videoEl.currentTime = p * videoEl.duration;
-                }
-              },
-            }, 0);
-          };
-          if (videoEl.readyState >= 1) onMeta();
-          else videoEl.addEventListener('loadedmetadata', onMeta, { once: true });
-        }
-
-        // ── PHASE 2: Video shrinks
-        const shrinkW = '92vw';
-        const shrinkH = '42vh';
-        const shrinkR = '16px';
-
-        tl.to(imageFrameRef.current, {
-          width: shrinkW, height: shrinkH, borderRadius: shrinkR,
-          border: '1px solid rgba(17,17,17,0.12)',
-          boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
-          duration: 0.12, ease: 'power4.inOut',
-        }, 0.60);
-
-        // ── PHASE 3: Mural bleeds in
-        tl.fromTo(artworkRef.current,
-          { opacity: 0, scale: 1.05 },
-          { opacity: 0.5, scale: 1, duration: 0.10, ease: 'power4.out' },
-          0.72
-        );
-
-        // ── PHASE 4: Title + CTA
-        tl.fromTo(titleGlowRef.current,
-          { opacity: 0, scale: 0.6 },
-          { opacity: 1, scale: 1, duration: 0.06, ease: 'power3.out' },
-          0.74
-        );
-
-        tl.fromTo('.svh-energy-line',
-          { scaleX: 0, opacity: 0 },
-          { scaleX: 1, opacity: 1, duration: 0.05, ease: 'expo.out' },
-          0.74
-        );
-
-        tl.fromTo('.svh-title-char',
-          { opacity: 0, rotationX: 40, scale: 0.78, y: 12 },
-          {
-            opacity: 1, rotationX: 0, scale: 1, y: 0,
-            stagger: 0.002, duration: 0.05, ease: 'power4.out',
-            transformOrigin: '50% 100%',
-          },
-          0.75
-        );
-
-        tl.fromTo(sweepRef.current,
-          { left: '-50%', x: 0, opacity: 0, skewX: -20 },
-          { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.06, ease: 'power3.inOut' },
-          0.755
-        );
-
-        tl.to('.svh-title-char', {
-          keyframes: [
-            { color: '#F0D080', textShadow: '0 0 20px rgba(240,200,100,0.8)', duration: 0.02 },
-            { color: '#111111', textShadow: '0 0 0px transparent', duration: 0.02 },
-          ],
-          stagger: 0.003,
-        }, 0.76);
-
-        tl.fromTo(ctaBoxRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
-          0.78
-        );
-
-        tl.to(imageFrameRef.current, {
-          border: '1px solid rgba(235,203,139,0.6)',
-          boxShadow: '0 0 50px rgba(235,203,139,0.3), 0 30px 80px rgba(0,0,0,0.22)',
-          duration: 0.04, ease: 'power2.inOut',
-        }, 0.79);
-
-        // ── PHASE 5: Exit
-        tl.to(
-          [artworkRef.current, '.svh-title-char', titleGlowRef.current,
-           '.svh-energy-line', ctaBoxRef.current],
-          { opacity: 0, y: -10, duration: 0.04, ease: 'power3.in', stagger: 0.002 },
-          0.92
-        );
-        tl.to(imageFrameRef.current,
-          { yPercent: -175, scale: 0.96, opacity: 0, duration: 0.08, ease: 'power3.inOut' },
-          0.92
-        );
-      }, containerRef);
-
-      return () => ctx.revert();
-    }
-
-    // ── DESKTOP: Progressive frame loading in batches ──────────────────
-    const ctxCanvas = canvasEl.getContext('2d');
-    canvasEl.width = 1920;
-    canvasEl.height = 1080;
-    ctxCanvas.imageSmoothingEnabled = true;
-    ctxCanvas.imageSmoothingQuality = 'high';
-
-    const totalFrames = 903;
-    const images = new Array(totalFrames);
-    let loadedCount = 0;
-    let firstFrameDrawn = false;
-
-    // Load frame helper
-    const loadFrame = (index) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          images[index] = img;
-          loadedCount++;
-          // Draw first frame immediately
-          if (index === 0 && !firstFrameDrawn) {
-            ctxCanvas.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-            firstFrameDrawn = true;
-          }
-          resolve();
-        };
-        img.onerror = resolve;
-        img.src = `/assets/hero-frames/frame_${(index + 1).toString().padStart(5, '0')}.jpg`;
-      });
-    };
-
-    // Progressive loading: load in batches of 60
-    const BATCH_SIZE = 60;
-    let cancelled = false;
-
-    const loadBatch = async (startIdx) => {
-      const end = Math.min(startIdx + BATCH_SIZE, totalFrames);
-      const promises = [];
-      for (let i = startIdx; i < end; i++) {
-        if (cancelled) return;
-        promises.push(loadFrame(i));
-      }
-      await Promise.all(promises);
-      if (!cancelled && end < totalFrames) {
-        // Use requestIdleCallback for non-blocking loading
-        if (window.requestIdleCallback) {
-          window.requestIdleCallback(() => loadBatch(end));
-        } else {
-          setTimeout(() => loadBatch(end), 16);
-        }
-      }
-    };
-
-    // Start loading first batch immediately (frames 0-59)
-    loadBatch(0);
-
-    const imageObj = { frame: 0 };
-
-    const renderFrame = () => {
-      const idx = Math.min(Math.round(imageObj.frame), totalFrames - 1);
-      const img = images[idx];
-      if (img) {
-        ctxCanvas.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-      } else {
-        // Find nearest loaded frame
-        for (let d = 1; d <= 10; d++) {
-          if (images[idx - d]) {
-            ctxCanvas.drawImage(images[idx - d], 0, 0, canvasEl.width, canvasEl.height);
-            break;
-          }
-          if (images[idx + d]) {
-            ctxCanvas.drawImage(images[idx + d], 0, 0, canvasEl.width, canvasEl.height);
-            break;
-          }
-        }
-      }
-    };
 
     // Scroll indicator entrance
     if (scrollIndicatorRef.current) {
@@ -328,7 +109,7 @@ export default function ScrollVideoHero() {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.5,
+          scrub: mobile ? 0.3 : 0.5,
           pin: pinRef.current,
           pinSpacing: false,
           anticipatePin: 1,
@@ -336,30 +117,54 @@ export default function ScrollVideoHero() {
         },
       });
 
-      // ── PHASE 1 (0–0.60): Frame sequence scrub ──────────────────────────
+      // Fade scroll indicator
       tl.to(scrollIndicatorRef.current, {
         opacity: 0, y: -30, duration: 0.05, ease: 'power1.out',
       }, 0);
 
-      tl.to(imageObj, {
-        frame: totalFrames - 1,
-        snap: 'frame',
-        ease: 'none',
-        duration: 0.60,
-        onUpdate: renderFrame,
-      }, 0);
+      // ── PHASE 1 (0–0.60): Video scrub via currentTime ──────────────────
+      const setupVideoScrub = () => {
+        tl.to({ progress: 0 }, {
+          progress: 1,
+          ease: 'none',
+          duration: 0.60,
+          onUpdate: function () {
+            const p = this.progress();
+            if (videoEl.duration) {
+              videoEl.currentTime = p * videoEl.duration;
+            }
+          },
+        }, 0);
+      };
+
+      if (videoEl.readyState >= 1) {
+        setupVideoScrub();
+      } else {
+        videoEl.addEventListener('loadedmetadata', setupVideoScrub, { once: true });
+      }
+
+      // iOS Safari ignores preload="auto" to save data, which ruins scrubbing
+      // because frames aren't in memory. Forcing a play/pause kicks off buffering.
+      const playPromise = videoEl.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          videoEl.pause();
+        }).catch(() => {});
+      }
 
       // ── PHASE 2 (0.60–0.72): Video shrinks to cinematic box ─────────────
-      const shrinkW = '75vw';
-      const shrinkH = '45vh';
-      const shrinkR = '28px';
+      const shrinkW = mobile ? '92vw' : '75vw';
+      const shrinkH = mobile ? '42vh' : '45vh';
+      const shrinkR = mobile ? '16px' : '28px';
 
       tl.to(imageFrameRef.current, {
         width: shrinkW,
         height: shrinkH,
         borderRadius: shrinkR,
         border: '1px solid rgba(17,17,17,0.12)',
-        boxShadow: '0 30px 80px rgba(0,0,0,0.22), 0 10px 30px rgba(0,0,0,0.14)',
+        boxShadow: mobile
+          ? '0 15px 40px rgba(0,0,0,0.12)'
+          : '0 30px 80px rgba(0,0,0,0.22), 0 10px 30px rgba(0,0,0,0.14)',
         duration: 0.12, ease: 'power4.inOut',
       }, 0.60);
 
@@ -407,7 +212,6 @@ export default function ScrollVideoHero() {
         stagger: 0.003,
       }, 0.76);
 
-      // Mobile/Desktop CTA box fade in
       tl.fromTo(ctaBoxRef.current,
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
@@ -434,10 +238,7 @@ export default function ScrollVideoHero() {
       );
     }, containerRef);
 
-    return () => {
-      cancelled = true;
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, [isMobile]);
 
   return (
@@ -502,24 +303,15 @@ export default function ScrollVideoHero() {
               willChange: 'transform, opacity, border-radius, width, height',
             }}
           >
-            {isMobile ? (
-              /* Mobile: Use video element with scroll-based scrubbing — 3.5MB vs 43MB of frames */
-              <video
-                ref={videoRef}
-                muted
-                playsInline
-                preload="auto"
-                className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
-              >
-                <source src={new URL('../assets/hero-video-opt.mp4', import.meta.url).href} type="video/mp4" />
-              </video>
-            ) : (
-              /* Desktop: Canvas-based frame scrubbing */
-              <canvas
-                ref={videoRef}
-                className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
-              />
-            )}
+            <video
+              ref={videoRef}
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
+            >
+              <source src={new URL('../assets/hero-scrub.mp4', import.meta.url).href} type="video/mp4" />
+            </video>
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           </div>
         </div>
@@ -532,7 +324,7 @@ export default function ScrollVideoHero() {
           {/* Positioned below the video frame: video is at 50%/50% with 42-45vh height */}
           <div
             className="absolute left-0 w-full flex flex-col items-center text-center select-none px-4"
-            style={{ top: isMobile ? '72vh' : '74vh' }}
+            style={{ top: isMobile ? 'calc(50% + 23dvh)' : 'calc(50% + 24dvh)' }}
           >
             {/* Warm amber halo */}
             <div

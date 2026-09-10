@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { apiClient } from '../services/apiClient';
 import './Reels.css';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -89,7 +90,7 @@ export default function Reels() {
           observer.disconnect();
         }
       },
-      { rootMargin: '300px' }
+      { rootMargin: '200px' }
     );
     observer.observe(section);
     return () => observer.disconnect();
@@ -99,13 +100,13 @@ export default function Reels() {
   useEffect(() => {
     let cancelled = false;
     const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
-    fetch(`${SERVER_URL}/api/reels`)
-      .then((res) => res.json())
+    apiClient('/reels')
       .then((d) => {
         if (!cancelled && d.success && d.data.length > 0) {
           const formatted = d.data.map((r, idx) => ({
             id: r._id || idx + 1,
             src: r.videoUrl.startsWith('http') || r.videoUrl.startsWith('/src') ? r.videoUrl : `${SERVER_URL}${r.videoUrl}`,
+            poster: r.thumbnailUrl ? (r.thumbnailUrl.startsWith('http') ? r.thumbnailUrl : `${SERVER_URL}${r.thumbnailUrl}`) : undefined,
             handle: r.handle || '@rsports.cafe',
             caption: r.caption,
             likes: r.likes || '1.2K',
@@ -357,10 +358,11 @@ export default function Reels() {
                 <video
                   ref={el => videoRefs.current[index] = el}
                   src={reel.src}
+                  poster={reel.poster}
                   muted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
@@ -515,6 +517,7 @@ export default function Reels() {
             >
               <video
                 src={reelsList[activeReel].src}
+                poster={reelsList[activeReel].poster}
                 autoPlay
                 loop
                 playsInline
