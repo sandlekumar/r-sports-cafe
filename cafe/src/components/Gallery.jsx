@@ -72,6 +72,23 @@ export default function Gallery() {
           imageRefs.current.forEach((img, i) => {
             if (img && !img.src) img.src = galleryItems[i]?.src ?? '';
           });
+
+          // Masonry stagger reveal for the cards
+          const cards = section.querySelectorAll('.gallery-item-card');
+          if (cards.length > 0) {
+            gsap.fromTo(
+              cards,
+              { opacity: 0, y: 40 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 1.2,
+                stagger: { each: 0.06, from: 'start' },
+                ease: 'power3.out',
+              }
+            );
+          }
+
           observer.disconnect();
         }
       },
@@ -215,7 +232,7 @@ export default function Gallery() {
         >
           <div className="flex-shrink-0 w-[32vw]" />
           {galleryItems.map((item, idx) => (
-            <div key={item.id} className="flex-shrink-0 flex flex-col group relative">
+            <div key={item.id} className="gallery-item-card opacity-0 flex-shrink-0 flex flex-col group relative">
               <div className="flex justify-between items-center mb-4 font-inter font-medium text-[12px] tracking-[0.24em] text-neutral-400 px-1 uppercase">
                 <span>MEMBER ARCHIVE // {item.id}</span>
                 <span className="font-inter font-normal text-[12px] opacity-60 normal-case">{item.technical}</span>
@@ -255,7 +272,7 @@ export default function Gallery() {
             {galleryItems.map((item, idx) => (
               <div
                 key={item.id}
-                className="snap-center flex-shrink-0 w-[86vw] flex flex-col bg-white/60 p-4 rounded-2xl border border-black/5 shadow-lg"
+                className="gallery-item-card opacity-0 snap-center flex-shrink-0 w-[86vw] flex flex-col bg-white/60 p-4 rounded-2xl border border-black/5 shadow-lg"
               >
                 <div className="flex justify-between items-center mb-3 font-inter font-medium text-[11px] text-neutral-400 uppercase">
                   <span>ARCHIVE // {item.id}</span>
