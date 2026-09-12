@@ -133,15 +133,23 @@ export default function Reviews() {
   };
 
   const textVariants = {
-    enter: (d) => ({ opacity: 0, y: d > 0 ? 24 : -24 }),
+    enter: (custom) => ({ opacity: 0, y: custom.d > 0 ? 24 : -24 }),
     center: { opacity: 1, y: 0 },
-    exit: (d) => ({ opacity: 0, y: d > 0 ? -24 : 24 }),
+    exit: (custom) => ({ opacity: 0, y: custom.d > 0 ? -24 : 24 }),
   };
 
   const cardVariants = {
-    enter: (d) => ({ opacity: 0, x: d > 0 ? 40 : -40 }),
-    center: { opacity: 1, x: 0 },
-    exit: (d) => ({ opacity: 0, x: d > 0 ? -40 : 40 }),
+    enter: (custom) => ({ 
+      opacity: 0, 
+      x: custom.d > 0 ? 40 : -40,
+      rotate: custom.i % 2 === 0 ? 2 : -2 
+    }),
+    center: { opacity: 1, x: 0, rotate: 0 },
+    exit: (custom) => ({ 
+      opacity: 0, 
+      x: custom.d > 0 ? -40 : 40,
+      rotate: custom.i % 2 === 0 ? -2 : 2 
+    }),
   };
 
   return (
@@ -223,19 +231,25 @@ export default function Reviews() {
         </motion.div>
 
         {/* â”€â”€ Main two-column layout â”€â”€ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
 
           {/* LEFT: Profile card â€” 5 cols */}
           <div className="lg:col-span-5 flex justify-center lg:justify-start">
-            <AnimatePresence mode="wait" custom={direction}>
+            <AnimatePresence mode="wait" custom={{ d: direction, i: activeIndex }}>
               <motion.div
                 key={`card-${activeIndex}`}
-                custom={direction}
+                custom={{ d: direction, i: activeIndex }}
                 variants={cardVariants}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full max-w-[380px]"
               >
                 {/* Card */}
@@ -341,15 +355,15 @@ export default function Reviews() {
 
           {/* RIGHT: Review text â€” 7 cols */}
           <div className="lg:col-span-7 flex flex-col justify-between">
-            <AnimatePresence mode="wait" custom={direction}>
+            <AnimatePresence mode="wait" custom={{ d: direction, i: activeIndex }}>
               <motion.div
                 key={`text-${activeIndex}`}
-                custom={direction}
+                custom={{ d: direction, i: activeIndex }}
                 variants={textVariants}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
               >
                 {/* Pull-quote open */}
                 <div
@@ -512,7 +526,7 @@ export default function Reviews() {
               </motion.a>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* â”€â”€ Bottom stats bar â”€â”€ */}
         <div className="mt-20 md:mt-28">
