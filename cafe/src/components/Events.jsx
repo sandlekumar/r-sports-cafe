@@ -85,7 +85,33 @@ export default function Events() {
       }
     })();
     */
+
+    // GSAP Scroll Reveal for Cards
+    const section = document.getElementById('events');
+    const ctx = gsap.context(() => {
+      const cards = document.querySelectorAll('.ev-stamp-shadow');
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, rotation: -3, y: 40 },
+          {
+            opacity: 1,
+            rotation: 0,
+            y: 0,
+            stagger: 0.1,
+            duration: 1.2,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 75%',
+            },
+          }
+        );
+      }
+    }, section);
+
     setLoading(false);
+    return () => ctx.revert();
   }, []);
 
   const displayEvents = [...events];
