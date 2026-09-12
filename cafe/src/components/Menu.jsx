@@ -325,6 +325,35 @@ export default function Menu() {
     return () => observer.disconnect();
   }, []);
 
+  // ── Scroll reveal for Menu cards/columns ──
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      const cards = section.querySelectorAll('.menu-reveal-card');
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { y: 32, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            stagger: 0.08,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   const item = menuItems[activeIndex] || DEFAULT_MENU_ITEMS[0];
 
   return (
@@ -370,7 +399,7 @@ export default function Menu() {
       `}</style>
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 mb-12 lg:mb-16 mt-20 text-center lg:text-left flex flex-col lg:flex-row items-center lg:items-end justify-between">
-        <div className="max-w-2xl">
+        <div className="max-w-2xl menu-reveal-card opacity-0">
           <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-orange-400 mb-4 uppercase block">Stay for the Food.</span>
           <h2 className="font-sans font-bold text-3xl md:text-5xl lg:text-6xl text-lightText mb-6 uppercase tracking-tight">Worth Coming Back For.</h2>
           <p className="font-inter text-lightText/60 text-base leading-relaxed">
@@ -383,7 +412,7 @@ export default function Menu() {
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 min-h-[500px]">
         {/* ════ LEFT: text metadata ════ */}
-        <div className="showcase-text-col lg:w-[38%] flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+        <div className="showcase-text-col lg:w-[38%] flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 menu-reveal-card opacity-0">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={`text-${activeIndex}`}
@@ -462,7 +491,7 @@ export default function Menu() {
 
         {/* ════ CENTER: Media Carousel (Video Loop / Photo) ════ */}
         <div
-          className="showcase-image-col lg:w-[38%] flex justify-center items-center relative"
+          className="showcase-image-col lg:w-[38%] flex justify-center items-center relative menu-reveal-card opacity-0"
           style={{ perspective: '1200px' }}
         >
           {/* decorative ring behind image */}
@@ -510,7 +539,7 @@ export default function Menu() {
         </div>
 
         {/* ════ RIGHT: meta + pagination ════ */}
-        <div className="showcase-cta-col lg:w-[24%] flex flex-col items-center lg:items-end justify-center gap-10">
+        <div className="showcase-cta-col lg:w-[24%] flex flex-col items-center lg:items-end justify-center gap-10 menu-reveal-card opacity-0">
           
           {/* pagination dots */}
           <div className="flex lg:flex-col gap-3">
