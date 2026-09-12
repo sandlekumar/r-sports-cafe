@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import luxuryInterior from '../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.webp';
 import sketchBg from '../assets/architectural-sketch-collage.png.webp';
+import RevealText from './RevealText';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,25 +26,8 @@ export default function Philosophy() {
     const section = sectionRef.current;
     if (!section) return;
 
-    // Query character spans rendered by React
-    const charsPlay = section.querySelectorAll('.char-play');
-    const charsDine = section.querySelectorAll('.char-dine');
-    const charsConnect = section.querySelectorAll('.char-connect');
-    const charsRepeat = section.querySelectorAll('.char-repeat');
-    const allChars = [...charsPlay, ...charsDine, ...charsConnect, ...charsRepeat];
-
     // Use gsap.context for scoped cleanup — only THIS component's triggers are killed on unmount
     const ctx = gsap.context(() => {
-      if (allChars.length > 0) {
-        gsap.fromTo(allChars,
-          { yPercent: 100, opacity: 0 },
-          {
-            yPercent: 0, opacity: 1,
-            stagger: 0.03, duration: 1.4, ease: 'power4.out',
-            scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none none' },
-          }
-        );
-      }
 
       // Image Entrance: zoom out from 1.25 -> 1.0 (slow zoom)
       if (imageRef.current && imageContainerRef.current) {
@@ -83,21 +67,27 @@ export default function Philosophy() {
         });
       }
 
-      // Fade-up with stagger for metadata and story contents
-      const fadeElements = [
-        dividerRef.current, brandStoryRef.current,
-        statementRef.current, footerRef.current,
-      ].filter(Boolean);
+      // Staggered reveal for metadata, story, and footer
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: section, start: 'top 65%' },
+      });
 
-      if (fadeElements.length > 0) {
-        gsap.fromTo(
-          fadeElements,
-          { y: 40, opacity: 0 },
-          {
-            y: 0, opacity: 1, stagger: 0.15, duration: 1.2, ease: 'power3.out',
-            scrollTrigger: { trigger: section, start: 'top 65%' },
-          }
+      if (dividerRef.current) {
+        tl.fromTo(dividerRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, 0);
+      }
+      if (brandStoryRef.current) {
+        tl.fromTo(brandStoryRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, 0.15);
+      }
+      if (statementRef.current) {
+        // Editorial wipe reveal for the statement text
+        tl.fromTo(statementRef.current,
+          { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+          { clipPath: 'inset(0 0% 0 0)', opacity: 1, duration: 1.4, ease: 'power3.inOut' },
+          0.30
         );
+      }
+      if (footerRef.current) {
+        tl.fromTo(footerRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, 0.45);
       }
     }, section); // scoped to this section — won't kill other components' triggers
 
@@ -154,40 +144,16 @@ export default function Philosophy() {
           {/* Massive Editorial Typography Heading */}
           <h2 className="font-sans font-bold text-[clamp(44px,12vw,88px)] leading-[1] tracking-[-0.03em] text-darkText flex flex-col items-start uppercase">
             <div className="overflow-hidden py-1">
-              <span className="block">
-                {word1.split('').map((char, i) => (
-                  <span key={i} className="char-play inline-block">
-                    {char}
-                  </span>
-                ))}
-              </span>
+              <RevealText text={word1} />
             </div>
             <div className="overflow-hidden py-1 text-sandalAccent">
-              <span className="block">
-                {word2.split('').map((char, i) => (
-                  <span key={i} className="char-dine inline-block">
-                    {char}
-                  </span>
-                ))}
-              </span>
+              <RevealText text={word2} />
             </div>
             <div className="overflow-hidden py-1">
-              <span className="block">
-                {word3.split('').map((char, i) => (
-                  <span key={i} className="char-connect inline-block">
-                    {char}
-                  </span>
-                ))}
-              </span>
+              <RevealText text={word3} />
             </div>
             <div className="overflow-hidden py-1 text-sandalAccent">
-              <span className="block">
-                {word4.split('').map((char, i) => (
-                  <span key={i} className="char-repeat inline-block">
-                    {char}
-                  </span>
-                ))}
-              </span>
+              <RevealText text={word4} />
             </div>
           </h2>
 
