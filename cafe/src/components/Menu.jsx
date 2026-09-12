@@ -256,6 +256,7 @@ export default function Menu() {
 
   // Fetch backend menu items if available
   useEffect(() => {
+    /* Temporarily disconnected to show original design data
     let cancelled = false;
     const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
     apiClient('/menu')
@@ -282,6 +283,7 @@ export default function Menu() {
     return () => {
       cancelled = true;
     };
+    */
   }, []);
 
   const paginate = useCallback(

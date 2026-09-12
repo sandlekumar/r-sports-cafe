@@ -87,7 +87,7 @@ export default function Booking() {
     >
       {/* Aesthetic Background */}
       <div className="absolute inset-0 z-0">
-        <img src={bgImage} alt="Luxury Interior" className="w-full h-full object-cover" style={{ filter: 'brightness(0.35) contrast(1.15) sepia(0.1)' }} />
+        <img src={bgImage} alt="Luxury Interior" loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ filter: 'brightness(0.35) contrast(1.15) sepia(0.1)' }} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A] opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-transparent to-transparent opacity-80" />
       </div>
@@ -162,7 +162,7 @@ export default function Booking() {
         <div ref={formColRef} className="lg:w-1/2 w-full opacity-0 relative">
           {/* Aesthetic background image behind the form */}
           <div className="absolute -inset-4 z-0 rounded-[40px] overflow-hidden opacity-50 blur-[2px] hidden md:block">
-             <img src={bgImage} className="w-full h-full object-cover" style={{ filter: 'brightness(1.5) contrast(1.2)' }} alt="" />
+             <img src={bgImage} loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ filter: 'brightness(1.5) contrast(1.2)' }} alt="" />
              <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/40 to-transparent" />
           </div>
           

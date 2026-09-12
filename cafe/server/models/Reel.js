@@ -21,6 +21,9 @@ const reelSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Video URL is required'],
     },
+    thumbnailUrl: {
+      type: String,
+    },
     tag: {
       type: String,
       default: 'HIGHLIGHTS',

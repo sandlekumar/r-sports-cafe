@@ -158,6 +158,8 @@ export default function Hero({ setShowLogo }) {
             ref={nightImageRef}
             src={nightImage}
             alt="Night View"
+            loading="lazy"
+            decoding="async"
             className="absolute top-0 left-0 w-full h-full object-cover select-none pointer-events-none transform-gpu will-change-transform"
             style={{ scale: 1.15 }}
           />

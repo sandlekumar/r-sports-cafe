@@ -71,6 +71,7 @@ export default function Events() {
   const touchEndX = useRef(0);
 
   useEffect(() => {
+    /* Temporarily disconnected to show original design data
     (async () => {
       try {
         const d = await apiClient('/events?tab=upcoming');
@@ -83,6 +84,8 @@ export default function Events() {
         setLoading(false);
       }
     })();
+    */
+    setLoading(false);
   }, []);
 
   const displayEvents = [...events];

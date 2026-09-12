@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { API_BASE_URL } from '../config.js';
+import { API_BASE_URL, SERVER_BASE_URL } from '../config.js';
 import '../admin.css';
 
 /* ─── Greeting helper ─────────────────────────────────────────────────────── */
@@ -942,7 +942,7 @@ export default function AdminDashboard() {
                           <div className="relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center"
                             style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.85)' }}>
                             {ev.photo ? (
-                              <img src={`http://localhost:5000${ev.photo}`} alt={ev.title} className="w-full h-full object-cover" />
+                              <img src={`${SERVER_BASE_URL}${ev.photo}`} alt={ev.title} className="w-full h-full object-cover" />
                             ) : (
                               <span className="text-[22px]">📷</span>
                             )}
@@ -1085,8 +1085,8 @@ export default function AdminDashboard() {
                           <div className="relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden flex items-center justify-center bg-black/30 border border-white/20">
                             {item.video_loop_url && item.is_trending ? (
                               <video
-                                src={item.video_loop_url.startsWith('http') ? item.video_loop_url : `http://localhost:5000${item.video_loop_url}`}
-                                poster={item.photo ? (item.photo.startsWith('http') ? item.photo : `http://localhost:5000${item.photo}`) : undefined}
+                                src={item.video_loop_url.startsWith('http') ? item.video_loop_url : `${SERVER_BASE_URL}${item.video_loop_url}`}
+                                poster={item.photo ? (item.photo.startsWith('http') ? item.photo : `${SERVER_BASE_URL}${item.photo}`) : undefined}
                                 autoPlay
                                 loop
                                 muted
@@ -1095,7 +1095,7 @@ export default function AdminDashboard() {
                               />
                             ) : item.photo ? (
                               <img
-                                src={item.photo.startsWith('http') ? item.photo : `http://localhost:5000${item.photo}`}
+                                src={item.photo.startsWith('http') ? item.photo : `${SERVER_BASE_URL}${item.photo}`}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
                               />
@@ -1255,7 +1255,7 @@ export default function AdminDashboard() {
                           {/* Video Thumbnail (Muted Autoplay) */}
                           <div className="relative w-24 h-36 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/20">
                             <video
-                              src={reel.videoUrl.startsWith('http') || reel.videoUrl.startsWith('/src') ? reel.videoUrl : `http://localhost:5000${reel.videoUrl}`}
+                              src={reel.videoUrl.startsWith('http') || reel.videoUrl.startsWith('/src') ? reel.videoUrl : `${SERVER_BASE_URL}${reel.videoUrl}`}
                               autoPlay
                               loop
                               muted
@@ -1422,7 +1422,7 @@ export default function AdminDashboard() {
                   <div className="glass-card p-6 space-y-0">
                     <h3 className="font-sans font-bold text-[16px] text-[#1a1a2e] mb-4">System Diagnostics</h3>
                     {[
-                      { label: 'Backend REST API',     value: 'http://localhost:5000/api', color: '#059669' },
+                      { label: 'Backend REST API',     value: API_BASE_URL, color: '#059669' },
                       { label: 'Database System',      value: 'MongoDB Connected',         color: '#059669' },
                       { label: 'Dining Duration',      value: '90 Minutes',                color: '#1a1a2e' },
                       { label: 'Booking Intervals',    value: '30-Minute Slots',           color: '#1a1a2e' },
@@ -1859,8 +1859,8 @@ export default function AdminDashboard() {
                   {menuForm.video_loop_url && (
                     <div className="p-3 rounded-2xl bg-[#09090b] border border-orange-500/30 flex items-center gap-4">
                       <video
-                        src={menuForm.video_loop_url.startsWith('http') || menuForm.video_loop_url.startsWith('blob:') || menuForm.video_loop_url.startsWith('data:') ? menuForm.video_loop_url : `http://localhost:5000${menuForm.video_loop_url}`}
-                        poster={menuForm.photo ? (menuForm.photo.startsWith('http') ? menuForm.photo : `http://localhost:5000${menuForm.photo}`) : undefined}
+                        src={menuForm.video_loop_url.startsWith('http') || menuForm.video_loop_url.startsWith('blob:') || menuForm.video_loop_url.startsWith('data:') ? menuForm.video_loop_url : `${SERVER_BASE_URL}${menuForm.video_loop_url}`}
+                        poster={menuForm.photo ? (menuForm.photo.startsWith('http') ? menuForm.photo : `${SERVER_BASE_URL}${menuForm.photo}`) : undefined}
                         autoPlay
                         loop
                         muted
@@ -2089,7 +2089,7 @@ export default function AdminDashboard() {
                   {reelForm.videoUrl && (
                     <div className="p-3 rounded-2xl bg-[#09090b] border border-[#D4AF37]/40 flex items-center gap-4">
                       <video
-                        src={reelForm.videoUrl.startsWith('http') || reelForm.videoUrl.startsWith('blob:') || reelForm.videoUrl.startsWith('/src') ? reelForm.videoUrl : `http://localhost:5000${reelForm.videoUrl}`}
+                        src={reelForm.videoUrl.startsWith('http') || reelForm.videoUrl.startsWith('blob:') || reelForm.videoUrl.startsWith('/src') ? reelForm.videoUrl : `${SERVER_BASE_URL}${reelForm.videoUrl}`}
                         autoPlay
                         loop
                         muted

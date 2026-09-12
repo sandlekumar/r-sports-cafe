@@ -98,6 +98,7 @@ export default function Reels() {
 
   // Fetch live reels from backend API
   useEffect(() => {
+    /* Temporarily disconnected to show original design data
     let cancelled = false;
     const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
     apiClient('/reels')
@@ -124,6 +125,7 @@ export default function Reels() {
     return () => {
       cancelled = true;
     };
+    */
   }, []);
 
   /* ── GSAP entrance animations using useGSAP hook ────────────────────── */

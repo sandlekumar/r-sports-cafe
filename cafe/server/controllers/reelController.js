@@ -1,6 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+ffmpeg.setFfmpegPath(ffmpegPath);
 const Reel = require('../models/Reel');
 
 // ─── Multer Storage Config ───────────────────────────────────────────────────
@@ -36,6 +39,7 @@ const formatReel = (r) => ({
   id: r._id,
   src: r.videoUrl,
   videoUrl: r.videoUrl,
+  thumbnailUrl: r.thumbnailUrl || null,
   caption: r.caption,
   handle: r.handle || '@rsports.cafe',
   tag: r.tag || 'HIGHLIGHTS',
@@ -161,8 +165,53 @@ exports.uploadReelVideo = async (req, res, next) => {
       return res.status(400).json({ success: false, error: { code: 'NO_FILE', message: 'No video file provided' } });
     }
 
-    const videoUrl = `/uploads/reels/${req.file.filename}`;
-    const reel = await Reel.findByIdAndUpdate(id, { videoUrl }, { new: true });
+    const originalPath = req.file.path;
+    const timestamp = Date.now();
+    const videoFilename = `reel-${timestamp}.mp4`;
+    const thumbFilename = `reel-thumb-${timestamp}.jpg`;
+    
+    const uploadsDir = path.join(__dirname, '../uploads/reels');
+    const videoFilepath = path.join(uploadsDir, videoFilename);
+    const thumbFilepath = path.join(uploadsDir, thumbFilename);
+
+    // 1. Transcode video
+    await new Promise((resolve, reject) => {
+      ffmpeg(originalPath)
+        .outputOptions([
+          '-vf scale=-2:720',
+          '-c:v libx264',
+          '-crf 28',
+          '-preset veryfast',
+          '-c:a aac',
+          '-b:a 128k',
+          '-movflags +faststart'
+        ])
+        .toFormat('mp4')
+        .on('end', resolve)
+        .on('error', reject)
+        .save(videoFilepath);
+    });
+
+    // 2. Extract thumbnail
+    await new Promise((resolve, reject) => {
+      ffmpeg(videoFilepath)
+        .screenshots({
+          timestamps: [1],
+          filename: thumbFilename,
+          folder: uploadsDir,
+          size: '?x720' // match 720p height
+        })
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    // 3. Cleanup original
+    if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+
+    const videoUrl = `/uploads/reels/${videoFilename}`;
+    const thumbnailUrl = `/uploads/reels/${thumbFilename}`;
+    
+    const reel = await Reel.findByIdAndUpdate(id, { videoUrl, thumbnailUrl }, { new: true });
     if (!reel) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reel not found' } });
     }

@@ -40,7 +40,7 @@ export default function App() {
     if (!email) return;
     try {
       setJoinStatus('Joining...');
-      await apiClient('/newsletter/subscribe', {
+      await apiClient('/newsletter', {
         method: 'POST',
         body: JSON.stringify({ email }),
       });

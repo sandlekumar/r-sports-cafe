@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /* â”€â”€â”€ Brand Palette (matching site identity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -293,6 +293,8 @@ export default function Reviews() {
                           <img
                             src={currentReview.avatar}
                             alt={currentReview.name}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover object-top"
                           />
                         </div>
@@ -388,6 +390,8 @@ export default function Reviews() {
                     <img
                       src={currentReview.avatar}
                       alt={currentReview.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover object-top"
                     />
                   </div>

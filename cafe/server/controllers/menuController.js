@@ -1,6 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const sharp = require('sharp');
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+ffmpeg.setFfmpegPath(ffmpegPath);
 const MenuItem = require('../models/MenuItem');
 
 // ─── Multer Storage Config ───────────────────────────────────────────────────
@@ -172,7 +176,20 @@ exports.uploadMenuPhoto = async (req, res, next) => {
       return res.status(400).json({ success: false, error: { code: 'NO_FILE', message: 'No image file provided' } });
     }
 
-    const photoUrl = `/uploads/menu/${req.file.filename}`;
+    const originalPath = req.file.path;
+    const filename = `menu-photo-${Date.now()}.webp`;
+    const uploadsDir = path.join(__dirname, '../uploads/menu');
+    const filepath = path.join(uploadsDir, filename);
+
+    await sharp(originalPath)
+      .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(filepath);
+
+    // Delete the original uploaded file
+    if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+
+    const photoUrl = `/uploads/menu/${filename}`;
     const item = await MenuItem.findByIdAndUpdate(id, { photo: photoUrl }, { new: true });
     if (!item) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Menu item not found' } });
@@ -194,7 +211,31 @@ exports.uploadMenuVideo = async (req, res, next) => {
       return res.status(400).json({ success: false, error: { code: 'NO_FILE', message: 'No video file provided' } });
     }
 
-    const videoUrl = `/uploads/menu/${req.file.filename}`;
+    const originalPath = req.file.path;
+    const filename = `menu-video-${Date.now()}.mp4`;
+    const uploadsDir = path.join(__dirname, '../uploads/menu');
+    const filepath = path.join(uploadsDir, filename);
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(originalPath)
+        .outputOptions([
+          '-vf scale=-2:720',
+          '-c:v libx264',
+          '-crf 28',
+          '-preset veryfast',
+          '-c:a aac',
+          '-b:a 128k',
+          '-movflags +faststart'
+        ])
+        .toFormat('mp4')
+        .on('end', resolve)
+        .on('error', reject)
+        .save(filepath);
+    });
+
+    if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+
+    const videoUrl = `/uploads/menu/${filename}`;
     const item = await MenuItem.findByIdAndUpdate(id, { video_loop_url: videoUrl, is_trending: true }, { new: true });
     if (!item) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Menu item not found' } });
