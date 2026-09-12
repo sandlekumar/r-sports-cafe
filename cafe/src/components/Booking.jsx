@@ -29,20 +29,24 @@ export default function Booking() {
     if (!section) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        formColRef.current,
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 75%',
-          },
-        }
-      );
+      const elements = section.querySelectorAll('.fade-up-element');
+      if (elements.length > 0) {
+        gsap.fromTo(
+          elements,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            stagger: 0.15,
+            duration: 1.2,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 75%',
+            },
+          }
+        );
+      }
     }, section);
 
     return () => ctx.revert();
@@ -96,7 +100,7 @@ export default function Booking() {
         
         {/* Left Side: Aesthetic Typography */}
         <div className="lg:w-1/2 text-white">
-          <div className="mb-8">
+          <div className="mb-8 fade-up-element opacity-0">
             <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-[#D4AF37] mb-6 block">
               YOUR TABLE. YOUR TIME.
             </span>
@@ -104,7 +108,7 @@ export default function Booking() {
               Make<br />It R.
             </h2>
           </div>
-          <div className="font-inter font-normal text-[16px] md:text-[18px] text-white/60 tracking-[-0.01em] leading-[1.8] max-w-md space-y-4">
+          <div className="font-inter font-normal text-[16px] md:text-[18px] text-white/60 tracking-[-0.01em] leading-[1.8] max-w-md space-y-4 fade-up-element opacity-0">
             <p><strong>What's Your Plan Today?</strong></p>
             <p className="text-[15px]">
               <strong>A game?</strong> Book the turf.<br />
@@ -113,13 +117,13 @@ export default function Booking() {
             </p>
             <p>Reserve your table before you arrive and spend less time waiting and more time enjoying the moment.</p>
           </div>
-          <div className="mt-12 flex items-center gap-4">
+          <div className="mt-12 flex items-center gap-4 fade-up-element opacity-0">
             <div className="w-12 h-[1px] bg-gradient-to-r from-[#D4AF37] to-transparent" />
             <span className="font-inter text-[11px] tracking-[0.2em] text-[#D4AF37] uppercase">
               Find Us in Thoothukudi
             </span>
           </div>
-          <div className="mt-8">
+          <div className="mt-8 fade-up-element opacity-0">
             <p className="font-inter text-white text-[14px] leading-relaxed mb-6 opacity-80">
               <strong className="text-white">R SPORTS & CAFE</strong><br/>
               SNR Nagar, 4/4,<br/>
@@ -159,7 +163,7 @@ export default function Booking() {
         </div>
 
         {/* Right Side: Glassmorphic Form */}
-        <div ref={formColRef} className="lg:w-1/2 w-full opacity-0 relative">
+        <div ref={formColRef} className="lg:w-1/2 w-full relative fade-up-element opacity-0">
           {/* Aesthetic background image behind the form */}
           <div className="absolute -inset-4 z-0 rounded-[40px] overflow-hidden opacity-50 blur-[2px] hidden md:block">
              <img src={bgImage} loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ filter: 'brightness(1.5) contrast(1.2)' }} alt="" />

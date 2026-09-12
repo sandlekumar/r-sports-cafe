@@ -39,88 +39,6 @@ export default function Turf() {
     const container = containerRef.current;
     if (!container) return;
 
-    // Section wipe-up transition
-    gsap.fromTo(
-      container,
-      { clipPath: 'inset(100% 0 0 0)' },
-      {
-        clipPath: 'inset(0% 0 0 0)',
-        duration: 1.4,
-        ease: 'power3.inOut',
-        scrollTrigger: {
-          trigger: container,
-          start: 'top 85%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
-
-    const splitToSpans = (element) => {
-      if (!element) return;
-      const text = element.textContent;
-      element.innerHTML = '';
-      text.split('').forEach((char) => {
-        const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char; // Preserve spaces with non-breaking space
-        span.style.display = 'inline-block';
-        span.className = 'char';
-        element.appendChild(span);
-      });
-    };
-
-    // Split words into spans for letter animation
-    splitToSpans(word1Ref.current);
-    splitToSpans(word2Ref.current);
-    splitToSpans(word3Ref.current);
-
-    const chars1 = word1Ref.current?.querySelectorAll('.char') || [];
-    const chars2 = word2Ref.current?.querySelectorAll('.char') || [];
-    const chars3 = word3Ref.current?.querySelectorAll('.char') || [];
-    const allChars = [...chars1, ...chars2, ...chars3];
-
-    // GSAP ScrollTrigger for split-letter reveal using autoAlpha
-    if (allChars.length > 0) {
-      gsap.fromTo(
-        allChars,
-        {
-          yPercent: 100,
-          autoAlpha: 0,
-        },
-        {
-          yPercent: 0,
-          autoAlpha: 1,
-          stagger: 0.03,
-          duration: 1.4,
-          ease: 'power4.out',
-          scrollTrigger: {
-            trigger: container,
-            start: 'top 75%',
-            end: 'bottom 25%',
-            toggleActions: 'play none none none',
-          },
-        }
-      );
-    }
-
-    // Fade-in the CTA button
-    if (ctaRef.current) {
-      gsap.fromTo(
-        ctaRef.current,
-        { autoAlpha: 0, y: 30 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 1,
-          delay: 0.6,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: container,
-            start: 'top 75%',
-          },
-        }
-      );
-    }
-
     // Scroll-triggered video playback control
     if (videoRef.current) {
       gsap.to(videoRef.current, {
@@ -136,18 +54,21 @@ export default function Turf() {
       });
     }
 
-    // Heading scaling illusion on scroll
-    if (headingRef.current) {
+    // Simple fade-up + stagger (matching Philosophy)
+    const elements = container.querySelectorAll('.fade-up-element');
+    if (elements.length > 0) {
       gsap.fromTo(
-        headingRef.current,
-        { scale: 1.2 },
+        elements,
+        { opacity: 0, y: 40 },
         {
-          scale: 1,
+          opacity: 1,
+          y: 0,
+          stagger: 0.15,
+          duration: 1.2,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: container,
-            start: 'top 70%',
-            end: 'top 30%',
-            scrub: true,
+            start: 'top 75%',
           },
         }
       );
@@ -185,17 +106,17 @@ export default function Turf() {
 
       {/* Main Campaign Message */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-5xl w-full">
-        <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-white/60 mb-8 uppercase">
+        <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-white/60 mb-8 uppercase fade-up-element opacity-0">
           TURF & SPORTS BOOKING
         </span>
 
-        <h2 ref={headingRef} className="flex flex-col items-center justify-center font-sans font-bold text-[clamp(44px,12vw,88px)] leading-[1.05] tracking-[-0.03em] text-white mb-8 uppercase">
-          <div className="overflow-hidden pb-4" ref={word1Ref}>GAME ON.</div>
-          <div className="overflow-hidden pb-4 text-white/60" ref={word2Ref}>PLAY HARD.</div>
-          <div className="overflow-hidden pb-4" ref={word3Ref}>CHILL AFTER.</div>
+        <h2 className="flex flex-col items-center justify-center font-sans font-bold text-[clamp(44px,12vw,88px)] leading-[1.05] tracking-[-0.03em] text-white mb-8 uppercase fade-up-element opacity-0">
+          <div>GAME ON.</div>
+          <div className="text-white/60">PLAY HARD.</div>
+          <div>CHILL AFTER.</div>
         </h2>
 
-        <div className="max-w-2xl text-center mb-12 opacity-90">
+        <div className="max-w-2xl text-center mb-12 opacity-90 fade-up-element opacity-0">
           <p className="font-inter text-white text-lg md:text-xl leading-relaxed mb-4 font-medium">Get your team together and book your time on the turf.</p>
           <p className="font-inter text-white/70 text-sm md:text-base leading-relaxed">
             Perfect for friendly matches, regular games and weekend sessions with your crew. Once the game is over, the cafe is right there waiting.
@@ -203,7 +124,7 @@ export default function Turf() {
         </div>
 
         {/* Minimal CTA button */}
-        <div ref={ctaRef} className="opacity-0 w-full sm:w-auto flex justify-center">
+        <div className="w-full sm:w-auto flex justify-center fade-up-element opacity-0">
           <a 
             href="https://book.playspots.in/venues/r-sports-cafe-tiruchendur-main-road-tuticorin"
             target="_blank" rel="noopener noreferrer"

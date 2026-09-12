@@ -3,12 +3,26 @@ import { Link, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import Booking from '../components/Booking';
 import { trackEvent } from '../utils/analytics';
+import gsap from 'gsap';
 
 export default function ContactPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const ctx = gsap.context(() => {
+      const elements = document.querySelectorAll('.fade-up-element');
+      if (elements.length > 0) {
+        gsap.fromTo(
+          elements,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, stagger: 0.15, duration: 1.2, ease: 'power3.out' }
+        );
+      }
+    });
+
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -23,8 +37,8 @@ export default function ContactPage() {
 
       <main className="bg-[#0A0A0A]">
         <div className="pt-24 pb-8 px-6 lg:px-16 text-center max-w-3xl mx-auto">
-          <h1 className="font-sans font-bold text-4xl md:text-5xl lg:text-6xl text-[#D4AF37] uppercase tracking-wider mb-4">Contact & Reservations</h1>
-          <p className="text-white/60 font-inter text-sm md:text-base">Reserve your table, book the turf, or get in touch for any inquiries.</p>
+          <h1 className="font-sans font-bold text-4xl md:text-5xl lg:text-6xl text-[#D4AF37] uppercase tracking-wider mb-4 fade-up-element opacity-0">Contact & Reservations</h1>
+          <p className="text-white/60 font-inter text-sm md:text-base fade-up-element opacity-0">Reserve your table, book the turf, or get in touch for any inquiries.</p>
         </div>
         <Booking />
       </main>
