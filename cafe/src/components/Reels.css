@@ -139,6 +139,53 @@
   right: 20px;
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   Breakpoints for Reels Carousel
+   ───────────────────────────────────────────────────────────────── */
+
+/* BP1: ≤360px (iPhone SE, Galaxy S) */
+@media (max-width: 360px) {
+  .reels-carousel-container { height: 380px; }
+  .reels-carousel-card { width: 170px; border-radius: 28px; }
+  .reels-carousel-card.left { transform: translateX(-95%) translateY(5%) scale(0.88) rotate(-12deg) rotateY(15deg); }
+  .reels-carousel-card.right { transform: translateX(95%) translateY(5%) scale(0.88) rotate(12deg) rotateY(-15deg); }
+  .reels-carousel-card.hidden-left { transform: translateX(-190%) translateY(10%) scale(0.7) rotate(-20deg) rotateY(25deg); }
+  .reels-carousel-card.hidden-right { transform: translateX(190%) translateY(10%) scale(0.7) rotate(20deg) rotateY(-25deg); }
+  .carousel-nav-btn { width: 36px; height: 36px; }
+  .carousel-nav-btn.prev { left: 8px; }
+  .carousel-nav-btn.next { right: 8px; }
+}
+
+/* BP2: 361–414px (iPhone 12/14, Pixel 5) */
+@media (min-width: 361px) and (max-width: 414px) {
+  .reels-carousel-container { height: 420px; }
+  .reels-carousel-card { width: 200px; }
+  .reels-carousel-card.left { transform: translateX(-105%) translateY(5%) scale(0.88) rotate(-12deg) rotateY(15deg); }
+  .reels-carousel-card.right { transform: translateX(105%) translateY(5%) scale(0.88) rotate(12deg) rotateY(-15deg); }
+  .reels-carousel-card.hidden-left { transform: translateX(-210%) translateY(10%) scale(0.7) rotate(-20deg) rotateY(25deg); }
+  .reels-carousel-card.hidden-right { transform: translateX(210%) translateY(10%) scale(0.7) rotate(20deg) rotateY(-25deg); }
+  .carousel-nav-btn.prev { left: 12px; }
+  .carousel-nav-btn.next { right: 12px; }
+}
+
+/* BP3: 415–540px (larger phones) */
+@media (min-width: 415px) and (max-width: 540px) {
+  .reels-carousel-container { height: 450px; }
+  .reels-carousel-card { width: 230px; }
+}
+
+/* BP4: 541–640px (phablets, Galaxy Fold open) */
+@media (min-width: 541px) and (max-width: 640px) {
+  .reels-carousel-container { height: 480px; }
+  .reels-carousel-card { width: 260px; }
+}
+
+/* BP5: 641–767px (small tablets) */
+@media (min-width: 641px) and (max-width: 767px) {
+  .reels-carousel-container { height: 520px; }
+  .reels-carousel-card { width: 280px; }
+}
+
 @media (min-width: 768px) {
   .carousel-nav-btn.prev {
     left: 40px;

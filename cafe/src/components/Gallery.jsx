@@ -170,7 +170,7 @@ export default function Gallery() {
   return (
     <section
       ref={triggerRef}
-      className={`relative bg-sandalBg text-darkText select-none ${isMobile ? 'py-16 px-4' : 'h-[100dvh] overflow-hidden'}`}
+      className={`relative bg-sandalBg text-darkText select-none ${isMobile ? 'py-12 xs:py-14 sm:py-16 px-3 xs:px-4' : 'h-[100dvh] overflow-hidden'}`}
       id="gallery"
     >
       {/* Background Frame Details */}
@@ -215,7 +215,7 @@ export default function Gallery() {
           <span className="font-inter font-medium text-[11px] tracking-[0.24em] text-neutral-400 mb-2 block uppercase">
             Visual Index
           </span>
-          <h2 className="font-sans font-bold text-4xl text-darkText leading-none uppercase tracking-tight mb-3">
+          <h2 className="font-sans font-bold text-3xl xs:text-4xl text-darkText leading-none uppercase tracking-tight mb-3">
             Taste &amp; Play.
           </h2>
           <p className="font-inter font-normal text-sm text-darkText/70 leading-relaxed">
@@ -272,7 +272,7 @@ export default function Gallery() {
             {galleryItems.map((item, idx) => (
               <div
                 key={item.id}
-                className="gallery-item-card opacity-0 snap-center flex-shrink-0 w-[86vw] flex flex-col bg-white/60 p-4 rounded-2xl border border-black/5 shadow-lg"
+                className="gallery-item-card opacity-0 snap-center flex-shrink-0 w-[92vw] xs:w-[86vw] sm:w-[65vw] flex flex-col bg-white/60 p-3 xs:p-4 rounded-xl xs:rounded-2xl border border-black/5 shadow-lg"
               >
                 <div className="flex justify-between items-center mb-3 font-inter font-medium text-[11px] text-neutral-400 uppercase">
                   <span>ARCHIVE // {item.id}</span>
@@ -288,7 +288,7 @@ export default function Gallery() {
                 </div>
                 <div className="flex justify-between items-end">
                   <div>
-                    <h3 className="font-sans font-bold text-lg text-darkText uppercase leading-tight">
+                    <h3 className="font-sans font-bold text-base xs:text-lg text-darkText uppercase leading-tight">
                       {item.title}
                     </h3>
                   </div>
@@ -305,7 +305,7 @@ export default function Gallery() {
             <button
               onClick={() => scrollToMobileIndex(Math.max(0, mobileActive - 1))}
               disabled={mobileActive === 0}
-              className="w-10 h-10 rounded-full bg-white border border-black/10 text-darkText flex items-center justify-center shadow-md disabled:opacity-30"
+              className="w-8 h-8 xs:w-10 xs:h-10 rounded-full bg-white border border-black/10 text-darkText flex items-center justify-center shadow-md disabled:opacity-30"
               aria-label="Previous Slide"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -332,7 +332,7 @@ export default function Gallery() {
             <button
               onClick={() => scrollToMobileIndex(Math.min(galleryItems.length - 1, mobileActive + 1))}
               disabled={mobileActive === galleryItems.length - 1}
-              className="w-10 h-10 rounded-full bg-darkText text-white flex items-center justify-center shadow-md disabled:opacity-30"
+              className="w-8 h-8 xs:w-10 xs:h-10 rounded-full bg-darkText text-white flex items-center justify-center shadow-md disabled:opacity-30"
               aria-label="Next Slide"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

@@ -170,7 +170,7 @@ export default function Events() {
   return (
     <section 
       id="events" 
-      className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-between py-16 px-4 md:px-12 overflow-hidden font-sans select-none"
+      className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-between py-12 xs:py-14 sm:py-16 px-4 md:px-12 overflow-hidden font-sans select-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -198,7 +198,7 @@ export default function Events() {
       </div>
 
       {/* Interactive Card Canvas Area */}
-      <div className="relative w-full max-w-6xl h-[520px] sm:h-[620px] md:h-[720px] flex items-center justify-center my-auto z-10">
+      <div className="relative w-full max-w-6xl h-[460px] xs:h-[500px] sm:h-[620px] md:h-[720px] flex items-center justify-center my-auto z-10">
         {/* Mobile Swipe Indicator */}
         {isMobile && (
           <div className="absolute -top-6 sm:-top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[#111111]/50 pointer-events-none z-50">
@@ -219,16 +219,14 @@ export default function Events() {
               onClick={() => {
                 if (!isCenter) setActiveIndex(idx);
               }}
-              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''}`}
+              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[92vw] xs:w-[86vw] sm:w-[400px] md:w-[480px] max-w-[480px]`}
               style={{
-                width: isMobile ? '88vw' : '480px',
-                maxWidth: '480px',
                 zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10
               }}
               animate={getVariant(pos, isMobile)}
               transition={{ type: 'spring', damping: 20, stiffness: 120 }}
             >
-              <div className="ev-stamp-mask bg-ev-card w-full h-full p-5 sm:p-7 md:p-8 flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl border border-black/5 shadow-2xl">
+              <div className="ev-stamp-mask bg-ev-card w-full h-full p-4 xs:p-5 sm:p-7 md:p-8 flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl border border-black/5 shadow-2xl">
                 <SportsWatermark />
 
                 {/* Event Image Box */}
@@ -333,7 +331,7 @@ export default function Events() {
           <button
             onClick={handlePrev}
             aria-label="Previous Event"
-            className="w-12 h-12 rounded-full bg-white/80 border border-black/10 text-charcoal flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-all active:scale-95"
+            className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-white/80 border border-black/10 text-charcoal flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-all active:scale-95"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -360,7 +358,7 @@ export default function Events() {
           <button
             onClick={handleNext}
             aria-label="Next Event"
-            className="w-12 h-12 rounded-full bg-charcoal text-white flex items-center justify-center shadow-lg hover:bg-[#c91010] transition-all active:scale-95"
+            className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-charcoal text-white flex items-center justify-center shadow-lg hover:bg-[#c91010] transition-all active:scale-95"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

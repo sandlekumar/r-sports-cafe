@@ -293,12 +293,12 @@ export default function Reels() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 md:py-40 px-6 md:px-20 overflow-hidden"
+      className="relative py-20 xs:py-24 sm:py-28 md:py-40 px-4 xs:px-5 sm:px-6 md:px-20 overflow-hidden"
       id="reels"
       style={{ background: 'linear-gradient(180deg, #F7F3EC 0%, #F0EDE6 50%, #F7F3EC 100%)' }}
     >
       {/* ── Section Header ────────────────────────────────────────────── */}
-      <div ref={headerRef} className="max-w-7xl mx-auto mb-16 md:mb-24 opacity-0">
+      <div ref={headerRef} className="max-w-7xl mx-auto mb-12 xs:mb-14 sm:mb-16 md:mb-24 opacity-0">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div>
             <div className="flex items-center gap-3 mb-5">
@@ -307,7 +307,7 @@ export default function Reels() {
                 REELS • HIGHLIGHTS
               </span>
             </div>
-            <h2 className="font-sans font-bold text-[clamp(40px,10vw,72px)] text-darkText leading-[0.95] tracking-[-0.03em] uppercase">
+            <h2 className="font-sans font-bold text-[clamp(32px,9vw,72px)] text-darkText leading-[0.95] tracking-[-0.03em] uppercase">
               Behind<br />The Scenes.
             </h2>
           </div>

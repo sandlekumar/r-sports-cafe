@@ -3,6 +3,7 @@ const RestaurantTable = require('../models/RestaurantTable');
 const RestaurantArea = require('../models/RestaurantArea');
 const Customer = require('../models/Customer');
 const BookingHistory = require('../models/BookingHistory');
+const Booking = require('../models/Booking');
 
 /**
  * POST /api/admin/login
@@ -95,9 +96,25 @@ exports.getOverviewStats = async (req, res, next) => {
 
 /**
  * GET /api/admin/bookings
+ * Returns legacy general-enquiry bookings
+ */
+exports.getAllLegacyBookings = async (req, res, next) => {
+  try {
+    const bookings = await Booking.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      data: bookings,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * GET /api/admin/table-bookings
  * Returns table bookings list with search & status filter
  */
-exports.getAllBookings = async (req, res, next) => {
+exports.getAllTableBookings = async (req, res, next) => {
   try {
     const { status, search } = req.query;
 
@@ -198,6 +215,99 @@ exports.getAllTables = async (req, res, next) => {
         tables,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/admin/areas
+ * Creates a new restaurant area
+ */
+exports.createArea = async (req, res, next) => {
+  try {
+    const newArea = new RestaurantArea(req.body);
+    const savedArea = await newArea.save();
+    res.status(201).json({ success: true, data: savedArea });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * PUT /api/admin/areas/:id
+ * Updates a restaurant area
+ */
+exports.updateArea = async (req, res, next) => {
+  try {
+    const updatedArea = await RestaurantArea.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedArea) {
+      return res.status(404).json({ success: false, error: { message: 'Area not found' } });
+    }
+    res.json({ success: true, data: updatedArea });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * DELETE /api/admin/areas/:id
+ * Deletes a restaurant area
+ */
+exports.deleteArea = async (req, res, next) => {
+  try {
+    const deletedArea = await RestaurantArea.findByIdAndDelete(req.params.id);
+    if (!deletedArea) {
+      return res.status(404).json({ success: false, error: { message: 'Area not found' } });
+    }
+    // Note: In production you might want to prevent deleting areas that have tables or bookings
+    res.json({ success: true, data: {} });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/admin/tables
+ * Creates a new restaurant table
+ */
+exports.createTable = async (req, res, next) => {
+  try {
+    const newTable = new RestaurantTable(req.body);
+    const savedTable = await newTable.save();
+    res.status(201).json({ success: true, data: savedTable });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * PUT /api/admin/tables/:id
+ * Updates a restaurant table
+ */
+exports.updateTable = async (req, res, next) => {
+  try {
+    const updatedTable = await RestaurantTable.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedTable) {
+      return res.status(404).json({ success: false, error: { message: 'Table not found' } });
+    }
+    res.json({ success: true, data: updatedTable });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * DELETE /api/admin/tables/:id
+ * Deletes a restaurant table
+ */
+exports.deleteTable = async (req, res, next) => {
+  try {
+    const deletedTable = await RestaurantTable.findByIdAndDelete(req.params.id);
+    if (!deletedTable) {
+      return res.status(404).json({ success: false, error: { message: 'Table not found' } });
+    }
+    res.json({ success: true, data: {} });
   } catch (err) {
     next(err);
   }

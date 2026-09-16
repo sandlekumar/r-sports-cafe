@@ -61,7 +61,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 md:px-12 pointer-events-none flex justify-between items-center font-sans transition-all duration-500 ${scrolled ? 'py-4' : 'py-6 md:py-8'}`}
+      <nav className={`fixed top-0 left-0 w-full z-50 px-3 xs:px-4 sm:px-6 md:px-12 pointer-events-none flex justify-between items-center font-sans transition-all duration-500 ${scrolled ? 'py-3 sm:py-4' : 'py-4 sm:py-6 md:py-8'}`}
         style={{
           background: 'transparent',
           backdropFilter: 'none',
@@ -71,8 +71,9 @@ export default function Navbar() {
       >
         
         {/* Left: Floating Brand Logo with small R monogram icon */}
-        <div 
-          className="pointer-events-auto flex items-center gap-2.5 px-3 md:px-4 py-2 md:py-2.5 rounded-full select-none transition-all duration-300 hover:scale-102"
+        <Link 
+          to="/"
+          className="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full select-none transition-all duration-300 hover:scale-102"
         >
           {/* Custom luxury R logo SVG monogram */}
           <svg 
@@ -86,10 +87,10 @@ export default function Navbar() {
             <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
             <path d="M13 13l4 4" />
           </svg>
-          <span className={`font-sans font-semibold text-[18px] md:text-[22px] tracking-[0.08em] whitespace-nowrap transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}>
-            R SPORTS <span className="hidden sm:inline">&amp; CAFE</span>
+          <span className={`font-sans font-semibold text-[14px] xs:text-[16px] sm:text-[18px] md:text-[22px] tracking-[0.08em] whitespace-nowrap transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}>
+            R SPORTS <span className="hidden xs:inline">&amp; CAFE</span>
           </span>
-        </div>
+        </Link>
 
         {/* Center: Rounded Pill Navbar in transparent clear glass style */}
         <div 
@@ -102,11 +103,19 @@ export default function Navbar() {
         >
           {menuItems.map((item) => {
             const isMenu = item === 'MENU';
+            const isHome = item === 'HOME';
             const isBook = item === 'BOOKING';
-            const targetUrl = isMenu ? '/menu' : isBook ? '/book-table' : (isHomePage ? `#${item.toLowerCase()}` : `/#${item.toLowerCase()}`);
+            const targetUrl = isHome
+              ? (isHomePage ? '#hero-section' : '/')
+              : isMenu
+              ? '/menu'
+              : isBook
+              ? (isHomePage ? '#booking' : '/book-table')
+              : (isHomePage ? `#${item.toLowerCase()}` : `/#${item.toLowerCase()}`);
+            const isInternalRoute = isMenu || (!isHomePage && (isHome || isBook));
             return (
               <MagneticButton key={item} strength={0.25}>
-                {isMenu || isBook ? (
+                {isInternalRoute ? (
                   <Link
                     to={targetUrl}
                     className={`relative font-sans text-[15px] tracking-[0.08em] font-medium transition-colors duration-500 uppercase ${activeSection === item.toLowerCase() ? (isDark ? 'text-white' : 'text-darkText') : (isDark ? 'text-white/50 hover:text-white' : 'text-darkText/50 hover:text-darkText')}`}
@@ -135,7 +144,7 @@ export default function Navbar() {
             <Link
               to="/book-table"
               onClick={() => trackEvent('Table Booking Click', 'Navigation', 'Navbar Reserve Table')}
-              className="pointer-events-auto flex font-sans font-medium text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.08em] px-4 sm:px-5 md:px-6 py-2 md:py-2.5 rounded-full border transition-all duration-300 hover:scale-105 uppercase"
+              className="pointer-events-auto flex font-sans font-medium text-[10px] xs:text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.08em] px-3 xs:px-4 sm:px-5 md:px-6 py-1.5 xs:py-2 md:py-2.5 rounded-full border transition-all duration-300 hover:scale-105 uppercase"
               style={{ borderColor: '#D4AF37', color: '#D4AF37', background: 'transparent' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#D4AF37'; e.currentTarget.style.color = '#070707'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#D4AF37'; }}
@@ -149,7 +158,7 @@ export default function Navbar() {
 
           {/* Hamburger Menu Toggle (Mobile) */}
           <button 
-            className="pointer-events-auto md:hidden w-10 h-10 rounded-full bg-white/50 border border-darkText/10 backdrop-blur-md flex flex-col items-center justify-center gap-[4px] relative z-[60]"
+            className="pointer-events-auto md:hidden w-9 h-9 xs:w-10 xs:h-10 rounded-full bg-white/50 border border-darkText/10 backdrop-blur-md flex flex-col items-center justify-center gap-[4px] relative z-[60]"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle Menu"
           >
@@ -172,11 +181,19 @@ export default function Navbar() {
           >
             <div className="absolute inset-0 bg-white/20 backdrop-blur-3xl pointer-events-none" />
             
-            <ul className="relative z-10 flex flex-col items-center gap-6 w-full px-6">
+            <ul className="relative z-10 flex flex-col items-center gap-4 xs:gap-5 sm:gap-6 w-full px-6">
               {menuItems.map((item, i) => {
                 const isMenu = item === 'MENU';
+                const isHome = item === 'HOME';
                 const isBook = item === 'BOOKING';
-                const targetUrl = isMenu ? '/menu' : isBook ? '/book-table' : (isHomePage ? `#${item.toLowerCase()}` : `/#${item.toLowerCase()}`);
+                const targetUrl = isHome
+                  ? (isHomePage ? '#hero-section' : '/')
+                  : isMenu
+                  ? '/menu'
+                  : isBook
+                  ? (isHomePage ? '#booking' : '/book-table')
+                  : (isHomePage ? `#${item.toLowerCase()}` : `/#${item.toLowerCase()}`);
+                const isInternalRoute = isMenu || (!isHomePage && (isHome || isBook));
                 return (
                   <motion.li 
                     key={item}
@@ -184,10 +201,10 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 + (i * 0.05), duration: 0.4 }}
                   >
-                    {isMenu || isBook ? (
+                    {isInternalRoute ? (
                       <Link
                         to={targetUrl}
-                        className={`font-sans font-bold text-[32px] tracking-widest uppercase transition-colors ${activeSection === item.toLowerCase() ? 'text-[#D4AF37]' : 'text-darkText hover:text-darkText/70'}`}
+                        className={`font-sans font-bold text-[22px] xs:text-[26px] sm:text-[32px] tracking-widest uppercase transition-colors ${activeSection === item.toLowerCase() ? 'text-[#D4AF37]' : 'text-darkText hover:text-darkText/70'}`}
                         onClick={() => setMenuOpen(false)}
                       >
                         {item}
@@ -195,7 +212,7 @@ export default function Navbar() {
                     ) : (
                       <a
                         href={targetUrl}
-                        className={`font-sans font-bold text-[32px] tracking-widest uppercase transition-colors ${activeSection === item.toLowerCase() ? 'text-[#D4AF37]' : 'text-darkText hover:text-darkText/70'}`}
+                        className={`font-sans font-bold text-[22px] xs:text-[26px] sm:text-[32px] tracking-widest uppercase transition-colors ${activeSection === item.toLowerCase() ? 'text-[#D4AF37]' : 'text-darkText hover:text-darkText/70'}`}
                         onClick={() => setMenuOpen(false)}
                       >
                         {item}

@@ -107,7 +107,6 @@ export default function Philosophy() {
           src={sketchBg}
           alt=""
           aria-hidden="true"
-          loading="lazy"
           decoding="async"
           className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform mix-blend-multiply"
           style={{ opacity: 0 }}

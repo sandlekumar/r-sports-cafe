@@ -7,6 +7,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // Use string path instead of import to prevent Vite from bundling the 5.7MB video
 const TURF_VIDEO_PATH = new URL('../assets/turf.mp4', import.meta.url).href;
+const TURF_POSTER_PATH = new URL('../assets/turf-poster.webp', import.meta.url).href;
 
 export default function Turf() {
   const containerRef = useRef(null);
@@ -17,42 +18,43 @@ export default function Turf() {
   const videoRef = useRef(null);
   const headingRef = useRef(null);
   const [videoSrc, setVideoSrc] = useState(null);
+  const [videoInView, setVideoInView] = useState(false);
 
-  // Lazy load video: only set src when section is near viewport
+  // IntersectionObserver lazy loading: mount and play only when in view, pause when out
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || typeof IntersectionObserver === 'undefined') return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
+        setVideoInView(entry.isIntersecting);
         if (entry.isIntersecting) {
           setVideoSrc(TURF_VIDEO_PATH);
-          observer.disconnect();
+          videoRef.current?.play().catch(() => {});
+        } else {
+          videoRef.current?.pause();
         }
       },
-      { rootMargin: '400px' }
+      { rootMargin: '400px', threshold: 0.2 }
     );
+
     observer.observe(container);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    if (videoInView) {
+      videoRef.current.play().catch(() => {});
+    } else {
+      videoRef.current.pause();
+    }
+  }, [videoInView, videoSrc]);
+
   useGSAP(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    // Scroll-triggered video playback control
-    if (videoRef.current) {
-      gsap.to(videoRef.current, {
-        scrollTrigger: {
-          trigger: container,
-          start: 'top center',
-          end: 'bottom center',
-          onEnter: () => videoRef.current && videoRef.current.play().catch(() => {}),
-          onLeave: () => videoRef.current && videoRef.current.pause(),
-          onEnterBack: () => videoRef.current && videoRef.current.play().catch(() => {}),
-          onLeaveBack: () => videoRef.current && videoRef.current.pause(),
-        },
-      });
-    }
 
     // Simple fade-up + stagger (matching Philosophy)
     const elements = container.querySelectorAll('.fade-up-element');
@@ -73,7 +75,7 @@ export default function Turf() {
         }
       );
     }
-  }, { scope: containerRef, dependencies: [videoSrc] });
+  }, { scope: containerRef });
 
   return (
     <section 
@@ -90,7 +92,8 @@ export default function Turf() {
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
+            poster={TURF_POSTER_PATH}
             className="w-full h-full object-cover"
           />
         ) : (

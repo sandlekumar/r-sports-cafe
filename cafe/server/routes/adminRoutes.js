@@ -22,9 +22,25 @@ router.get('/health', (req, res) => {
 });
 
 router.get('/overview', adminController.getOverviewStats);
-router.get('/bookings', adminController.getAllBookings);
-router.patch('/bookings/:id/status', adminController.updateBookingStatus);
+
+// Legacy General Enquiry Bookings
+router.get('/bookings', adminController.getAllLegacyBookings);
+
+// New Table Bookings System
+router.get('/table-bookings', adminController.getAllTableBookings);
+router.patch('/table-bookings/:id/status', adminController.updateBookingStatus);
+
+// Areas CRUD
+router.post('/areas', adminController.createArea);
+router.put('/areas/:id', adminController.updateArea);
+router.delete('/areas/:id', adminController.deleteArea);
+
+// Tables CRUD
 router.get('/tables', adminController.getAllTables);
+router.post('/tables', adminController.createTable);
+router.put('/tables/:id', adminController.updateTable);
+router.delete('/tables/:id', adminController.deleteTable);
+
 router.get('/customers', adminController.getAllCustomers);
 
 // Events CRUD

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { trackEvent } from '../utils/analytics';
@@ -86,7 +87,7 @@ export default function Booking() {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full min-h-[90vh] flex items-center justify-center py-24 md:py-32 px-6 md:px-16 overflow-hidden bg-[#0A0A0A]"
+      className="relative w-full min-h-[90vh] flex items-center justify-center py-16 xs:py-20 sm:py-24 md:py-32 px-4 xs:px-5 sm:px-6 md:px-16 overflow-hidden bg-[#0A0A0A]"
       id="booking"
     >
       {/* Aesthetic Background */}
@@ -96,7 +97,7 @@ export default function Booking() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-transparent to-transparent opacity-80" />
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 xs:gap-12 sm:gap-16 lg:gap-24 items-center">
         
         {/* Left Side: Aesthetic Typography */}
         <div className="lg:w-1/2 text-white">
@@ -104,16 +105,16 @@ export default function Booking() {
             <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-[#D4AF37] mb-6 block">
               YOUR TABLE. YOUR TIME.
             </span>
-            <h2 className="font-sans font-bold text-[clamp(40px,10vw,72px)] text-white leading-[0.95] tracking-[-0.03em] uppercase">
+            <h2 className="font-sans font-bold text-[clamp(32px,9vw,72px)] text-white leading-[0.95] tracking-[-0.03em] uppercase">
               Make<br />It R.
             </h2>
           </div>
           <div className="font-inter font-normal text-[16px] md:text-[18px] text-white/60 tracking-[-0.01em] leading-[1.8] max-w-md space-y-4 fade-up-element opacity-0">
             <p><strong>What's Your Plan Today?</strong></p>
-            <p className="text-[15px]">
-              <strong>A game?</strong> Book the turf.<br />
-              <strong>A meal?</strong> Reserve your table.<br />
-              <strong>A celebration?</strong> Plan it with us.
+            <p className="text-[15px] space-y-1">
+              <span className="block"><strong>A game?</strong> <Link to="/turf" className="text-[#D4AF37] hover:underline underline-offset-4 ml-1 inline-flex items-center gap-1 transition-colors hover:text-white">Book the turf &rarr;</Link></span>
+              <span className="block"><strong>A meal?</strong> <Link to="/book-table" className="text-[#D4AF37] hover:underline underline-offset-4 ml-1 inline-flex items-center gap-1 transition-colors hover:text-white">Reserve your table &rarr;</Link></span>
+              <span className="block"><strong>A celebration?</strong> <Link to="/events" className="text-[#D4AF37] hover:underline underline-offset-4 ml-1 inline-flex items-center gap-1 transition-colors hover:text-white">Plan it with us &rarr;</Link></span>
             </p>
             <p>Reserve your table before you arrive and spend less time waiting and more time enjoying the moment.</p>
           </div>
@@ -170,7 +171,7 @@ export default function Booking() {
              <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/40 to-transparent" />
           </div>
           
-          <div className="relative z-10 bg-black/40 backdrop-blur-2xl border border-white/10 border-l-[#D4AF37]/30 border-l-2 rounded-[32px] p-8 md:p-12 shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
+          <div className="relative z-10 bg-black/40 backdrop-blur-2xl border border-white/10 border-l-[#D4AF37]/30 border-l-2 rounded-[20px] xs:rounded-[24px] sm:rounded-[32px] p-5 xs:p-6 sm:p-8 md:p-12 shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
             <AnimatePresence mode="wait">
               {!isSubmitted ? (
                 <motion.form 
@@ -237,7 +238,7 @@ export default function Booking() {
                   </div>
 
                   {/* Date & Time */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="relative group">
                       <label className="absolute left-0 -translate-y-6 font-sans text-[11px] tracking-[0.1em] text-white/50 uppercase">DATE</label>
                       <input 

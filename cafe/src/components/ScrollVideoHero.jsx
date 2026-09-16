@@ -93,9 +93,41 @@ export default function ScrollVideoHero() {
 
     // ── MOBILE: Use a simple <video> approach with progress scrubbing ──
     if (mobile) {
-      // On mobile, we use a video element instead of canvas frame scrubbing
-      // The video is already rendered in JSX below as a <video> tag
-      // Just set up the GSAP timeline for shrink/title animations
+      // ═══════════════════════════════════════════════════════════════════════
+      // MOBILE-ONLY: Completely separate animation code.
+      // Desktop is untouched below this block.
+      //
+      // Pixel-aware breakpoint analysis:
+      //   Container = 300vh. Total scroll distance = 300vh - 100vh = 200vh
+      //   (ScrollTrigger uses start:'top top' end:'bottom bottom' so the
+      //    scrollable range is containerHeight - viewportHeight = 200vh)
+      //
+      //   Viewport  | 200vh px | progress per px
+      //   ----------|----------|----------------
+      //   300px     |  600px   | 1/600  = 0.00167
+      //   400px     |  800px   | 1/800  = 0.00125
+      //   500px     | 1000px   | 1/1000 = 0.00100
+      //   600px     | 1200px   | 1/1200 = 0.00083
+      //   667px     | 1334px   | 1/1334 = 0.00075
+      //   700px     | 1400px   | 1/1400 = 0.00071
+      //
+      //   Target: shrink box + title + mural all settled by ~200px scroll.
+      //   At 200px on the smallest viewport (300px → 600px total):
+      //     progress = 200/600 = 0.333
+      //   At 200px on the largest (700px → 1400px total):
+      //     progress = 200/1400 = 0.143
+      //
+      //   So we target everything completed by progress 0.14 (safe for all).
+      //   Video scrub  : 0.00 → 0.04
+      //   Shrink        : 0.04 → 0.08
+      //   Mural         : 0.06 → 0.09
+      //   Title + CTA   : 0.08 → 0.13
+      //   Hold / dwell  : 0.13 → 0.80
+      //   Exit          : 0.80 → 1.00
+      //
+      //   Back-scroll: GSAP scrub timelines are inherently reversible.
+      //   Scrolling back up replays everything in reverse automatically.
+      // ═══════════════════════════════════════════════════════════════════════
 
       const ctx = gsap.context(() => {
         if (imageFrameRef.current) {
@@ -110,12 +142,36 @@ export default function ScrollVideoHero() {
           );
         }
 
+        // ── Viewport-aware sizing ──────────────────────────────────────────
+        const vw = window.innerWidth;
+        const vh = window.visualViewport?.height || window.innerHeight;
+
+        // Shrink targets tuned per viewport width range
+        // Smaller screens → bigger box ratio, less aggressive shrink
+        let shrinkW, shrinkH, shrinkR;
+        if (vw <= 360) {
+          // 300–360px: iPhone SE, Galaxy S series
+          shrinkW = '94vw'; shrinkH = '40vh'; shrinkR = '14px';
+        } else if (vw <= 414) {
+          // 361–414px: iPhone 12/13/14, Pixel 5
+          shrinkW = '92vw'; shrinkH = '42vh'; shrinkR = '16px';
+        } else if (vw <= 540) {
+          // 415–540px: larger phones, small tablets in portrait
+          shrinkW = '90vw'; shrinkH = '44vh'; shrinkR = '18px';
+        } else if (vw <= 640) {
+          // 541–640px: phablets, Galaxy Fold open
+          shrinkW = '88vw'; shrinkH = '46vh'; shrinkR = '20px';
+        } else {
+          // 641–767px: small tablets portrait
+          shrinkW = '85vw'; shrinkH = '48vh'; shrinkR = '22px';
+        }
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top top',
             end: 'bottom bottom',
-            scrub: 0.3,
+            scrub: 1.2,  // Smooth cushion for both forward & reverse scroll
             pin: pinRef.current,
             pinSpacing: false,
             anticipatePin: 1,
@@ -123,34 +179,27 @@ export default function ScrollVideoHero() {
           },
         });
 
-        // Fade scroll indicator
+        // ── Fade scroll indicator immediately ─────────────────────────────
         tl.to(scrollIndicatorRef.current, {
-          opacity: 0, y: -30, duration: 0.05, ease: 'power1.out',
+          opacity: 0, y: -30, duration: 0.02, ease: 'power1.out',
         }, 0);
 
-        // Video scrub: control video currentTime via scroll
-        const videoEl = canvasEl; // on mobile, this is the <video> element
+        // ── PHASE 1 (0.00–0.04): Video scrub ──────────────────────────────
+        const videoEl = canvasEl;
         if (videoEl && videoEl.tagName === 'VIDEO') {
-          // Force load for iOS to fetch metadata
           videoEl.load();
-          
-          // Nudge video to unlock playback on mobile browsers
           const playPromise = videoEl.play();
           if (playPromise !== undefined) {
-            playPromise.then(() => {
-              videoEl.pause();
-            }).catch(() => {});
+            playPromise.then(() => videoEl.pause()).catch(() => {});
           }
 
-          // Add scrub tween unconditionally so GSAP can calculate duration properly
           tl.to({ progress: 0 }, {
             progress: 1,
             ease: 'none',
-            duration: 0.60,
-            onUpdate: function() {
+            duration: 0.04,
+            onUpdate: function () {
               const p = this.progress();
               if (videoEl && Number.isFinite(videoEl.duration) && videoEl.duration > 0) {
-                // Use requestAnimationFrame to prevent scroll jank on mobile
                 requestAnimationFrame(() => {
                   videoEl.currentTime = p * videoEl.duration;
                 });
@@ -159,84 +208,88 @@ export default function ScrollVideoHero() {
           }, 0);
         }
 
-        // ── PHASE 2: Video shrinks
-        const shrinkW = '92vw';
-        const shrinkH = '42vh';
-        const shrinkR = '16px';
-
+        // ── PHASE 2 (0.04–0.08): Shrink to cinematic box ──────────────────
+        // Uses width/height (not scale) so object-fit:cover on the <video>
+        // naturally handles the crop — no counter-scale needed on mobile.
         tl.to(imageFrameRef.current, {
-          width: shrinkW, height: shrinkH, borderRadius: shrinkR,
+          width: shrinkW,
+          height: shrinkH,
+          borderRadius: shrinkR,
           border: '1px solid rgba(17,17,17,0.12)',
           boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
-          duration: 0.12, ease: 'power4.inOut',
-        }, 0.60);
+          duration: 0.04, ease: 'power4.inOut',
+        }, 0.04);
 
-        // ── PHASE 3: Mural bleeds in
+        // ── PHASE 3 (0.06–0.09): Mural bleeds in ──────────────────────────
         tl.fromTo(artworkRef.current,
           { opacity: 0, scale: 1.05 },
-          { opacity: 0.5, scale: 1, duration: 0.10, ease: 'power4.out' },
-          0.72
+          { opacity: 0.5, scale: 1, duration: 0.03, ease: 'power4.out' },
+          0.06
         );
 
-        // ── PHASE 4: Title + CTA
+        // ── PHASE 4 (0.08–0.13): Title + CTA reveal ───────────────────────
         tl.fromTo(titleGlowRef.current,
           { opacity: 0, scale: 0.6 },
-          { opacity: 1, scale: 1, duration: 0.06, ease: 'power3.out' },
-          0.74
+          { opacity: 1, scale: 1, duration: 0.02, ease: 'power3.out' },
+          0.08
         );
 
         tl.fromTo('.svh-energy-line',
           { scaleX: 0, opacity: 0 },
-          { scaleX: 1, opacity: 1, duration: 0.05, ease: 'expo.out' },
-          0.74
+          { scaleX: 1, opacity: 1, duration: 0.02, ease: 'expo.out' },
+          0.08
         );
 
         tl.fromTo('.svh-title-char',
           { opacity: 0, rotationX: 40, scale: 0.78, y: 12 },
           {
             opacity: 1, rotationX: 0, scale: 1, y: 0,
-            stagger: 0.002, duration: 0.05, ease: 'power4.out',
+            stagger: 0.001, duration: 0.02, ease: 'power4.out',
             transformOrigin: '50% 100%',
           },
-          0.75
+          0.09
         );
 
         tl.fromTo(sweepRef.current,
           { left: '-50%', x: 0, opacity: 0, skewX: -20 },
-          { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.06, ease: 'power3.inOut' },
-          0.755
+          { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.02, ease: 'power3.inOut' },
+          0.10
         );
 
         tl.to('.svh-title-char', {
           keyframes: [
-            { color: '#F0D080', textShadow: '0 0 20px rgba(240,200,100,0.8)', duration: 0.02 },
-            { color: '#111111', textShadow: '0 0 0px transparent', duration: 0.02 },
+            { color: '#F0D080', textShadow: '0 0 20px rgba(240,200,100,0.8)', duration: 0.01 },
+            { color: '#111111', textShadow: '0 0 0px transparent', duration: 0.01 },
           ],
-          stagger: 0.003,
-        }, 0.76);
+          stagger: 0.001,
+        }, 0.10);
 
         tl.fromTo(ctaBoxRef.current,
           { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
-          0.78
+          { opacity: 1, y: 0, duration: 0.02, ease: 'power3.out' },
+          0.11
         );
 
+        // Golden border glow
         tl.to(imageFrameRef.current, {
           border: '1px solid rgba(235,203,139,0.6)',
           boxShadow: '0 0 50px rgba(235,203,139,0.3), 0 30px 80px rgba(0,0,0,0.22)',
-          duration: 0.04, ease: 'power2.inOut',
-        }, 0.79);
+          duration: 0.02, ease: 'power2.inOut',
+        }, 0.12);
 
-        // ── PHASE 5: Exit
+        // ── HOLD / DWELL (0.13–0.80): User enjoys the settled state ────────
+        // No tweens here — the settled state just stays on screen.
+
+        // ── PHASE 5 (0.80–1.0): Exit — dissolve & lift ────────────────────
         tl.to(
           [artworkRef.current, '.svh-title-char', titleGlowRef.current,
            '.svh-energy-line', ctaBoxRef.current],
-          { opacity: 0, y: -10, duration: 0.04, ease: 'power3.in', stagger: 0.002 },
-          0.92
+          { opacity: 0, y: -10, duration: 0.06, ease: 'power3.in', stagger: 0.002 },
+          0.80
         );
         tl.to(imageFrameRef.current,
-          { yPercent: -175, scale: 0.96, opacity: 0, duration: 0.08, ease: 'power3.inOut' },
-          0.92
+          { yPercent: -175, scale: 0.96, opacity: 0, duration: 0.10, ease: 'power3.inOut' },
+          0.80
         );
       }, containerRef);
 
@@ -361,6 +414,8 @@ export default function ScrollVideoHero() {
       }, 0);
 
       // ── PHASE 2 (0.60–0.72): Video shrinks to cinematic box ─────────────
+      // Desktop uses width/height (triggers reflow but allows object-fit:cover
+      // on the canvas to work naturally — no counter-scale needed).
       const shrinkW = '75vw';
       const shrinkH = '45vh';
       const shrinkR = '28px';
