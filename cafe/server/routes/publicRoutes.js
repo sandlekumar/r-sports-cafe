@@ -11,6 +11,7 @@ const reelController = require('../controllers/reelController');
 // Table booking (new system)
 router.get('/availability', availabilityController.getAvailability);
 router.get('/areas', tableBookingController.getAreas);
+router.post('/table-bookings/cancel', tableBookingController.cancelBooking);
 router.post('/table-bookings', tableBookingController.createTableBooking);
 
 // Public events (admin-managed event cards)

@@ -26,6 +26,11 @@ services:
       - PORT=5000
       - MONGO_URI=mongodb://mongo:27017/r-sports-cafe?retryWrites=false
       - CLIENT_URL=http://localhost
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-}
     volumes:
       - server_uploads:/app/uploads
     depends_on:

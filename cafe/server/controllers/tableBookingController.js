@@ -1,4 +1,4 @@
-const { createTableBooking } = require('../services/tableBookingService');
+const { createTableBooking, cancelTableBooking } = require('../services/tableBookingService');
 const { validateFields } = require('../utils/validate');
 
 /**
@@ -54,6 +54,37 @@ exports.getAreas = async (req, res, next) => {
     const areas = await RestaurantArea.find({ active: true }).sort({ displayOrder: 1 });
     res.json({ success: true, data: areas });
   } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/table-bookings/cancel
+ * Customer self-service cancellation via secure email link.
+ */
+exports.cancelBooking = async (req, res, next) => {
+  try {
+    const { bookingNumber, token, reason } = req.body;
+
+    if (!bookingNumber || !token) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Booking reference and token are required' },
+      });
+    }
+
+    const booking = await cancelTableBooking(bookingNumber, token, reason);
+    res.json({
+      success: true,
+      data: { bookingNumber: booking.bookingNumber, status: booking.status },
+    });
+  } catch (err) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({
+        success: false,
+        error: { code: err.code, message: err.message },
+      });
+    }
     next(err);
   }
 };

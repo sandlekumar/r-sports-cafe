@@ -83,6 +83,10 @@ const tableBookingSchema = new mongoose.Schema(
       ref: 'AdminUser',
     },
     // Cancellation tracking
+    cancellationToken: {
+      type: String,
+      select: false, // never exposed in normal API responses
+    },
     cancelledAt: {
       type: Date,
     },

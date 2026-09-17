@@ -18,6 +18,7 @@ const GalleryPage = React.lazy(() => import('./pages/GalleryPage.jsx'))
 const ContactPage = React.lazy(() => import('./pages/ContactPage.jsx'))
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage.jsx'))
 const TableBooking = React.lazy(() => import('./features/booking/pages/TableBooking.jsx'))
+const CancelBookingPage = React.lazy(() => import('./pages/CancelBookingPage.jsx'))
 
 // Loading fallback
 const PageLoader = () => (
@@ -55,6 +56,7 @@ function AnimatedRoutes() {
         <Route path="/gallery" element={<Lazy><GalleryPage /></Lazy>} />
         <Route path="/contact" element={<Lazy><ContactPage /></Lazy>} />
         <Route path="/book-table" element={<Lazy><TableBooking /></Lazy>} />
+        <Route path="/cancel-booking" element={<Lazy><CancelBookingPage /></Lazy>} />
         <Route path="*" element={<Lazy><NotFoundPage /></Lazy>} />
       </Routes>
     </AnimatePresence>

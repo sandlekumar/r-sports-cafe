@@ -10,6 +10,7 @@
  *   7. Commit and return booking number
  */
 
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const Customer = require('../models/Customer');
 const TableBooking = require('../models/TableBooking');
@@ -19,6 +20,7 @@ const Settings = require('../models/Settings');
 const { checkAvailability } = require('./availabilityService');
 const { generateSlots, computeEndTime } = require('../utils/timeSlots');
 const { BOOKING_STATUS, BOOKING_SOURCE } = require('../constants');
+const { sendBookingConfirmation } = require('../utils/emailService');
 
 /**
  * Create a new table booking atomically.
@@ -98,6 +100,9 @@ const createTableBooking = async (data) => {
   // ─── 4. Generate slot locks required for this booking ────────────────────
   const requiredSlots = generateSlots(time, defaultDurationMinutes, bookingIntervalMinutes, bufferMinutes);
 
+  // ─── 4b. Generate cancellation token ──────────────────────────────────────
+  const cancellationToken = crypto.randomBytes(16).toString('hex');
+
   // ─── 5. Open MongoDB Transaction ──────────────────────────────────────────
   const session = await mongoose.startSession();
   let booking;
@@ -120,6 +125,7 @@ const createTableBooking = async (data) => {
             specialRequest,
             source,
             status: BOOKING_STATUS.PENDING,
+            cancellationToken,
           }],
           { session }
         );
@@ -164,6 +170,7 @@ const createTableBooking = async (data) => {
           specialRequest,
           source,
           status: BOOKING_STATUS.PENDING,
+          cancellationToken,
         }]);
 
         await BookingSlotLock.insertMany(
@@ -190,6 +197,17 @@ const createTableBooking = async (data) => {
     // Increment customer booking count (outside transaction is fine — best-effort)
     await Customer.findByIdAndUpdate(customer._id, { $inc: { totalBookings: 1 } });
 
+    // Fire-and-forget confirmation email — never awaited in a way that delays the response
+    sendBookingConfirmation({
+      email: customer.email,
+      name: customer.name,
+      bookingNumber: booking.bookingNumber,
+      date,
+      time,
+      guests,
+      cancellationToken,
+    });
+
     return {
       bookingNumber: booking.bookingNumber,
       bookingId: booking._id,
@@ -214,4 +232,62 @@ const createTableBooking = async (data) => {
   }
 };
 
-module.exports = { createTableBooking };
+/**
+ * Cancel a table booking via the customer's email link.
+ * Validates the cancellation token, flips status, frees slot locks,
+ * and records an audit trail entry.
+ *
+ * @param {string} bookingNumber - e.g. RSC-2026-00001
+ * @param {string} token         - the 32-char hex cancellation token
+ * @param {string} [reason]      - optional reason from the customer
+ * @returns {Object} the updated booking
+ */
+const cancelTableBooking = async (bookingNumber, token, reason) => {
+  const booking = await TableBooking.findOne({ bookingNumber }).select('+cancellationToken');
+
+  if (!booking || !booking.cancellationToken) {
+    const err = new Error('Invalid cancellation link');
+    err.statusCode = 404;
+    err.code = 'INVALID_CANCEL_LINK';
+    throw err;
+  }
+
+  // Timing-safe token comparison to prevent timing attacks
+  const tokenBuf = Buffer.from(token || '', 'utf8');
+  const storedBuf = Buffer.from(booking.cancellationToken, 'utf8');
+  if (tokenBuf.length !== storedBuf.length || !crypto.timingSafeEqual(tokenBuf, storedBuf)) {
+    const err = new Error('Invalid cancellation link');
+    err.statusCode = 404;
+    err.code = 'INVALID_CANCEL_LINK';
+    throw err;
+  }
+
+  // Idempotent — already cancelled
+  if (booking.status === BOOKING_STATUS.CANCELLED) {
+    return booking;
+  }
+
+  const oldStatus = booking.status;
+  booking.status = BOOKING_STATUS.CANCELLED;
+  booking.cancelledAt = new Date();
+  booking.cancellationReason = reason || 'Cancelled by customer';
+  await booking.save();
+
+  // Free the table slot locks so the time becomes bookable again
+  await BookingSlotLock.deleteMany({ booking: booking._id });
+
+  // Audit trail
+  await BookingHistory.create({
+    booking: booking._id,
+    action: 'CANCELLED',
+    previousValue: { status: oldStatus },
+    newValue: { status: BOOKING_STATUS.CANCELLED },
+    note: reason
+      ? `Cancelled by customer via email link: ${reason}`
+      : 'Cancelled by customer via email link',
+  });
+
+  return booking;
+};
+
+module.exports = { createTableBooking, cancelTableBooking };
