@@ -253,7 +253,7 @@ export default function Booking() {
                       <input 
                         type="time" name="time" value={formData.time}
                         onFocus={() => setFocusedField('time')} onBlur={() => setFocusedField(null)} onChange={handleInputChange}
-                        className="w-full bg-transparent border-b border-white/20 py-3 text-[15px] font-sans text-white focus:outline-none focus:border-[#D4AF37] transition-colors duration-500"
+                        className="w-full bg-transparent border-b border-white/20 py-3 text-[16px] font-sans text-white focus:outline-none focus:border-[#D4AF37] transition-colors duration-500"
                       />
                       <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37] origin-left scale-x-0 transition-transform duration-500 ${focusedField === 'time' ? 'scale-x-100' : ''}`} />
                     </div>

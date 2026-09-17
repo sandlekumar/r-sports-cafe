@@ -2,7 +2,7 @@ const { createTableBooking } = require('../services/tableBookingService');
 const { validateFields } = require('../utils/validate');
 
 /**
- * POST /api/public/table-bookings
+ * POST /api/table-bookings
  * Creates a new table booking. Atomic — prevents double booking.
  */
 exports.createTableBooking = async (req, res, next) => {
@@ -45,7 +45,7 @@ exports.createTableBooking = async (req, res, next) => {
 };
 
 /**
- * GET /api/public/areas
+ * GET /api/areas
  * Returns all active restaurant areas for the booking form.
  */
 exports.getAreas = async (req, res, next) => {

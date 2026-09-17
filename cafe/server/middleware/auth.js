@@ -38,6 +38,15 @@ const authMiddleware = (req, res, next) => {
     };
     return next();
   }
+
+  // Token present but not valid — reject instead of hanging
+  return res.status(401).json({
+    success: false,
+    error: {
+      code: 'INVALID_TOKEN',
+      message: 'Invalid authentication token',
+    },
+  });
 };
 
 /**

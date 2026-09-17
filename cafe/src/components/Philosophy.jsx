@@ -182,7 +182,6 @@ export default function Philosophy() {
               ref={imageRef}
               src={luxuryInterior}
               alt="Elite luxury sports cafe modern minimalist design interior"
-              loading="lazy"
               decoding="async"
               className="w-full h-[120%] object-cover absolute top-0 left-0 will-change-transform scale-125"
             />

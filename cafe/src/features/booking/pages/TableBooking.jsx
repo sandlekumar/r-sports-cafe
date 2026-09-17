@@ -483,28 +483,28 @@ export default function TableBooking() {
                 <div className="space-y-4">
                   {/* Name */}
                   <input type="text" required placeholder="Full Name" value={booking.name} onChange={e => updateBooking('name', e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl font-sans text-[14px] outline-none transition-colors placeholder-[#A59F96]"
+                    className="w-full px-4 py-3.5 rounded-xl font-sans text-[16px] outline-none transition-colors placeholder-[#A59F96]"
                     style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.textPri }}
                     onFocus={e => e.target.style.borderColor = theme.accent}
                     onBlur={e => e.target.style.borderColor = theme.border}
                   />
                   {/* Phone */}
                   <input type="tel" required placeholder="Mobile Number" value={booking.phone} onChange={e => updateBooking('phone', e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl font-sans text-[14px] outline-none transition-colors placeholder-[#A59F96]"
+                    className="w-full px-4 py-3.5 rounded-xl font-sans text-[16px] outline-none transition-colors placeholder-[#A59F96]"
                     style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.textPri }}
                     onFocus={e => e.target.style.borderColor = theme.accent}
                     onBlur={e => e.target.style.borderColor = theme.border}
                   />
                   {/* Email */}
                   <input type="email" placeholder="Email Address (Optional)" value={booking.email} onChange={e => updateBooking('email', e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl font-sans text-[14px] outline-none transition-colors placeholder-[#A59F96]"
+                    className="w-full px-4 py-3.5 rounded-xl font-sans text-[16px] outline-none transition-colors placeholder-[#A59F96]"
                     style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.textPri }}
                     onFocus={e => e.target.style.borderColor = theme.accent}
                     onBlur={e => e.target.style.borderColor = theme.border}
                   />
                   {/* Request */}
                   <textarea placeholder="Special Requests" value={booking.specialRequest} onChange={e => updateBooking('specialRequest', e.target.value)}
-                    rows={3} className="w-full px-4 py-3.5 rounded-xl font-sans text-[14px] outline-none transition-colors resize-none placeholder-[#A59F96]"
+                    rows={3} className="w-full px-4 py-3.5 rounded-xl font-sans text-[16px] outline-none transition-colors resize-none placeholder-[#A59F96]"
                     style={{ background: theme.card, border: `1px solid ${theme.border}`, color: theme.textPri }}
                     onFocus={e => e.target.style.borderColor = theme.accent}
                     onBlur={e => e.target.style.borderColor = theme.border}

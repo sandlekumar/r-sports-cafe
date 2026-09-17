@@ -279,7 +279,7 @@ export default function AdminDashboard() {
     try {
       const [statsRes, bookingsRes, tablesRes, customersRes] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/overview`, { headers: getHeaders() }),
-        fetch(`${API_BASE_URL}/admin/bookings?status=${statusFilter}&search=${search}`, { headers: getHeaders() }),
+        fetch(`${API_BASE_URL}/admin/table-bookings?status=${statusFilter}&search=${search}`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/admin/tables`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/admin/customers`, { headers: getHeaders() }),
       ]);
@@ -329,7 +329,7 @@ export default function AdminDashboard() {
   const handleStatusChange = async (bookingId, newStatus) => {
     setUpdatingId(bookingId);
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/bookings/${bookingId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/admin/table-bookings/${bookingId}/status`, {
         method: 'PATCH', headers: getHeaders(), body: JSON.stringify({ status: newStatus }),
       });
       const data = await response.json();
@@ -593,7 +593,7 @@ export default function AdminDashboard() {
     setBookingFormError('');
     setBookingSaving(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/public/table-bookings`, {
+      const res = await fetch(`${API_BASE_URL}/table-bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

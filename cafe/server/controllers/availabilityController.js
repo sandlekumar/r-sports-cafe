@@ -2,7 +2,7 @@ const { checkAvailability } = require('../services/availabilityService');
 const { validateFields } = require('../utils/validate');
 
 /**
- * GET /api/public/availability
+ * GET /api/availability
  *
  * Query params: date, time, guests, areaId (optional)
  * Returns: available tables and areas for that window.
