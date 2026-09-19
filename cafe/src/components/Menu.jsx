@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { apiClient } from '../services/apiClient';
+import { CoffeeCupSketch } from './decor/SketchMotifs';
 
 // Use URL constructor to avoid Vite bundling these large video files
 const video1 = new URL('../assets/hero-video-opt.mp4', import.meta.url).href;
@@ -363,6 +364,7 @@ export default function Menu() {
       className="relative w-full min-h-screen bg-black text-lightText overflow-hidden flex flex-col justify-center py-20 lg:py-0"
       style={{ backgroundColor: 'black' }}
     >
+      <CoffeeCupSketch className="absolute top-8 right-8 w-24 h-24 text-lightText/10 pointer-events-none select-none hidden md:block z-0" />
       <style>{`
         .menu-showcase-nav {
           width: 52px;

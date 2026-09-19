@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { getAvailability, submitTableBooking } from '../services/bookingApi';
 import SEO from '../../../components/SEO';
 import { trackEvent } from '../../../utils/analytics';
+import { TableSketch } from '../../../components/decor/SketchMotifs';
 import gsap from 'gsap';
 
 /* ─── Premium Theme Colors ───────────────────────────────────────────── */
@@ -380,7 +381,8 @@ export default function TableBooking() {
       
       {/* Global Navbar will be rendered from main.jsx */}
 
-      <div className="max-w-[1440px] mx-auto px-5 md:px-12 pt-28 pb-20 overflow-hidden">
+      <div className="max-w-[1440px] mx-auto relative px-5 md:px-12 pt-28 pb-20 overflow-hidden">
+        <TableSketch className="absolute top-20 right-10 w-64 h-64 pointer-events-none select-none hidden lg:block z-0" style={{ color: `${theme.textPri}08` }} />
         
         {/* HERO SECTION */}
         <div className="max-w-2xl mb-12 fade-up-element opacity-0">

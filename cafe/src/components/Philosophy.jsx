@@ -110,7 +110,8 @@ export default function Philosophy() {
           alt=""
           aria-hidden="true"
           decoding="async"
-          className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform md:mix-blend-multiply"
+          data-max-opacity="0.15"
+          className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform mix-blend-multiply"
           style={{ opacity: 0 }}
         />
       </div>

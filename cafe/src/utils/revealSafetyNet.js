@@ -10,7 +10,8 @@ export function installRevealSafetyNet(selector = '.fade-up-element, [style*="op
 
   const forceVisible = (el) => {
     if (getComputedStyle(el).opacity === '0') {
-      el.style.opacity = '1';
+      const target = el.dataset.maxOpacity || '1';
+      el.style.opacity = target;
       el.style.transform = 'none';
     }
   };

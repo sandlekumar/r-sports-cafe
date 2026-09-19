@@ -268,8 +268,9 @@ export default function ScrollVideoHero() {
 
         // ── PHASE 4 (0.40–0.58): Title + CTA reveal ───────────────────
         const titleP = ease3out(remap(p, 0.40, 0.58));
+        const lineP = ease3out(remap(p, 0.50, 0.65)); // Delayed until title is mostly formed
         gsap.set(titleGlowRef.current, { opacity: titleP, scale: 0.6 + 0.4 * titleP });
-        gsap.set('.svh-energy-line', { scaleX: titleP, opacity: titleP });
+        gsap.set('.svh-energy-line', { scaleX: lineP, opacity: lineP });
         gsap.set('.svh-title-char', {
           opacity: titleP,
           rotationX: 40 * (1 - titleP),
@@ -509,8 +510,8 @@ export default function ScrollVideoHero() {
 
       tl.fromTo('.svh-energy-line',
         { scaleX: 0, opacity: 0 },
-        { scaleX: 1, opacity: 1, duration: 0.05, ease: 'expo.out' },
-        0.74
+        { scaleX: 1, opacity: 1, duration: 0.06, ease: 'power3.out' },
+        0.80 // Delayed until after title characters (which start at 0.75) are mostly formed
       );
 
       tl.fromTo('.svh-title-char',
@@ -608,13 +609,14 @@ export default function ScrollVideoHero() {
         >
           <div
             ref={artworkRef}
+            data-max-opacity="0.55"
             className="absolute inset-0 w-full h-full"
             style={{ transformOrigin: 'center center', opacity: 0, willChange: 'opacity, transform' }}
           >
             <img
               ref={muralImgRef}
               alt=""
-              className="w-full h-full pointer-events-none"
+              className="w-full h-full pointer-events-none mix-blend-multiply"
               style={{ objectFit: 'cover' }}
             />
           </div>
@@ -732,12 +734,12 @@ export default function ScrollVideoHero() {
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.3) inset',
                 }}
               >
-                {/* Brand name */}
+                {/* Heritage Plaque Style */}
                 <h2
-                  className="font-sans font-bold uppercase tracking-[0.12em] text-[16px] md:text-[18px]"
+                  className="font-inter font-light uppercase tracking-[0.3em] text-[11px] md:text-[13px] opacity-70"
                   style={{ color: '#1B1B1B' }}
                 >
-                  R SPORTS & CAFE
+                  SINCE 2026
                 </h2>
 
                 {/* Thin gold line */}

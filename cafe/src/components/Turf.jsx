@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { FootballSketch } from './decor/SketchMotifs';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -83,6 +84,7 @@ export default function Turf() {
       className="relative min-h-[100dvh] flex flex-col justify-center items-center py-32 px-6 overflow-hidden select-none"
       id="turf"
     >
+      <FootballSketch className="absolute bottom-8 left-8 w-20 h-20 text-white/10 pointer-events-none select-none hidden md:block z-10" />
       {/* Background Cinematic Video — lazy loaded */}
       <div className="absolute inset-0 z-0">
         {videoSrc ? (
