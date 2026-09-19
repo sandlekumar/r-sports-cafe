@@ -3,14 +3,15 @@
 @config "../tailwind.config.js";
 
 @layer base {
-  html, body {
-    @apply overflow-x-hidden w-full m-0 p-0;
-  }
-  #root {
-    @apply overflow-x-hidden w-full;
+  html {
+    @apply w-full m-0 p-0;
   }
   body {
-    @apply bg-sandalBg text-darkText font-sans antialiased;
+    @apply w-full m-0 p-0 bg-sandalBg text-darkText font-sans antialiased;
+    /* No overflow-x on body/root — prevents GSAP pin (position:fixed) from working */
+  }
+  #root {
+    @apply w-full;
   }
 }
 

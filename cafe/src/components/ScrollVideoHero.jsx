@@ -68,10 +68,18 @@ export default function ScrollVideoHero() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  /* ── Lazy load mural image on intersection ──────────────────────────── */
+  /* ── Lazy load mural image on intersection (desktop) / eager (mobile) ── */
   useEffect(() => {
     if (!muralImgRef.current) return;
     const img = muralImgRef.current;
+
+    // On mobile, load immediately — the mural appears early in the scroll
+    if (isMobile) {
+      img.src = muralPngPath;
+      return;
+    }
+
+    // Desktop: lazy load with IntersectionObserver
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -83,7 +91,7 @@ export default function ScrollVideoHero() {
     );
     observer.observe(img);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   /* ── Frame scrub (desktop) / Video (mobile) + GSAP timeline ──────── */
   useEffect(() => {
@@ -91,209 +99,236 @@ export default function ScrollVideoHero() {
     const canvasEl = videoRef.current;
     if (!canvasEl) return;
 
-    // ── MOBILE: Use a simple <video> approach with progress scrubbing ──
+    // ── MOBILE: CSS sticky + Lenis scroll driven animations ──
     if (mobile) {
       // ═══════════════════════════════════════════════════════════════════════
-      // MOBILE-ONLY: Completely separate animation code.
-      // Desktop is untouched below this block.
+      // MOBILE-ONLY: Use CSS position:sticky on pinRef (works with Lenis!)
+      // GSAP pin (position:fixed) breaks when Lenis is active because Lenis
+      // intercepts window.scroll and GSAP ScrollTrigger reads window.scrollY=0.
       //
-      // Pixel-aware breakpoint analysis:
-      //   Container = 300vh. Total scroll distance = 300vh - 100vh = 200vh
-      //   (ScrollTrigger uses start:'top top' end:'bottom bottom' so the
-      //    scrollable range is containerHeight - viewportHeight = 200vh)
+      // Instead: pinRef gets sticky via CSS class, and we drive all GSAP
+      // tweens by manually reading Lenis scroll progress from containerRef bounds.
       //
-      //   Viewport  | 200vh px | progress per px
+      // Container = 350vh. Sticky range = 350vh - 100vh = 250vh
+      //
+      //   Viewport  | 250vh px | progress per px
       //   ----------|----------|----------------
-      //   300px     |  600px   | 1/600  = 0.00167
-      //   400px     |  800px   | 1/800  = 0.00125
-      //   500px     | 1000px   | 1/1000 = 0.00100
-      //   600px     | 1200px   | 1/1200 = 0.00083
-      //   667px     | 1334px   | 1/1334 = 0.00075
-      //   700px     | 1400px   | 1/1400 = 0.00071
+      //   300px     |  750px   | 1/750  ≈ 0.00133
+      //   390px     |  975px   | 1/975  ≈ 0.00103
+      //   414px     | 1035px   | 1/1035 ≈ 0.00097
+      //   500px     | 1250px   | 1/1250 ≈ 0.00080
       //
-      //   Target: shrink box + title + mural all settled by ~200px scroll.
-      //   At 200px on the smallest viewport (300px → 600px total):
-      //     progress = 200/600 = 0.333
-      //   At 200px on the largest (700px → 1400px total):
-      //     progress = 200/1400 = 0.143
-      //
-      //   So we target everything completed by progress 0.14 (safe for all).
-      //   Video scrub  : 0.00 → 0.04
-      //   Shrink        : 0.04 → 0.08
-      //   Mural         : 0.06 → 0.09
-      //   Title + CTA   : 0.08 → 0.13
-      //   Hold / dwell  : 0.13 → 0.80
-      //   Exit          : 0.80 → 1.00
-      //
-      //   Back-scroll: GSAP scrub timelines are inherently reversible.
-      //   Scrolling back up replays everything in reverse automatically.
+      //   Phase distribution (0 = enter sticky, 1 = exit sticky):
+      //   Video scrub  : 0.00 → 0.25
+      //   Shrink        : 0.20 → 0.40
+      //   Mural          : 0.30 → 0.45
+      //   Title + CTA    : 0.40 → 0.58
+      //   Hold / dwell   : 0.58 → 0.80
+      //   Exit           : 0.80 → 1.00
       // ═══════════════════════════════════════════════════════════════════════
 
-      const ctx = gsap.context(() => {
-        if (imageFrameRef.current) {
-          gsap.set(imageFrameRef.current, { xPercent: -50, yPercent: -50 });
-        }
+      const videoEl = canvasEl;
+      const pinEl   = pinRef.current;
+      const cntEl   = containerRef.current;
+      if (!pinEl || !cntEl) return;
 
-        // Scroll indicator entrance
-        if (scrollIndicatorRef.current) {
-          gsap.fromTo(scrollIndicatorRef.current,
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 1.8 }
-          );
-        }
+      // ── Make pinRef sticky via inline style ────────────────────────────
+      pinEl.style.position = 'sticky';
+      pinEl.style.top = '0px';
 
-        // ── Viewport-aware sizing ──────────────────────────────────────────
-        const vw = window.innerWidth;
-        const vh = window.visualViewport?.height || window.innerHeight;
+      // ── Initial set ────────────────────────────────────────────────────
+      gsap.set(imageFrameRef.current, { xPercent: -50, yPercent: -50 });
+      // Everything starts hidden except the video frame
+      gsap.set([artworkRef.current, '.svh-title-char', titleGlowRef.current,
+                '.svh-energy-line', ctaBoxRef.current], { opacity: 0 });
 
-        // Shrink targets tuned per viewport width range
-        // Smaller screens → bigger box ratio, less aggressive shrink
-        let shrinkW, shrinkH, shrinkR;
-        if (vw <= 360) {
-          // 300–360px: iPhone SE, Galaxy S series
-          shrinkW = '94vw'; shrinkH = '40vh'; shrinkR = '14px';
-        } else if (vw <= 414) {
-          // 361–414px: iPhone 12/13/14, Pixel 5
-          shrinkW = '92vw'; shrinkH = '42vh'; shrinkR = '16px';
-        } else if (vw <= 540) {
-          // 415–540px: larger phones, small tablets in portrait
-          shrinkW = '90vw'; shrinkH = '44vh'; shrinkR = '18px';
-        } else if (vw <= 640) {
-          // 541–640px: phablets, Galaxy Fold open
-          shrinkW = '88vw'; shrinkH = '46vh'; shrinkR = '20px';
+      // ── Scroll indicator entrance ──────────────────────────────────────
+      if (scrollIndicatorRef.current) {
+        gsap.fromTo(scrollIndicatorRef.current,
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 1.8 }
+        );
+      }
+
+      // ── Viewport-aware shrink sizing ───────────────────────────────────
+      const vw = window.innerWidth;
+
+      let shrinkW, shrinkH, shrinkR;
+      if (vw <= 360) {
+        shrinkW = '94vw'; shrinkH = '40vh'; shrinkR = '14px';
+      } else if (vw <= 414) {
+        shrinkW = '92vw'; shrinkH = '42vh'; shrinkR = '16px';
+      } else if (vw <= 540) {
+        shrinkW = '90vw'; shrinkH = '44vh'; shrinkR = '18px';
+      } else if (vw <= 640) {
+        shrinkW = '88vw'; shrinkH = '46vh'; shrinkR = '20px';
+      } else {
+        shrinkW = '85vw'; shrinkH = '48vh'; shrinkR = '22px';
+      }
+
+      // ── Video scrub setup ──────────────────────────────────────────────
+      if (videoEl && videoEl.tagName === 'VIDEO') {
+        videoEl.load();
+        const pp = videoEl.play();
+        if (pp) pp.then(() => videoEl.pause()).catch(() => {});
+      }
+
+      let isSeeking = false;
+      let targetTime = 0;
+      const applySeek = () => {
+        if (!videoEl || !Number.isFinite(videoEl.duration) || isSeeking) return;
+        if (Math.abs(videoEl.currentTime - targetTime) < 0.03) return;
+        isSeeking = true;
+        if ('fastSeek' in videoEl) {
+          try { videoEl.fastSeek(targetTime); } catch (e) { videoEl.currentTime = targetTime; }
         } else {
-          // 641–767px: small tablets portrait
-          shrinkW = '85vw'; shrinkH = '48vh'; shrinkR = '22px';
+          videoEl.currentTime = targetTime;
+        }
+      };
+      if (videoEl) videoEl.addEventListener('seeked', () => { isSeeking = false; applySeek(); });
+
+      // ── Easing helpers ─────────────────────────────────────────────────
+      const ease4 = (t) => t < 0.5 ? 8*t*t*t*t : 1-Math.pow(-2*t+2,4)/2; // power4.inOut
+      const ease3out = (t) => 1 - Math.pow(1-t, 3);
+      const clamp01 = (v) => Math.max(0, Math.min(1, v));
+      const remap = (v, a, b) => clamp01((v - a) / (b - a)); // remap v from [a,b] to [0,1]
+
+      // Track animation state to avoid redundant GSAP calls
+      let lastProgress = -1;
+      let shrunkOnce = false;
+      let muralOnce = false;
+      let titleOnce = false;
+      let exitOnce = false;
+
+      // ── Main scroll handler ────────────────────────────────────────────
+      const onScroll = ({ scroll }) => {
+        const rect  = cntEl.getBoundingClientRect();
+        const vh    = window.innerHeight;
+        // How far has the container scrolled into the page?
+        // When rect.top = 0, progress = 0. When rect.top = -(containerH - vh), progress = 1.
+        const containerH = cntEl.offsetHeight;
+        const raw = -rect.top / (containerH - vh);
+        const p   = clamp01(raw);
+
+        if (Math.abs(p - lastProgress) < 0.001) return; // Skip if no meaningful change
+        lastProgress = p;
+
+        // ── PHASE 1 (0.00–0.25): Video scrub ──────────────────────────
+        const vidP = remap(p, 0, 0.25);
+        if (videoEl && Number.isFinite(videoEl.duration) && videoEl.duration > 0) {
+          targetTime = vidP * videoEl.duration;
+          applySeek();
+        }
+        if (p > 0.02 && scrollIndicatorRef.current) {
+          gsap.to(scrollIndicatorRef.current, { opacity: 0, y: -30, duration: 0.3, overwrite: true });
         }
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1.2,  // Smooth cushion for both forward & reverse scroll
-            pin: pinRef.current,
-            pinSpacing: false,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
+        // ── PHASE 2 (0.20–0.40): Shrink to cinematic box ──────────────
+        const shrinkP = ease4(remap(p, 0.20, 0.40));
+        const startW_px = window.innerWidth;
+        const startH_px = vh;
+        // Parse target sizes (vw/vh units to px)
+        const targW_px = parseFloat(shrinkW) * 0.01 * window.innerWidth;
+        const targH_px = parseFloat(shrinkH) * 0.01 * vh;
+        const curW = startW_px + (targW_px - startW_px) * shrinkP;
+        const curH = startH_px + (targH_px - startH_px) * shrinkP;
+        const curR = parseFloat(shrinkR) * shrinkP;
+        const curBorder = shrinkP > 0.05 ? `1px solid rgba(17,17,17,${0.12 * shrinkP})` : '1px solid transparent';
+        const curShadow = shrinkP > 0.05
+          ? `0 ${15*shrinkP}px ${40*shrinkP}px rgba(0,0,0,${0.12*shrinkP})`
+          : 'none';
+        gsap.set(imageFrameRef.current, {
+          width: curW, height: curH,
+          borderRadius: curR,
+          border: curBorder,
+          boxShadow: curShadow,
         });
 
-        // ── Fade scroll indicator immediately ─────────────────────────────
-        tl.to(scrollIndicatorRef.current, {
-          opacity: 0, y: -30, duration: 0.02, ease: 'power1.out',
-        }, 0);
+        if (p > 0.38 && !shrunkOnce) {
+          shrunkOnce = true;
+          if (videoEl) videoEl.pause();
+        }
+        if (p < 0.20) shrunkOnce = false;
 
-        // ── PHASE 1 (0.00–0.04): Video scrub ──────────────────────────────
-        const videoEl = canvasEl;
-        if (videoEl && videoEl.tagName === 'VIDEO') {
-          videoEl.load();
-          const playPromise = videoEl.play();
-          if (playPromise !== undefined) {
-            playPromise.then(() => videoEl.pause()).catch(() => {});
-          }
+        // ── PHASE 3 (0.30–0.45): Mural bleeds in ─────────────────────
+        const muralP = ease3out(remap(p, 0.30, 0.45));
+        gsap.set(artworkRef.current, {
+          opacity: muralP * 0.55,
+          scale: 1 + (1.05 - 1) * (1 - muralP),
+        });
 
-          tl.to({ progress: 0 }, {
-            progress: 1,
-            ease: 'none',
-            duration: 0.04,
-            onUpdate: function () {
-              const p = this.progress();
-              if (videoEl && Number.isFinite(videoEl.duration) && videoEl.duration > 0) {
-                requestAnimationFrame(() => {
-                  videoEl.currentTime = p * videoEl.duration;
-                });
-              }
-            },
-          }, 0);
+        // Golden border when mural is mostly visible
+        if (muralP > 0.7) {
+          const goldenT = remap(muralP, 0.7, 1);
+          gsap.set(imageFrameRef.current, {
+            border: `1px solid rgba(235,203,139,${0.6 * goldenT})`,
+            boxShadow: `0 0 ${50*goldenT}px rgba(235,203,139,${0.3*goldenT}), 0 30px 80px rgba(0,0,0,0.22)`,
+          });
         }
 
-        // ── PHASE 2 (0.04–0.08): Shrink to cinematic box ──────────────────
-        // Uses width/height (not scale) so object-fit:cover on the <video>
-        // naturally handles the crop — no counter-scale needed on mobile.
-        tl.to(imageFrameRef.current, {
-          width: shrinkW,
-          height: shrinkH,
-          borderRadius: shrinkR,
-          border: '1px solid rgba(17,17,17,0.12)',
-          boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
-          duration: 0.04, ease: 'power4.inOut',
-        }, 0.04);
+        // ── PHASE 4 (0.40–0.58): Title + CTA reveal ───────────────────
+        const titleP = ease3out(remap(p, 0.40, 0.58));
+        gsap.set(titleGlowRef.current, { opacity: titleP, scale: 0.6 + 0.4 * titleP });
+        gsap.set('.svh-energy-line', { scaleX: titleP, opacity: titleP });
+        gsap.set('.svh-title-char', {
+          opacity: titleP,
+          rotationX: 40 * (1 - titleP),
+          scale: 0.78 + 0.22 * titleP,
+          y: 12 * (1 - titleP),
+        });
+        const ctaP = ease3out(remap(p, 0.46, 0.58));
+        gsap.set(ctaBoxRef.current, { opacity: ctaP, y: 20 * (1 - ctaP) });
 
-        // ── PHASE 3 (0.06–0.09): Mural bleeds in ──────────────────────────
-        tl.fromTo(artworkRef.current,
-          { opacity: 0, scale: 1.05 },
-          { opacity: 0.5, scale: 1, duration: 0.03, ease: 'power4.out' },
-          0.06
-        );
+        // ── PHASE 5 (0.80–1.00): Exit — dissolve & lift ───────────────
+        const exitP = remap(p, 0.80, 1.0);
+        if (exitP > 0) {
+          const stay = 1 - exitP;
+          gsap.set([artworkRef.current, '.svh-title-char', titleGlowRef.current,
+                    '.svh-energy-line', ctaBoxRef.current],
+            { opacity: Math.min(stay * 2, 1), y: -10 * exitP, overwrite: false });
+          gsap.set(imageFrameRef.current, {
+            yPercent: -50 - (125 * exitP),
+            scale: 1 - 0.04 * exitP,
+            opacity: 1 - exitP,
+          });
+        } else {
+          // Reset exit transforms if scrolled back
+          gsap.set(imageFrameRef.current, { yPercent: -50, scale: 1, opacity: 1 });
+        }
+      };
 
-        // ── PHASE 4 (0.08–0.13): Title + CTA reveal ───────────────────────
-        tl.fromTo(titleGlowRef.current,
-          { opacity: 0, scale: 0.6 },
-          { opacity: 1, scale: 1, duration: 0.02, ease: 'power3.out' },
-          0.08
-        );
+      // ── Handler for native window scroll (fallback + programmatic scroll) ──
+      const onNativeScroll = () => onScroll({ scroll: window.scrollY });
+      window.addEventListener('scroll', onNativeScroll, { passive: true });
 
-        tl.fromTo('.svh-energy-line',
-          { scaleX: 0, opacity: 0 },
-          { scaleX: 1, opacity: 1, duration: 0.02, ease: 'expo.out' },
-          0.08
-        );
+      // ── Attach to Lenis for smooth touch/wheel scroll events ──────────────
+      // Use a retry because Lenis may not be initialized yet at mount time
+      let lenis = window.__lenis;
+      let lenisRetryTimer = null;
 
-        tl.fromTo('.svh-title-char',
-          { opacity: 0, rotationX: 40, scale: 0.78, y: 12 },
-          {
-            opacity: 1, rotationX: 0, scale: 1, y: 0,
-            stagger: 0.001, duration: 0.02, ease: 'power4.out',
-            transformOrigin: '50% 100%',
-          },
-          0.09
-        );
+      const attachLenis = () => {
+        lenis = window.__lenis;
+        if (lenis) {
+          lenis.on('scroll', onScroll);
+          // Fire once immediately to set initial state
+          onScroll({ scroll: window.scrollY || 0 });
+        } else {
+          // Retry in 100ms
+          lenisRetryTimer = setTimeout(attachLenis, 100);
+        }
+      };
+      attachLenis();
 
-        tl.fromTo(sweepRef.current,
-          { left: '-50%', x: 0, opacity: 0, skewX: -20 },
-          { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.02, ease: 'power3.inOut' },
-          0.10
-        );
-
-        tl.to('.svh-title-char', {
-          keyframes: [
-            { color: '#F0D080', textShadow: '0 0 20px rgba(240,200,100,0.8)', duration: 0.01 },
-            { color: '#111111', textShadow: '0 0 0px transparent', duration: 0.01 },
-          ],
-          stagger: 0.001,
-        }, 0.10);
-
-        tl.fromTo(ctaBoxRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.02, ease: 'power3.out' },
-          0.11
-        );
-
-        // Golden border glow
-        tl.to(imageFrameRef.current, {
-          border: '1px solid rgba(235,203,139,0.6)',
-          boxShadow: '0 0 50px rgba(235,203,139,0.3), 0 30px 80px rgba(0,0,0,0.22)',
-          duration: 0.02, ease: 'power2.inOut',
-        }, 0.12);
-
-        // ── HOLD / DWELL (0.13–0.80): User enjoys the settled state ────────
-        // No tweens here — the settled state just stays on screen.
-
-        // ── PHASE 5 (0.80–1.0): Exit — dissolve & lift ────────────────────
-        tl.to(
-          [artworkRef.current, '.svh-title-char', titleGlowRef.current,
-           '.svh-energy-line', ctaBoxRef.current],
-          { opacity: 0, y: -10, duration: 0.06, ease: 'power3.in', stagger: 0.002 },
-          0.80
-        );
-        tl.to(imageFrameRef.current,
-          { yPercent: -175, scale: 0.96, opacity: 0, duration: 0.10, ease: 'power3.inOut' },
-          0.80
-        );
-      }, containerRef);
-
-      return () => ctx.revert();
+      // Cleanup
+      return () => {
+        window.removeEventListener('scroll', onNativeScroll);
+        if (lenis) lenis.off('scroll', onScroll);
+        if (lenisRetryTimer) clearTimeout(lenisRetryTimer);
+        if (pinEl) {
+          pinEl.style.position = '';
+          pinEl.style.top = '';
+        }
+      };
     }
 
     // ── DESKTOP: Progressive frame loading in batches ──────────────────
@@ -327,49 +362,78 @@ export default function ScrollVideoHero() {
       });
     };
 
-    // Progressive loading: load in batches of 60
-    const BATCH_SIZE = 60;
+    // Progressive priority loading:
+    // Stride keyframes (every 15th frame across 0..902) load first so ANY scroll position has a frame immediately
     let cancelled = false;
+    const STRIDE = 15;
+    const keyframes = [];
+    for (let i = 0; i < totalFrames; i += STRIDE) {
+      keyframes.push(i);
+    }
+    if (keyframes[keyframes.length - 1] !== totalFrames - 1) {
+      keyframes.push(totalFrames - 1);
+    }
 
-    const loadBatch = async (startIdx) => {
-      const end = Math.min(startIdx + BATCH_SIZE, totalFrames);
-      const promises = [];
+    const loadRemaining = async (startIdx) => {
+      if (cancelled || startIdx >= totalFrames) return;
+      const end = Math.min(startIdx + 25, totalFrames);
+      const batch = [];
       for (let i = startIdx; i < end; i++) {
-        if (cancelled) return;
-        promises.push(loadFrame(i));
+        if (!images[i]) batch.push(loadFrame(i));
       }
-      await Promise.all(promises);
+      if (batch.length > 0) {
+        await Promise.all(batch);
+      }
       if (!cancelled && end < totalFrames) {
-        // Use requestIdleCallback for non-blocking loading
-        if (window.requestIdleCallback) {
-          window.requestIdleCallback(() => loadBatch(end));
-        } else {
-          setTimeout(() => loadBatch(end), 16);
-        }
+        setTimeout(() => loadRemaining(end), 20);
       }
     };
 
-    // Start loading first batch immediately (frames 0-59)
-    loadBatch(0);
+    const loadKeyframes = async () => {
+      // Load frame 0 first for instant hero display
+      await loadFrame(0);
+      // Load keyframes in small batches of 10
+      for (let i = 0; i < keyframes.length; i += 10) {
+        if (cancelled) return;
+        const slice = keyframes.slice(i, i + 10);
+        await Promise.all(slice.map(loadFrame));
+      }
+      // Continue filling in all intermediate frames smoothly
+      loadRemaining(0);
+    };
+
+    loadKeyframes();
 
     const imageObj = { frame: 0 };
+    let lastRenderedIdx = -1;
 
     const renderFrame = () => {
-      const idx = Math.min(Math.round(imageObj.frame), totalFrames - 1);
+      const idx = Math.min(Math.max(0, Math.round(imageObj.frame)), totalFrames - 1);
       const img = images[idx];
       if (img) {
-        ctxCanvas.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
-      } else {
-        // Find nearest loaded frame
-        for (let d = 1; d <= 10; d++) {
-          if (images[idx - d]) {
-            ctxCanvas.drawImage(images[idx - d], 0, 0, canvasEl.width, canvasEl.height);
-            break;
+        if (lastRenderedIdx !== idx) {
+          ctxCanvas.drawImage(img, 0, 0, canvasEl.width, canvasEl.height);
+          lastRenderedIdx = idx;
+        }
+        return;
+      }
+      // Nearest loaded frame search across full range — guarantees canvas NEVER gets stuck!
+      for (let d = 1; d < totalFrames; d++) {
+        const prev = idx - d;
+        if (prev >= 0 && images[prev]) {
+          if (lastRenderedIdx !== prev) {
+            ctxCanvas.drawImage(images[prev], 0, 0, canvasEl.width, canvasEl.height);
+            lastRenderedIdx = prev;
           }
-          if (images[idx + d]) {
-            ctxCanvas.drawImage(images[idx + d], 0, 0, canvasEl.width, canvasEl.height);
-            break;
+          return;
+        }
+        const next = idx + d;
+        if (next < totalFrames && images[next]) {
+          if (lastRenderedIdx !== next) {
+            ctxCanvas.drawImage(images[next], 0, 0, canvasEl.width, canvasEl.height);
+            lastRenderedIdx = next;
           }
+          return;
         }
       }
     };
@@ -514,7 +578,7 @@ export default function ScrollVideoHero() {
       style={{
         '--mx': 0,
         '--my': 0,
-        height: isMobile ? '300vh' : '500vh',
+        height: isMobile ? '350vh' : '500vh',
       }}
     >
       <div ref={pinRef} className="w-full h-[100dvh] relative overflow-hidden bg-cream">
@@ -598,12 +662,12 @@ export default function ScrollVideoHero() {
           {/* Positioned below the video frame: video is at 50%/50% with 42-45vh height */}
           <div
             className="absolute left-0 w-full flex flex-col items-center text-center select-none px-4"
-            style={{ top: isMobile ? '72vh' : '74vh' }}
+            style={{ top: isMobile ? '76dvh' : '77dvh' }}
           >
             {/* Warm amber halo */}
             <div
               ref={titleGlowRef}
-              className="absolute pointer-events-none opacity-0"
+              className="hidden md:block absolute pointer-events-none opacity-0"
               style={{
                 width: isMobile ? '100vw' : '600px', height: '200px',
                 left: '50%', top: '0',
@@ -644,7 +708,7 @@ export default function ScrollVideoHero() {
               </h1>
 
               <div
-                className="svh-energy-line absolute left-[4%] right-[4%] bottom-2 h-px opacity-0 z-0"
+                className="svh-energy-line hidden md:block absolute left-[4%] right-[4%] bottom-2 h-px opacity-0 z-0"
                 style={{
                   background: 'linear-gradient(90deg, transparent 0%, rgba(231,201,138,0.9) 50%, transparent 100%)',
                   boxShadow: '0 0 12px 1px rgba(231,201,138,0.6)',

@@ -51,18 +51,20 @@ export default function Philosophy() {
       }
 
       // Sketch background: fade in on enter + slow parallax drift
+      // Mobile: higher opacity + less parallax so it stays visible in the clipped area
+      const isMobileView = window.innerWidth < 768;
       if (sketchRef.current) {
         gsap.fromTo(
           sketchRef.current,
           { opacity: 0, y: 40 },
           {
-            opacity: 0.15, y: 0, duration: 1.8, ease: 'power2.out',
+            opacity: isMobileView ? 0.25 : 0.15, y: 0, duration: 1.8, ease: 'power2.out',
             scrollTrigger: { trigger: section, start: 'top 85%' },
           }
         );
 
         gsap.to(sketchRef.current, {
-          yPercent: -18, ease: 'none',
+          yPercent: isMobileView ? -6 : -18, ease: 'none',
           scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1.5 },
         });
       }
@@ -108,7 +110,7 @@ export default function Philosophy() {
           alt=""
           aria-hidden="true"
           decoding="async"
-          className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform mix-blend-multiply"
+          className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform md:mix-blend-multiply"
           style={{ opacity: 0 }}
         />
       </div>

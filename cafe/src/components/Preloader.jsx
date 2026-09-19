@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +34,13 @@ export default function Preloader() {
         window.__lenis.start();
         window.__lenis.scrollTo(0, { immediate: true });
       }
+      // Recompute all ScrollTrigger pin/trigger positions now that overflow is unlocked
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 300);
     }, 2400);
 
     return () => {

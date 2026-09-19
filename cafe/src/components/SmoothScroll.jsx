@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { installRevealSafetyNet } from '../utils/revealSafetyNet';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,12 +22,12 @@ export default function SmoothScroll({ children }) {
     window.addEventListener('resize', refresh);
     window.addEventListener('orientationchange', refresh);
 
-    const t = setTimeout(refresh, 500);
+    const timers = [100, 500, 1000, 2000].map((ms) => setTimeout(refresh, ms));
 
     return () => {
       window.removeEventListener('resize', refresh);
       window.removeEventListener('orientationchange', refresh);
-      clearTimeout(t);
+      timers.forEach(clearTimeout);
     };
   }, []);
 
@@ -55,14 +56,21 @@ export default function SmoothScroll({ children }) {
     // Disable lag smoothing to prevent visual jumps
     gsap.ticker.lagSmoothing(0);
 
-    // Expose lenis globally so ScrollVideoHero can stop/start it
+    // Expose lenis and ScrollTrigger globally
     window.__lenis = lenis;
+    window.ScrollTrigger = ScrollTrigger;
+    window.gsap = gsap;
 
     return () => {
       window.__lenis = null;
       lenis.destroy();
       gsap.ticker.remove(updateGsap);
     };
+  }, []);
+
+  useEffect(() => {
+    const cleanup = installRevealSafetyNet();
+    return cleanup;
   }, []);
 
   return <>{children}</>;
