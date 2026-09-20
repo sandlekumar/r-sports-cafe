@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { installRevealSafetyNet } from '../utils/revealSafetyNet';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -69,8 +68,16 @@ export default function SmoothScroll({ children }) {
   }, []);
 
   useEffect(() => {
-    const cleanup = installRevealSafetyNet();
-    return cleanup;
+    const syncScrollTrigger = () => ScrollTrigger.update();
+    const onTouchEnd = () => ScrollTrigger.refresh();
+
+    window.addEventListener('scroll', syncScrollTrigger, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', syncScrollTrigger);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
   }, []);
 
   return <>{children}</>;

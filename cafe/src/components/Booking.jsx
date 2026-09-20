@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { trackEvent } from '../utils/analytics';
 import { apiClient } from '../services/apiClient';
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll';
 
 import bgImage from '../assets/tasteandplay/hero.webp';
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function Booking() {
   const [formData, setFormData] = useState({
@@ -23,35 +20,12 @@ export default function Booking() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   
   const sectionRef = useRef(null);
-  const formColRef = useRef(null);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const ctx = gsap.context(() => {
-      const elements = section.querySelectorAll('.fade-up-element');
-      if (elements.length > 0) {
-        gsap.fromTo(
-          elements,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            stagger: 0.15,
-            duration: 1.2,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 75%',
-            },
-          }
-        );
-      }
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
+  
+  const titleRef = useRevealOnScroll();
+  const textRef = useRevealOnScroll();
+  const locationDividerRef = useRevealOnScroll();
+  const addressRef = useRevealOnScroll();
+  const formColRef = useRevealOnScroll();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -101,7 +75,7 @@ export default function Booking() {
         
         {/* Left Side: Aesthetic Typography */}
         <div className="lg:w-1/2 text-white">
-          <div className="mb-8 fade-up-element opacity-0">
+          <div ref={titleRef} className="mb-8 reveal-up" style={{ '--delay': '0s' }}>
             <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-[#D4AF37] mb-6 block">
               YOUR TABLE. YOUR TIME.
             </span>
@@ -109,7 +83,7 @@ export default function Booking() {
               Make<br />It R.
             </h2>
           </div>
-          <div className="font-inter font-normal text-[16px] md:text-[18px] text-white/60 tracking-[-0.01em] leading-[1.8] max-w-md space-y-4 fade-up-element opacity-0">
+          <div ref={textRef} className="reveal-up font-inter font-normal text-[16px] md:text-[18px] text-white/60 tracking-[-0.01em] leading-[1.8] max-w-md space-y-4" style={{ '--delay': '0.15s' }}>
             <p><strong>What's Your Plan Today?</strong></p>
             <p className="text-[15px] space-y-1">
               <span className="block"><strong>A game?</strong> <Link to="/turf" className="text-[#D4AF37] hover:underline underline-offset-4 ml-1 inline-flex items-center gap-1 transition-colors hover:text-white">Book the turf &rarr;</Link></span>
@@ -118,13 +92,13 @@ export default function Booking() {
             </p>
             <p>Reserve your table before you arrive and spend less time waiting and more time enjoying the moment.</p>
           </div>
-          <div className="mt-12 flex items-center gap-4 fade-up-element opacity-0">
+          <div ref={locationDividerRef} className="mt-12 flex items-center gap-4 reveal-up" style={{ '--delay': '0.3s' }}>
             <div className="w-12 h-[1px] bg-gradient-to-r from-[#D4AF37] to-transparent" />
             <span className="font-inter text-[11px] tracking-[0.2em] text-[#D4AF37] uppercase">
               Find Us in Thoothukudi
             </span>
           </div>
-          <div className="mt-8 fade-up-element opacity-0">
+          <div ref={addressRef} className="mt-8 reveal-up" style={{ '--delay': '0.45s' }}>
             <p className="font-inter text-white text-[14px] leading-relaxed mb-6 opacity-80">
               <strong className="text-white">R SPORTS & CAFE</strong><br/>
               SNR Nagar, 4/4,<br/>
@@ -164,7 +138,7 @@ export default function Booking() {
         </div>
 
         {/* Right Side: Glassmorphic Form */}
-        <div ref={formColRef} className="lg:w-1/2 w-full relative fade-up-element opacity-0">
+        <div ref={formColRef} className="lg:w-1/2 w-full relative reveal-up" style={{ '--delay': '0.6s' }}>
           {/* Aesthetic background image behind the form */}
           <div className="absolute -inset-4 z-0 rounded-[40px] overflow-hidden opacity-50 blur-[2px] hidden md:block">
              <img src={bgImage} loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ filter: 'brightness(1.5) contrast(1.2)' }} alt="" />

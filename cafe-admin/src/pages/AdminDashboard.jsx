@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL, SERVER_BASE_URL } from '../config.js';
 import '../admin.css';
+import ReviewsTab from './ReviewsTab';
 
 /* ─── Greeting helper ─────────────────────────────────────────────────────── */
 function getGreeting() {
@@ -117,6 +118,11 @@ const NavIcons = {
       <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
     </svg>
   ),
+  reviews: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+  ),
 };
 
 const NAV_ITEMS = [
@@ -126,6 +132,7 @@ const NAV_ITEMS = [
   { id: 'events',    label: 'Events',            icon: NavIcons.events    },
   { id: 'menu',      label: 'Menu Items',        icon: NavIcons.menu      },
   { id: 'reels',     label: 'Reels & Videos',    icon: NavIcons.reels     },
+  { id: 'reviews',   label: 'Customer Reviews',  icon: NavIcons.reviews   },
   { id: 'tables',    label: 'Floor Plan',        icon: NavIcons.tables    },
   { id: 'customers', label: 'Customers',         icon: NavIcons.customers },
   { id: 'settings',  label: 'Settings',          icon: NavIcons.settings  },
@@ -138,6 +145,7 @@ const TAB_TITLES = {
   events:    'Events Management',
   menu:      'Menu & Trending Motion Loops',
   reels:     'Instagram Reels & Video Clips',
+  reviews:   'Customer Testimonials',
   tables:    'Tables & Floor Plan',
   customers: 'Customer Directory',
   settings:  'System Settings',
@@ -883,6 +891,9 @@ export default function AdminDashboard() {
               )}
 
               {/* ══ EVENTS ══ */}
+              {activeTab === 'reviews' && (
+                <ReviewsTab getHeaders={getHeaders} getAuthHeaders={getAuthHeaders} />
+              )}
               {activeTab === 'events' && (
                 <motion.div key="events" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-5">
                   {/* Trending warning */}

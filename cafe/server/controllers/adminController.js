@@ -20,11 +20,11 @@ exports.loginAdmin = async (req, res, next) => {
     }
 
     // Demo admin check (accepts admin credentials)
-    if (email === 'admin@rsportscafe.com' && password === 'admin123') {
+    if (email === 'san@gmail.com' && password === 'san@2604') {
       const adminUser = {
         id: 'admin_1',
         name: 'Executive Concierge',
-        email: 'admin@rsportscafe.com',
+        email: 'san@gmail.com',
         role: 'SUPER_ADMIN',
       };
 

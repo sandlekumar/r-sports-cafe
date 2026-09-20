@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import luxuryInterior from '../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.webp';
 import sketchBg from '../assets/architectural-sketch-collage.png.webp';
 import RevealText from './RevealText';
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,11 +12,12 @@ export default function Philosophy() {
   const sectionRef = useRef(null);
   const imageContainerRef = useRef(null);
   const imageRef = useRef(null);
-  const dividerRef = useRef(null);
-  const brandStoryRef = useRef(null);
-  const statementRef = useRef(null);
-  const footerRef = useRef(null);
   const sketchRef = useRef(null);
+
+  const dividerRef = useRevealOnScroll();
+  const brandStoryRef = useRevealOnScroll();
+  const statementRef = useRevealOnScroll();
+  const footerRef = useRevealOnScroll();
 
   const word1 = "PLAY.";
   const word2 = "EAT.";
@@ -26,19 +28,22 @@ export default function Philosophy() {
     const section = sectionRef.current;
     if (!section) return;
 
+    let imgObserver;
+    let sketchObserver;
+
     // Use gsap.context for scoped cleanup — only THIS component's triggers are killed on unmount
     const ctx = gsap.context(() => {
 
       // Image Entrance: zoom out from 1.25 -> 1.0 (slow zoom)
       if (imageRef.current && imageContainerRef.current) {
-        gsap.fromTo(
-          imageRef.current,
-          { scale: 1.25 },
-          {
-            scale: 1.0, duration: 2.5, ease: 'power3.out',
-            scrollTrigger: { trigger: imageContainerRef.current, start: 'top 85%' },
+        gsap.set(imageRef.current, { scale: 1.25 });
+        imgObserver = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            gsap.to(imageRef.current, { scale: 1.0, duration: 2.5, ease: 'power3.out' });
+            imgObserver.disconnect();
           }
-        );
+        }, { threshold: 0.1, rootMargin: '100px' });
+        imgObserver.observe(imageContainerRef.current);
 
         // Subtle parallax scroll for the image
         gsap.to(imageRef.current, {
@@ -51,17 +56,18 @@ export default function Philosophy() {
       }
 
       // Sketch background: fade in on enter + slow parallax drift
-      // Mobile: higher opacity + less parallax so it stays visible in the clipped area
       const isMobileView = window.innerWidth < 768;
       if (sketchRef.current) {
-        gsap.fromTo(
-          sketchRef.current,
-          { opacity: 0, y: 40 },
-          {
-            opacity: isMobileView ? 0.25 : 0.15, y: 0, duration: 1.8, ease: 'power2.out',
-            scrollTrigger: { trigger: section, start: 'top 85%' },
+        gsap.set(sketchRef.current, { opacity: 0, y: 40 });
+        sketchObserver = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            gsap.to(sketchRef.current, {
+              opacity: isMobileView ? 0.25 : 0.15, y: 0, duration: 1.0, ease: 'power2.out'
+            });
+            sketchObserver.disconnect();
           }
-        );
+        }, { threshold: 0, rootMargin: '300px' }); // trigger early
+        sketchObserver.observe(section);
 
         gsap.to(sketchRef.current, {
           yPercent: isMobileView ? -6 : -18, ease: 'none',
@@ -69,31 +75,15 @@ export default function Philosophy() {
         });
       }
 
-      // Staggered reveal for metadata, story, and footer
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: section, start: 'top 65%' },
-      });
+      // Staggered reveal for metadata, story, and footer are now handled by IntersectionObserver (useRevealOnScroll)
 
-      if (dividerRef.current) {
-        tl.fromTo(dividerRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, 0);
-      }
-      if (brandStoryRef.current) {
-        tl.fromTo(brandStoryRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, 0.15);
-      }
-      if (statementRef.current) {
-        // Editorial wipe reveal for the statement text
-        tl.fromTo(statementRef.current,
-          { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
-          { clipPath: 'inset(0 0% 0 0)', opacity: 1, duration: 1.4, ease: 'power3.inOut' },
-          0.30
-        );
-      }
-      if (footerRef.current) {
-        tl.fromTo(footerRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' }, 0.45);
-      }
     }, section); // scoped to this section — won't kill other components' triggers
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      if (imgObserver) imgObserver.disconnect();
+      if (sketchObserver) sketchObserver.disconnect();
+    };
   }, []);
 
   return (
@@ -111,8 +101,8 @@ export default function Philosophy() {
           aria-hidden="true"
           decoding="async"
           data-max-opacity="0.15"
-          className="absolute w-full h-[120%] object-cover object-center top-0 left-0 will-change-transform mix-blend-multiply"
-          style={{ opacity: 0 }}
+          className="absolute w-full h-[120%] object-cover object-center top-0 left-0 mix-blend-multiply"
+          style={{ opacity: 0, transform: 'translateZ(0)' }}
         />
       </div>
       {/* Background Watermark Faded Text */}
@@ -140,7 +130,7 @@ export default function Philosophy() {
             <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-sandalAccent uppercase block">
               YOUR SPORTS & CAFE DESTINATION IN THOOTHUKUDI
             </span>
-            <div ref={dividerRef} className="w-16 h-[1px] bg-sandalAccent/60 opacity-0" />
+            <div ref={dividerRef} className="w-16 h-[1px] bg-sandalAccent/60 reveal-up" />
           </div>
 
           {/* Massive Editorial Typography Heading */}
@@ -160,7 +150,7 @@ export default function Philosophy() {
           </h2>
 
           {/* Short Brand Story */}
-          <div ref={brandStoryRef} className="opacity-0 max-w-lg space-y-6">
+          <div ref={brandStoryRef} className="reveal-up max-w-lg space-y-6" style={{ '--delay': '0.15s' }}>
             <p className="font-inter font-normal text-[18px] leading-[1.8] tracking-[-0.01em] text-darkText/80 max-w-[600px]">
               Welcome to R Sports & Cafe — where great games, good food and easy evenings come together.
             </p>
@@ -191,7 +181,7 @@ export default function Philosophy() {
           </div>
 
           {/* Short Philosophy Statement and Trust Section */}
-          <div ref={statementRef} className="opacity-0 pl-4 border-l border-sandalAccent/30 space-y-8">
+          <div ref={statementRef} className="reveal-up pl-4 border-l border-sandalAccent/30 space-y-8" style={{ '--delay': '0.3s' }}>
             <div className="space-y-4">
               <p className="font-sans font-medium text-[16px] md:text-[18px] text-darkText/95 leading-relaxed">
                 Located in Caldwell Colony, Thoothukudi, R Sports & Cafe brings together a well-maintained sports turf and a premium cafe experience in one place.
@@ -219,7 +209,7 @@ export default function Philosophy() {
           </div>
 
           {/* Est / Location Badge */}
-          <div ref={footerRef} className="opacity-0 pl-4 pt-2">
+          <div ref={footerRef} className="reveal-up pl-4 pt-2" style={{ '--delay': '0.45s' }}>
             <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-neutral-400 uppercase">
               EST. 2026 · TUTICORIN
             </span>

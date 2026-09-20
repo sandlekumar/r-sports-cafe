@@ -71,9 +71,11 @@ mongoose.connect(MONGO_URI)
 // ─── Routes ───────────────────────────────────────────────────────────────────
 const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 app.use('/api', publicRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // ─── Global Error Handler (must be last) ──────────────────────────────────────
 const errorHandler = require('./middleware/errorHandler');

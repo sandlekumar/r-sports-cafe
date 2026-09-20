@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { apiClient } from '../services/apiClient';
 import { CoffeeCupSketch } from './decor/SketchMotifs';
-
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll';
 // Use URL constructor to avoid Vite bundling these large video files
 const video1 = new URL('../assets/hero-video-opt.mp4', import.meta.url).href;
 const video2 = new URL('../assets/turf.mp4', import.meta.url).href;
@@ -18,57 +18,6 @@ import juiceImg from '../assets/signature_juice.webp';
 import coffeeImg from '../assets/signature_coffee.webp';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const DEFAULT_MENU_ITEMS = [
-  {
-    id: 1,
-    category: 'SPECIALTY COFFEE',
-    name: 'RED VELVET CLOUD COFFEE',
-    desc: 'Smooth coffee finished with rich red velvet cream for a sweet, signature R experience.',
-    price: '₹249',
-    image: coffeeImg,
-    video: video1,
-    video_loop_url: video1,
-    is_trending: true,
-    accent: '#C8956C',
-  },
-  {
-    id: 2,
-    category: 'ARTISAN PIZZA',
-    name: 'SPICY PERI PERI CHICKEN PIZZA',
-    desc: 'Crispy thin crust, juicy chicken and bold peri peri flavour.',
-    price: '₹349',
-    image: pizzaImg,
-    video: video2,
-    video_loop_url: video2,
-    is_trending: true,
-    accent: '#D4A574',
-  },
-  {
-    id: 3,
-    category: 'ICED LATTE',
-    name: 'SPANISH ICED LATTE',
-    desc: 'Smooth, chilled and made for coffee lovers.',
-    price: '₹229',
-    image: juiceImg, // Normally this would be a coffee image, keeping juice image to prevent broken links
-    video: video3,
-    video_loop_url: video3,
-    is_trending: true,
-    accent: '#B07D9E',
-  },
-  {
-    id: 4,
-    category: 'FRESH PLATTERS',
-    name: 'FRESH PLATTERS',
-    desc: 'Fresh, satisfying plates made for sharing around the table.',
-    price: '₹449',
-    image: burgerImg,
-    video: video4,
-    video_loop_url: video4,
-    is_trending: true,
-    accent: '#8B7355',
-  },
-];
 
 /* ─── Animation variants ─── */
 const imageVariants = {
@@ -199,6 +148,15 @@ function MenuCardMedia({ item, direction, activeIndex, sectionVisible }) {
     !isSlowConnection &&
     !isMobile;
 
+  useEffect(() => {
+    if (!videoRef.current || !canPlayVideo) return;
+    
+    const playPromise = videoRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => console.log('Video auto-play suppressed:', err));
+    }
+  }, [activeIndex, canPlayVideo]);
+
   return (
     <div
       ref={containerRef}
@@ -245,7 +203,7 @@ function MenuCardMedia({ item, direction, activeIndex, sectionVisible }) {
 
 export default function Menu() {
   const [[activeIndex, direction], setPage] = useState([0, 0]);
-  const [menuItems, setMenuItems] = useState(DEFAULT_MENU_ITEMS);
+  const [menuItems, setMenuItems] = useState([]);
 
   const sectionRef = useRef(null);
   const catRef = useRef(null);
@@ -257,7 +215,6 @@ export default function Menu() {
 
   // Fetch backend menu items if available
   useEffect(() => {
-    /* Temporarily disconnected to show original design data
     let cancelled = false;
     const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
     apiClient('/menu')
@@ -271,8 +228,8 @@ export default function Menu() {
               desc: m.desc,
               price: m.price,
               photo: m.photo,
-              image: m.photo ? `${SERVER_URL}${m.photo}` : DEFAULT_MENU_ITEMS[i % DEFAULT_MENU_ITEMS.length].image,
-              video: m.video_loop_url || DEFAULT_MENU_ITEMS[i % DEFAULT_MENU_ITEMS.length].video,
+              image: m.photo ? `${SERVER_URL}${m.photo}` : null,
+              video: m.video_loop_url || null,
               video_loop_url: m.video_loop_url,
               is_trending: Boolean(m.is_trending),
               accent: m.accent || '#C8956C',
@@ -284,7 +241,6 @@ export default function Menu() {
     return () => {
       cancelled = true;
     };
-    */
   }, []);
 
   const paginate = useCallback(
@@ -327,35 +283,20 @@ export default function Menu() {
   }, []);
 
   // ── Scroll reveal for Menu cards/columns ──
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
+  const headerCardRef = useRevealOnScroll();
+  const textColRef = useRevealOnScroll();
+  const mediaColRef = useRevealOnScroll();
+  const ctaColRef = useRevealOnScroll();
 
-    const ctx = gsap.context(() => {
-      const cards = section.querySelectorAll('.menu-reveal-card');
-      if (cards.length > 0) {
-        gsap.fromTo(
-          cards,
-          { y: 32, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            stagger: 0.08,
-            duration: 1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 85%',
-            },
-          }
-        );
-      }
-    }, section);
+  if (menuItems.length === 0) {
+    return (
+      <section ref={sectionRef} id="menu" className="relative w-full h-[100dvh] flex items-center justify-center bg-[#1a1a1a]">
+         <h2 className="text-[28px] md:text-[54px] font-bold text-white tracking-tight">Loading Menu...</h2>
+      </section>
+    );
+  }
 
-    return () => ctx.revert();
-  }, []);
-
-  const item = menuItems[activeIndex] || DEFAULT_MENU_ITEMS[0];
+  const item = menuItems[activeIndex];
 
   return (
     <section
@@ -401,7 +342,7 @@ export default function Menu() {
       `}</style>
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 mb-12 lg:mb-16 mt-20 text-center lg:text-left flex flex-col lg:flex-row items-center lg:items-end justify-between">
-        <div className="max-w-2xl menu-reveal-card opacity-0">
+        <div ref={headerCardRef} className="max-w-2xl reveal-up" style={{ '--delay': '0s' }}>
           <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-orange-400 mb-4 uppercase block">Stay for the Food.</span>
           <h2 className="font-sans font-bold text-3xl md:text-5xl lg:text-6xl text-lightText mb-6 uppercase tracking-tight">Worth Coming Back For.</h2>
           <p className="font-inter text-lightText/60 text-base leading-relaxed">
@@ -414,7 +355,7 @@ export default function Menu() {
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 min-h-[500px]">
         {/* ════ LEFT: text metadata ════ */}
-        <div className="showcase-text-col lg:w-[38%] flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 menu-reveal-card opacity-0">
+        <div ref={textColRef} className="showcase-text-col lg:w-[38%] flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 reveal-up" style={{ '--delay': '0.08s' }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={`text-${activeIndex}`}
@@ -493,8 +434,9 @@ export default function Menu() {
 
         {/* ════ CENTER: Media Carousel (Video Loop / Photo) ════ */}
         <div
-          className="showcase-image-col lg:w-[38%] flex justify-center items-center relative menu-reveal-card opacity-0"
-          style={{ perspective: '1200px' }}
+          ref={mediaColRef}
+          className="showcase-image-col lg:w-[38%] flex justify-center items-center relative reveal-up"
+          style={{ perspective: '1200px', '--delay': '0.16s' }}
         >
           {/* decorative ring behind image */}
           <div
@@ -541,7 +483,7 @@ export default function Menu() {
         </div>
 
         {/* ════ RIGHT: meta + pagination ════ */}
-        <div className="showcase-cta-col lg:w-[24%] flex flex-col items-center lg:items-end justify-center gap-10 menu-reveal-card opacity-0">
+        <div ref={ctaColRef} className="showcase-cta-col lg:w-[24%] flex flex-col items-center lg:items-end justify-center gap-10 reveal-up" style={{ '--delay': '0.24s' }}>
           
           {/* pagination dots */}
           <div className="flex lg:flex-col gap-3">

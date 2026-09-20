@@ -5,7 +5,7 @@ import { getAvailability, submitTableBooking } from '../services/bookingApi';
 import SEO from '../../../components/SEO';
 import { trackEvent } from '../../../utils/analytics';
 import { TableSketch } from '../../../components/decor/SketchMotifs';
-import gsap from 'gsap';
+import { useRevealOnScroll } from '../../../hooks/useRevealOnScroll';
 
 /* ─── Premium Theme Colors ───────────────────────────────────────────── */
 const theme = {
@@ -213,6 +213,10 @@ export default function TableBooking() {
   const dates = useMemo(() => getNext30Days(), []);
   const times = useMemo(() => generateTimeSlots(), []);
   const formRef = useRef(null);
+  
+  const heroRef = useRevealOnScroll();
+  const leftColRef = useRevealOnScroll();
+  const rightColRef = useRevealOnScroll();
 
   // Auto-fetch availability when Date, Time, or Guests change
   useEffect(() => {
@@ -250,21 +254,6 @@ export default function TableBooking() {
 
     checkAvail();
   }, [booking.date, booking.time, booking.guests]);
-
-  // GSAP Fade-Up Stagger
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const elements = document.querySelectorAll('.fade-up-element');
-      if (elements.length > 0) {
-        gsap.fromTo(
-          elements,
-          { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, stagger: 0.15, duration: 1.2, ease: 'power3.out' }
-        );
-      }
-    });
-    return () => ctx.revert();
-  }, []);
 
   const updateBooking = (key, value) => {
     setBooking(prev => ({ ...prev, [key]: value }));
@@ -385,7 +374,7 @@ export default function TableBooking() {
         <TableSketch className="absolute top-20 right-10 w-64 h-64 pointer-events-none select-none hidden lg:block z-0" style={{ color: `${theme.textPri}08` }} />
         
         {/* HERO SECTION */}
-        <div className="max-w-2xl mb-12 fade-up-element opacity-0">
+        <div ref={heroRef} className="max-w-2xl mb-12 reveal-up" style={{ '--delay': '0s' }}>
           <span className="block font-sans text-[11px] tracking-[0.2em] uppercase mb-4" style={{ color: theme.accent }}>Reservations</span>
           <h1 className="font-sans font-normal text-[42px] md:text-[56px] leading-tight mb-4 tracking-tight" style={{ color: theme.textPri }}>
             Reserve Your Table
@@ -399,7 +388,7 @@ export default function TableBooking() {
         <div className="lg:grid lg:grid-cols-12 gap-10 xl:gap-16 items-start">
           
           {/* LEFT COLUMN: Booking Details */}
-          <div className="lg:col-span-5 space-y-10 mb-12 lg:mb-0 fade-up-element opacity-0">
+          <div ref={leftColRef} className="lg:col-span-5 space-y-10 mb-12 lg:mb-0 reveal-up" style={{ '--delay': '0.15s' }}>
             
             <form id="booking-form" ref={formRef} onSubmit={handleConfirm} className="rounded-[24px] p-5 sm:p-8 overflow-hidden" style={{ background: theme.card, border: `1px solid ${theme.border}` }}>
               
@@ -518,7 +507,7 @@ export default function TableBooking() {
           </div>
 
           {/* RIGHT COLUMN: Interactive Table & Summary */}
-          <div className="lg:col-span-7 lg:sticky lg:top-24 fade-up-element opacity-0">
+          <div ref={rightColRef} className="lg:col-span-7 lg:sticky lg:top-24 reveal-up" style={{ '--delay': '0.3s' }}>
             
             <div className="mb-8">
               <h2 className="font-sans text-[24px] mb-2" style={{ color: theme.textPri }}>Choose Your Table</h2>

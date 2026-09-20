@@ -112,8 +112,8 @@ export default function App() {
         {/* Hyper-Aesthetic Luxury Footer */}
         <footer className="bg-night text-lightText pt-32 pb-12 px-6 md:px-20 border-t-2 border-t-gold/20 relative overflow-hidden">
           {/* Huge background text */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none opacity-[0.06]">
-            <h2 className="font-sans font-bold text-[15vw] leading-none whitespace-nowrap tracking-[-0.05em] text-gradient-gold" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>R SPORTS & CAFE</h2>
+          <div className="absolute inset-0 pointer-events-none opacity-[0.06] overflow-hidden">
+            <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-sans font-bold text-[15vw] leading-none whitespace-nowrap tracking-[-0.05em] text-gradient-gold" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>R SPORTS & CAFE</h2>
           </div>
 
           <div className="max-w-7xl mx-auto relative z-10 flex flex-col justify-between h-full">
@@ -182,8 +182,8 @@ export default function App() {
             </div>
 
             <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-              <span className="font-inter text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase">
-                © 2026 R SPORTS CAFE.
+              <span className="font-inter text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase text-center md:text-left">
+                © 2026 R SPORTS CAFE. <br className="md:hidden" /> Developed by Team - Guha sandle
               </span>
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -194,12 +194,6 @@ export default function App() {
                 </svg>
                 Back to top
               </button>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="font-inter text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase">
-                  Systems Operational
-                </span>
-              </div>
             </div>
           </div>
         </footer>

@@ -206,7 +206,11 @@ exports.uploadReelVideo = async (req, res, next) => {
     });
 
     // 3. Cleanup original
-    if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+    try {
+      if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+    } catch (e) {
+      console.error('Could not delete original reel video:', e);
+    }
 
     const videoUrl = `/uploads/reels/${videoFilename}`;
     const thumbnailUrl = `/uploads/reels/${thumbFilename}`;

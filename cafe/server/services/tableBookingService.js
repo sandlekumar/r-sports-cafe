@@ -20,7 +20,7 @@ const Settings = require('../models/Settings');
 const { checkAvailability } = require('./availabilityService');
 const { generateSlots, computeEndTime } = require('../utils/timeSlots');
 const { BOOKING_STATUS, BOOKING_SOURCE } = require('../constants');
-const { sendBookingConfirmation } = require('../utils/emailService');
+const { sendBookingConfirmation, sendAdminBookingNotification } = require('../utils/emailService');
 
 /**
  * Create a new table booking atomically.
@@ -206,6 +206,18 @@ const createTableBooking = async (data) => {
       time,
       guests,
       cancellationToken,
+    });
+    
+    // Admin notification email
+    sendAdminBookingNotification({
+      email: customer.email,
+      name: customer.name,
+      phone: customer.phone,
+      bookingNumber: booking.bookingNumber,
+      date,
+      time,
+      guests,
+      specialRequest,
     });
 
     return {

@@ -1,10 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
 import { FootballSketch } from './decor/SketchMotifs';
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll';
 
 // Use string path instead of import to prevent Vite from bundling the 5.7MB video
 const TURF_VIDEO_PATH = new URL('../assets/turf.mp4', import.meta.url).href;
@@ -12,12 +8,7 @@ const TURF_POSTER_PATH = new URL('../assets/turf-poster.webp', import.meta.url).
 
 export default function Turf() {
   const containerRef = useRef(null);
-  const word1Ref = useRef(null);
-  const word2Ref = useRef(null);
-  const word3Ref = useRef(null);
-  const ctaRef = useRef(null);
   const videoRef = useRef(null);
-  const headingRef = useRef(null);
   const [videoSrc, setVideoSrc] = useState(null);
   const [videoInView, setVideoInView] = useState(false);
 
@@ -53,30 +44,10 @@ export default function Turf() {
     }
   }, [videoInView, videoSrc]);
 
-  useGSAP(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Simple fade-up + stagger (matching Philosophy)
-    const elements = container.querySelectorAll('.fade-up-element');
-    if (elements.length > 0) {
-      gsap.fromTo(
-        elements,
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          stagger: 0.15,
-          duration: 1.2,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: container,
-            start: 'top 75%',
-          },
-        }
-      );
-    }
-  }, { scope: containerRef });
+  const eyebrowRef = useRevealOnScroll();
+  const headingRef = useRevealOnScroll();
+  const descriptionRef = useRevealOnScroll();
+  const ctaRevealRef = useRevealOnScroll();
 
   return (
     <section 
@@ -111,17 +82,17 @@ export default function Turf() {
 
       {/* Main Campaign Message */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-5xl w-full">
-        <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-white/60 mb-8 uppercase fade-up-element opacity-0">
+        <span ref={eyebrowRef} className="reveal-up font-inter font-medium text-[12px] tracking-[0.24em] text-white/60 mb-8 uppercase" style={{ '--delay': '0s' }}>
           TURF & SPORTS BOOKING
         </span>
 
-        <h2 className="flex flex-col items-center justify-center font-sans font-bold text-[clamp(44px,12vw,88px)] leading-[1.05] tracking-[-0.03em] text-white mb-8 uppercase fade-up-element opacity-0">
+        <h2 ref={headingRef} className="reveal-up flex flex-col items-center justify-center font-sans font-bold text-[clamp(44px,12vw,88px)] leading-[1.05] tracking-[-0.03em] text-white mb-8 uppercase" style={{ '--delay': '0.15s' }}>
           <div>GAME ON.</div>
           <div className="text-white/60">PLAY HARD.</div>
           <div>CHILL AFTER.</div>
         </h2>
 
-        <div className="max-w-2xl text-center mb-12 opacity-90 fade-up-element opacity-0">
+        <div ref={descriptionRef} className="reveal-up max-w-2xl text-center mb-12 opacity-90" style={{ '--delay': '0.3s' }}>
           <p className="font-inter text-white text-lg md:text-xl leading-relaxed mb-4 font-medium">Get your team together and book your time on the turf.</p>
           <p className="font-inter text-white/70 text-sm md:text-base leading-relaxed">
             Perfect for friendly matches, regular games and weekend sessions with your crew. Once the game is over, the cafe is right there waiting.
@@ -129,7 +100,7 @@ export default function Turf() {
         </div>
 
         {/* Minimal CTA button */}
-        <div className="w-full sm:w-auto flex justify-center fade-up-element opacity-0">
+        <div ref={ctaRevealRef} className="reveal-up w-full sm:w-auto flex justify-center" style={{ '--delay': '0.45s' }}>
           <a 
             href="https://book.playspots.in/venues/r-sports-cafe-tiruchendur-main-road-tuticorin"
             target="_blank" rel="noopener noreferrer"

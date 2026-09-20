@@ -12,58 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion';
    warmGray #8A8578   secondary text
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-const REVIEWS = [
-  {
-    id: 1,
-    name: 'Priya Menon',
-    role: 'Verified Customer',
-    rating: 5,
-    text: 'R Sports & Cafe redefines what a sports cafe should be. The biryani is exceptional â€” aromatic, layered with the most tender meat I\'ve ever tasted. The coffee is specialty-grade, brewed with obvious passion. And the ambiance? It feels like a luxury lounge rather than a typical sports venue.',
-    date: 'JUN 2026',
-    avatar: '/assets/customer-cutout.png',
-    tag: 'CAFE',
-  },
-  {
-    id: 2,
-    name: 'Arjun Krishnan',
-    role: 'Verified Customer',
-    rating: 5,
-    text: 'The turf quality is absolutely unmatched in Thoothukudi. We play every Friday night under the floodlights and it creates a true stadium atmosphere. After every match, the cafe becomes our second home. The post-game burgers and cold coffee are legendary among our squad.',
-    date: 'MAY 2026',
-    avatar: '/assets/customer-cutout.png',
-    tag: 'TURF',
-  },
-  {
-    id: 3,
-    name: 'Deepa Raghavan',
-    role: 'Verified Customer',
-    rating: 5,
-    text: 'Hosted our company\'s annual sports day here and it was flawless. The team handled everything â€” from tournament bracket setup to live scoring, and the catering was world-class. Fifty employees had the time of their lives. The combination of premium sports facilities and gourmet dining is truly unique.',
-    date: 'APR 2026',
-    avatar: '/assets/customer-cutout.png',
-    tag: 'EVENTS',
-  },
-  {
-    id: 4,
-    name: 'Vikram Selvam',
-    role: 'Verified Customer',
-    rating: 5,
-    text: 'I bring my entire cricket academy here for net practice and the facilities are professional-grade. The pitch surface is excellent, and the lighting makes evening sessions feel like day matches. After sessions, we refuel at the cafe â€” their protein smoothies and grilled wraps are exactly what athletes need.',
-    date: 'MAR 2026',
-    avatar: '/assets/customer-cutout.png',
-    tag: 'COACHING',
-  },
-  {
-    id: 5,
-    name: 'Karthik Balaji',
-    role: 'Verified Customer',
-    rating: 4,
-    text: 'The agility training area is perfect for my morning fitness routine. Open field, fresh morning air, and professional-grade equipment provided. The staff even helped me design a circuit training layout. And the post-workout smoothie from the cafe? Absolute game changer â€” fresh fruits, no artificial anything, made to order.',
-    date: 'FEB 2026',
-    avatar: '/assets/customer-cutout.png',
-    tag: 'FITNESS',
-  },
-];
 
 /* â”€â”€â”€ Gold star â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const StarRow = ({ rating }) => (
@@ -104,28 +52,53 @@ const GoldRule = ({ className = '' }) => (
   />
 );
 
-/* â”€â”€â”€ Main Reviews Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Main Reviews Component ──────────────────────────────────────────────── */
 export default function Reviews() {
+  const [reviews, setReviews] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(1);
 
-  const currentReview = REVIEWS[activeIndex];
+  useEffect(() => {
+    fetch('http://localhost:5000/api/reviews')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const processed = data.map(r => ({
+            ...r,
+            imageUrl: r.imageUrl && r.imageUrl.startsWith('/uploads') ? `http://localhost:5000${r.imageUrl}` : r.imageUrl
+          }));
+          setReviews(processed);
+        }
+      })
+      .catch(err => console.error('Failed to fetch reviews:', err));
+  }, []);
 
   useEffect(() => {
+    if (reviews.length === 0) return;
     const interval = setInterval(() => {
       setDirection(1);
-      setActiveIndex((prev) => (prev + 1) % REVIEWS.length);
+      setActiveIndex((prev) => (prev + 1) % reviews.length);
     }, 7000);
     return () => clearInterval(interval);
-  }, []);
+  }, [reviews.length]);
+
+  if (reviews.length === 0) {
+    return (
+      <section id="reviews" className="relative bg-cream py-20 flex items-center justify-center min-h-[50vh]">
+        <h2 className="text-[28px] font-bold text-charcoal">Loading Reviews...</h2>
+      </section>
+    );
+  }
+
+  const currentReview = reviews[activeIndex] || reviews[0];
 
   const goNext = () => {
     setDirection(1);
-    setActiveIndex((prev) => (prev + 1) % REVIEWS.length);
+    setActiveIndex((prev) => (prev + 1) % reviews.length);
   };
   const goPrev = () => {
     setDirection(-1);
-    setActiveIndex((prev) => (prev - 1 + REVIEWS.length) % REVIEWS.length);
+    setActiveIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
   const goTo = (i) => {
     setDirection(i > activeIndex ? 1 : -1);
@@ -230,301 +203,114 @@ export default function Reviews() {
           </p>
         </motion.div>
 
-        {/* â”€â”€ Main two-column layout â”€â”€ */}
+        {/* â”€â”€ Main Review Slider â”€â”€ */}
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start"
+          className="max-w-[700px] mx-auto w-full relative z-10"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-
-          {/* LEFT: Profile card â€” 5 cols */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-start">
+          {/* Image & Text Container */}
+          <div className="relative w-full aspect-[4/3] md:aspect-[16/9] flex items-center justify-center">
             <AnimatePresence mode="wait" custom={{ d: direction, i: activeIndex }}>
               <motion.div
-                key={`card-${activeIndex}`}
+                key={`review-${activeIndex}`}
                 custom={{ d: direction, i: activeIndex }}
                 variants={cardVariants}
                 initial="enter"
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full max-w-[380px]"
+                className="absolute inset-0 w-full h-full rounded-xl shadow-[0_20px_60px_rgba(17,17,17,0.15)] border border-[rgba(17,17,17,0.06)] overflow-hidden bg-[#FAFAF7]"
               >
-                {/* Card */}
-                <div
-                  className="relative overflow-hidden"
-                  style={{
-                    background: '#FAFAF7',
-                    border: '1px solid rgba(17,17,17,0.09)',
-                    borderRadius: '4px',
-                    boxShadow: '0 8px 40px rgba(17,17,17,0.07), 0 1px 3px rgba(17,17,17,0.05)',
-                  }}
-                >
-                  {/* Top gold accent bar */}
-                  <div
-                    className="h-[3px] w-full"
-                    style={{ background: 'linear-gradient(to right, #AA771C, #D4AF37, #F5E6A3, #D4AF37, #AA771C)' }}
+                {/* Background Box for Image fit */}
+                <div className="w-full h-[65%] sm:h-[75%] p-4 sm:p-8 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #111111 0%, #1a1a1a 100%)' }}>
+                  <img
+                    src={currentReview.imageUrl}
+                    alt={currentReview.name}
+                    loading="lazy"
+                    className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
                   />
-
-                  <div className="p-7 sm:p-8">
-                    {/* Tag + Date row */}
-                    <div className="flex items-center justify-between mb-7">
-                      <TagPill label={currentReview.tag} />
-                      <span
-                        className="text-[11px] font-semibold tracking-[0.18em] uppercase"
-                        style={{ color: '#8A8578', fontFamily: '"Inter", sans-serif' }}
-                      >
-                        {currentReview.date}
-                      </span>
-                    </div>
-
-                    {/* Avatar */}
-                    <div className="flex justify-center mb-6">
-                      <div
-                        className="relative"
-                        style={{
-                          width: '130px',
-                          height: '130px',
-                        }}
-                      >
-                        {/* Thin gold ring */}
-                        <div
-                          className="absolute inset-0 rounded-full"
-                          style={{
-                            border: '1.5px solid rgba(212,175,55,0.35)',
-                            borderRadius: '50%',
-                          }}
-                        />
-                        <div
-                          className="w-full h-full rounded-full overflow-hidden"
-                          style={{
-                            border: '4px solid #FAFAF7',
-                            boxShadow: '0 4px 20px rgba(17,17,17,0.12)',
-                          }}
-                        >
-                          <img
-                            src={currentReview.avatar}
-                            alt={currentReview.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover object-top"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Name + role */}
-                    <div className="text-center mb-5">
-                      <h3
-                        className="font-bold text-[20px] sm:text-[22px] tracking-tight mb-1"
-                        style={{ color: '#111111', fontFamily: '"Inter", "Satoshi", sans-serif' }}
-                      >
-                        {currentReview.name}
-                      </h3>
-                      <p
-                        className="text-[12px] font-medium tracking-[0.15em] uppercase"
-                        style={{ color: '#8A8578', fontFamily: '"Inter", sans-serif' }}
-                      >
-                        {currentReview.role}
-                      </p>
-                    </div>
-
-                    {/* Stars centered */}
-                    <div className="flex justify-center mb-6">
-                      <StarRow rating={currentReview.rating} />
-                    </div>
-
-                    <GoldRule />
+                </div>
+                
+                {/* Text and Name Overlay Block */}
+                <div className="w-full h-[35%] sm:h-[25%] bg-[#FAFAF7] flex flex-col justify-center items-center px-4 sm:px-12 text-center relative z-10 border-t border-[rgba(17,17,17,0.05)]">
+                  {currentReview.text && (
+                    <p className="text-[13px] sm:text-[15px] italic text-[#4a4a4a] mb-3 sm:mb-4 line-clamp-2 leading-relaxed" style={{ fontFamily: '"Inter", "Satoshi", sans-serif' }}>
+                      "{currentReview.text}"
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center gap-3">
+                    <StarRow rating={5} />
+                    <span className="w-px h-3.5 bg-[#d4af37]/40" />
+                    <span className="font-sans font-bold text-[#111111] text-[13px] sm:text-[14px] uppercase tracking-wider">
+                      {currentReview.name}
+                    </span>
                   </div>
                 </div>
-
-                {/* Subtle card shadow strip */}
-                <div
-                  className="mx-6 h-4"
-                  style={{
-                    background: 'rgba(17,17,17,0.04)',
-                    filter: 'blur(8px)',
-                    borderRadius: '0 0 4px 4px',
-                  }}
-                />
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* RIGHT: Review text â€” 7 cols */}
-          <div className="lg:col-span-7 flex flex-col justify-between">
-            <AnimatePresence mode="wait" custom={{ d: direction, i: activeIndex }}>
-              <motion.div
-                key={`text-${activeIndex}`}
-                custom={{ d: direction, i: activeIndex }}
-                variants={textVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-              >
-                {/* Pull-quote open */}
-                <div
-                  className="mb-6 select-none"
-                  style={{
-                    fontSize: '72px',
-                    lineHeight: '0.6',
-                    color: '#D4AF37',
-                    fontFamily: 'Georgia, serif',
-                    opacity: 0.6,
-                  }}
-                >
-                  "
-                </div>
+          {/* â”€â”€ Navigation â”€â”€ */}
+          <div className="flex items-center justify-between mt-10 w-full px-4 md:px-0">
+            {/* Prev */}
+            <button
+              onClick={goPrev}
+              aria-label="Previous review"
+              className="flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(17,17,17,0.18)',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#D4AF37'; e.currentTarget.style.background = 'rgba(212,175,55,0.06)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(17,17,17,0.18)'; e.currentTarget.style.background = 'transparent'; }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8578" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
 
-                {/* Review body text */}
-                <p
-                  className="text-[17px] sm:text-[19px] leading-[1.8] mb-8 font-normal"
-                  style={{
-                    color: '#2A2A2A',
-                    fontFamily: '"Inter", "Satoshi", sans-serif',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {currentReview.text}
-                </p>
-
-                {/* Attribution row */}
-                <div
-                  className="flex items-center gap-4 pt-6 mb-10"
-                  style={{ borderTop: '1px solid rgba(17,17,17,0.10)' }}
-                >
-                  {/* Small avatar */}
-                  <div
-                    className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0"
-                    style={{ border: '1.5px solid rgba(212,175,55,0.3)' }}
-                  >
-                    <img
-                      src={currentReview.avatar}
-                      alt={currentReview.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </div>
-                  <div>
-                    <p
-                      className="font-semibold text-[14px]"
-                      style={{ color: '#111111', fontFamily: '"Inter", sans-serif' }}
-                    >
-                      {currentReview.name}
-                    </p>
-                    <p
-                      className="text-[12px] font-medium tracking-[0.12em] uppercase mt-0.5"
-                      style={{ color: '#D4AF37', fontFamily: '"Inter", sans-serif' }}
-                    >
-                      {currentReview.tag} Â· {currentReview.date}
-                    </p>
-                  </div>
-                  <div className="ml-auto">
-                    <StarRow rating={currentReview.rating} />
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* â”€â”€ Navigation â”€â”€ */}
-            <div className="flex flex-col gap-6">
-              {/* Prev / Next arrows + dots */}
-              <div className="flex items-center gap-4">
-                {/* Prev */}
+            {/* Dot indicators */}
+            <div className="flex items-center gap-2">
+              {reviews.map((_, i) => (
                 <button
-                  onClick={goPrev}
-                  aria-label="Previous review"
-                  className="flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200"
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Review ${i + 1}`}
                   style={{
-                    background: 'transparent',
-                    border: '1px solid rgba(17,17,17,0.18)',
+                    width: i === activeIndex ? '28px' : '7px',
+                    height: '7px',
+                    borderRadius: '9999px',
+                    background: i === activeIndex ? '#D4AF37' : 'rgba(17,17,17,0.18)',
+                    border: 'none',
                     cursor: 'pointer',
+                    transition: 'all 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#D4AF37'; e.currentTarget.style.background = 'rgba(212,175,55,0.06)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(17,17,17,0.18)'; e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8578" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-
-                {/* Next */}
-                <button
-                  onClick={goNext}
-                  aria-label="Next review"
-                  className="flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200"
-                  style={{
-                    background: '#111111',
-                    border: '1px solid #111111',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#D4AF37'; e.currentTarget.style.borderColor = '#D4AF37'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.borderColor = '#111111'; }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-
-                {/* Dot indicators */}
-                <div className="flex items-center gap-2 ml-1">
-                  {REVIEWS.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goTo(i)}
-                      aria-label={`Review ${i + 1}`}
-                      style={{
-                        width: i === activeIndex ? '28px' : '7px',
-                        height: '7px',
-                        borderRadius: '9999px',
-                        background: i === activeIndex ? '#D4AF37' : 'rgba(17,17,17,0.18)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Review counter */}
-                <span
-                  className="ml-auto text-[13px] font-medium tabular-nums"
-                  style={{ color: '#8A8578', fontFamily: '"Inter", sans-serif' }}
-                >
-                  {String(activeIndex + 1).padStart(2, '0')} / {String(REVIEWS.length).padStart(2, '0')}
-                </span>
-              </div>
-
-              {/* CTA button */}
-              <motion.a
-                href="#booking"
-                className="relative inline-flex items-center gap-3 self-start overflow-hidden"
-                style={{
-                  background: '#111111',
-                  color: '#fff',
-                  borderRadius: '4px',
-                  padding: '14px 32px',
-                  fontFamily: '"Inter", sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                }}
-                whileHover={{ background: '#D4AF37', color: '#111' }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.25 }}
-              >
-                <span>Leave a Review</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </motion.a>
+                />
+              ))}
             </div>
+
+            {/* Next */}
+            <button
+              onClick={goNext}
+              aria-label="Next review"
+              className="flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200"
+              style={{
+                background: '#111111',
+                border: '1px solid #111111',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#D4AF37'; e.currentTarget.style.borderColor = '#D4AF37'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.borderColor = '#111111'; }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
         </motion.div>
 

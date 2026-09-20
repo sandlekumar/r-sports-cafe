@@ -181,13 +181,18 @@ exports.uploadMenuPhoto = async (req, res, next) => {
     const uploadsDir = path.join(__dirname, '../uploads/menu');
     const filepath = path.join(uploadsDir, filename);
 
-    await sharp(originalPath)
+    const buffer = fs.readFileSync(originalPath);
+    await sharp(buffer)
       .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 80 })
       .toFile(filepath);
 
-    // Delete the original uploaded file
-    if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+    // Delete the original uploaded file safely
+    try {
+      if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+    } catch (e) {
+      console.error('Could not delete original menu photo:', e);
+    }
 
     const photoUrl = `/uploads/menu/${filename}`;
     const item = await MenuItem.findByIdAndUpdate(id, { photo: photoUrl }, { new: true });
@@ -233,7 +238,11 @@ exports.uploadMenuVideo = async (req, res, next) => {
         .save(filepath);
     });
 
-    if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+    try {
+      if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+    } catch (e) {
+      console.error('Could not delete original menu video:', e);
+    }
 
     const videoUrl = `/uploads/menu/${filename}`;
     const item = await MenuItem.findByIdAndUpdate(id, { video_loop_url: videoUrl, is_trending: true }, { new: true });

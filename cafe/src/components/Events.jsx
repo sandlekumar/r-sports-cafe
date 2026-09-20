@@ -75,7 +75,6 @@ export default function Events() {
   const touchEndX = useRef(0);
 
   useEffect(() => {
-    /* Temporarily disconnected to show original design data
     (async () => {
       try {
         const d = await apiClient('/events?tab=upcoming');
@@ -88,7 +87,6 @@ export default function Events() {
         setLoading(false);
       }
     })();
-    */
 
     // GSAP Scroll Reveal for Cards
     const section = document.getElementById('events');
@@ -119,16 +117,13 @@ export default function Events() {
   }, []);
 
   const displayEvents = [...events];
-  while (displayEvents.length < 4) {
-    displayEvents.push({
-      _id: 'dummy-' + displayEvents.length,
-      title: 'Exciting Events Ahead',
-      date: '2026-12-31',
-      category: 'special',
-      photo: null,
-      description: 'Stay tuned for more premium experiences at R Sports & Cafe.',
-      isDummy: true
-    });
+  
+  if (displayEvents.length === 0) {
+    return (
+      <section id="events" className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-center py-12 xs:py-14 sm:py-16 px-4 md:px-12 overflow-hidden font-sans select-none">
+         <h2 className="text-[28px] md:text-[54px] font-bold text-charcoal tracking-tight">Stay tuned for events!</h2>
+      </section>
+    );
   }
 
   const handleNext = () => {

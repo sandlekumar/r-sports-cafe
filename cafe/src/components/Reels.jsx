@@ -1,81 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
 import { apiClient } from '../services/apiClient';
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll';
 import './Reels.css';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/* ─── Reel video filenames (NOT imported — loaded lazily) ────────────── */
-const REEL_FILENAMES = [
-  'AQNzVLhQTdWKCShaaaWlnvQOT_4tt9gK0FdvK5S2bYdMoh03GqEckpE67yg1tL1JPKODukbUGq9BFEwpCuwJlPFXMdW_v2XdW-I0cDE.mp4',
-  'AQOLp1N__PVA7dZLkBpvZmIduLLNp0RyYX6A5CiLnkTpdJ0sQqm966i_ViFWEaSu-SxFcRAqKuntLh6aJkY_aYLZvZ1Ch06jjeZMHF0.mp4',
-  'AQOokh-zcmZeKyqmRUcP_hou1Xx3Fgdgf3UZsLEF0CoQf0h6rK8y12LrqWQ01ekXngZAcTAN441zvitWtRO65HjexiarNScpg5NDfaQ.mp4',
-  'AQPF4qzhN5QzQa4gIIuBCuY3GaORcmO4P8KLUwyMw9LlFQvrYqe5clVRd6wiouHNW5g98wNcI5YLwVDrq0_okQwmfyRsNhLrc3ko9g0.mp4',
-  'AQPSAUoTHL4yeDZQyGTBGWHyVR1mx6UkTra8ooj3HE5A0EO9sR1UY7Jat-yFy7sVEBcRuLtCYMfkI0GsP98q4s1s9ls8ZhLenrgns0I.mp4',
-];
-
-/* ─── Reels Data (uses lazy string paths, NOT bundled imports) ──────── */
-const DEFAULT_REELS = [
-  {
-    id: 1,
-    src: `/src/assets/reels/${REEL_FILENAMES[0]}`,
-    handle: '@rsports.cafe',
-    caption: 'Match day energy hits different ⚡',
-    likes: '2.4K',
-    comments: '186',
-    tag: 'MATCH DAY',
-  },
-  {
-    id: 2,
-    src: `/src/assets/reels/${REEL_FILENAMES[1]}`,
-    handle: '@rsports.cafe',
-    caption: 'Night sessions under the lights 🌙',
-    likes: '3.1K',
-    comments: '224',
-    tag: 'NIGHT GAME',
-  },
-  {
-    id: 3,
-    src: `/src/assets/reels/${REEL_FILENAMES[2]}`,
-    handle: '@rsports.cafe',
-    caption: 'From the kitchen to the pitch 🍕⚽',
-    likes: '1.8K',
-    comments: '142',
-    tag: 'LIFESTYLE',
-  },
-  {
-    id: 4,
-    src: `/src/assets/reels/${REEL_FILENAMES[3]}`,
-    handle: '@rsports.cafe',
-    caption: 'Weekend vibes at R Sports 🔥',
-    likes: '4.2K',
-    comments: '318',
-    tag: 'WEEKEND',
-  },
-  {
-    id: 5,
-    src: `/src/assets/reels/${REEL_FILENAMES[4]}`,
-    handle: '@rsports.cafe',
-    caption: 'Action-packed moments ⚽🔥',
-    likes: '5.1K',
-    comments: '402',
-    tag: 'HIGHLIGHTS',
-  },
-];
 
 export default function Reels() {
   const sectionRef = useRef(null);
-  const headerRef = useRef(null);
-  const [reelsList, setReelsList] = useState(DEFAULT_REELS);
+  const headerRevealRef = useRevealOnScroll();
+  const carouselRevealRef = useRevealOnScroll();
+  const [reelsList, setReelsList] = useState([]);
   const [activeReel, setActiveReel] = useState(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const videoRefs = useRef([]);
-  const [mutedStates, setMutedStates] = useState(() => DEFAULT_REELS.map(() => true));
-  const [playingStates, setPlayingStates] = useState(() => DEFAULT_REELS.map(() => false));
-  const [progressStates, setProgressStates] = useState(() => DEFAULT_REELS.map(() => 0));
+  const [mutedStates, setMutedStates] = useState([]);
+  const [playingStates, setPlayingStates] = useState([]);
+  const [progressStates, setProgressStates] = useState([]);
   const progressIntervals = useRef([]);
   const [sectionVisible, setSectionVisible] = useState(false);
 
@@ -98,7 +40,6 @@ export default function Reels() {
 
   // Fetch live reels from backend API
   useEffect(() => {
-    /* Temporarily disconnected to show original design data
     let cancelled = false;
     const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
     apiClient('/reels')
@@ -125,40 +66,9 @@ export default function Reels() {
     return () => {
       cancelled = true;
     };
-    */
   }, []);
 
-  /* ── GSAP entrance animations using useGSAP hook ────────────────────── */
-  useGSAP(() => {
-    if (headerRef.current) {
-      gsap.fromTo(
-        headerRef.current,
-        { autoAlpha: 0, y: 40 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
-        }
-      );
-    }
-
-    const carousel = sectionRef.current?.querySelectorAll('.reels-carousel-container');
-    if (carousel && carousel.length > 0) {
-      gsap.fromTo(
-        carousel,
-        { autoAlpha: 0, y: 60 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 65%' },
-        }
-      );
-    }
-  }, { scope: sectionRef });
+  /* ── GSAP entrance animations replaced by IntersectionObserver ── */
 
   /* ── Scroll-based video play/pause — only for visible adjacent videos ── */
   useEffect(() => {
@@ -290,15 +200,23 @@ export default function Reels() {
     window.__lenis?.start();
   };
 
+  if (reelsList.length === 0) {
+    return (
+      <section ref={sectionRef} className="reels-section bg-[#111] flex items-center justify-center">
+        <h2 className="text-[28px] md:text-[54px] font-bold text-white tracking-tight">Loading Reels...</h2>
+      </section>
+    );
+  }
+
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 xs:py-24 sm:py-28 md:py-40 px-4 xs:px-5 sm:px-6 md:px-20 overflow-hidden"
+      className="reels-section relative py-20 xs:py-24 sm:py-28 md:py-40 px-4 xs:px-5 sm:px-6 md:px-20 overflow-hidden"
       id="reels"
       style={{ background: 'linear-gradient(180deg, #F7F3EC 0%, #F0EDE6 50%, #F7F3EC 100%)' }}
     >
       {/* ── Section Header ────────────────────────────────────────────── */}
-      <div ref={headerRef} className="max-w-7xl mx-auto mb-12 xs:mb-14 sm:mb-16 md:mb-24 opacity-0">
+      <div ref={headerRevealRef} className="max-w-7xl mx-auto mb-12 xs:mb-14 sm:mb-16 md:mb-24 reveal-up" style={{ '--delay': '0s' }}>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div>
             <div className="flex items-center gap-3 mb-5">
@@ -320,7 +238,7 @@ export default function Reels() {
       {/* ── Reels 3D Carousel ─────────────────────────────────────────── */}
       <div className="max-w-[100vw] overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="reels-carousel-container">
+          <div ref={carouselRevealRef} className="reels-carousel-container reveal-up" style={{ '--delay': '0.15s' }}>
             <button 
               className="carousel-nav-btn prev"
               onClick={handlePrev}

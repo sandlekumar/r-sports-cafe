@@ -133,14 +133,16 @@ export default function ScrollVideoHero() {
       if (!pinEl || !cntEl) return;
 
       // ── Make pinRef sticky via inline style ────────────────────────────
+      pinEl.style.position = '-webkit-sticky';
       pinEl.style.position = 'sticky';
       pinEl.style.top = '0px';
+      pinEl.style.transform = 'translateZ(0)';
 
       // ── Initial set ────────────────────────────────────────────────────
       gsap.set(imageFrameRef.current, { xPercent: -50, yPercent: -50 });
       // Everything starts hidden except the video frame
       gsap.set([artworkRef.current, '.svh-title-char', titleGlowRef.current,
-                '.svh-energy-line', ctaBoxRef.current], { opacity: 0 });
+                '.svh-energy-line', ctaBoxRef.current], { autoAlpha: 0 });
 
       // ── Scroll indicator entrance ──────────────────────────────────────
       if (scrollIndicatorRef.current) {
@@ -166,26 +168,11 @@ export default function ScrollVideoHero() {
         shrinkW = '85vw'; shrinkH = '48vh'; shrinkR = '22px';
       }
 
-      // ── Video scrub setup ──────────────────────────────────────────────
+      // ── Video autoPlay setup (mobile) ──────────────────────────────────
       if (videoEl && videoEl.tagName === 'VIDEO') {
-        videoEl.load();
-        const pp = videoEl.play();
-        if (pp) pp.then(() => videoEl.pause()).catch(() => {});
+        // Attempt to play just in case autoPlay is blocked initially
+        videoEl.play().catch(() => {});
       }
-
-      let isSeeking = false;
-      let targetTime = 0;
-      const applySeek = () => {
-        if (!videoEl || !Number.isFinite(videoEl.duration) || isSeeking) return;
-        if (Math.abs(videoEl.currentTime - targetTime) < 0.03) return;
-        isSeeking = true;
-        if ('fastSeek' in videoEl) {
-          try { videoEl.fastSeek(targetTime); } catch (e) { videoEl.currentTime = targetTime; }
-        } else {
-          videoEl.currentTime = targetTime;
-        }
-      };
-      if (videoEl) videoEl.addEventListener('seeked', () => { isSeeking = false; applySeek(); });
 
       // ── Easing helpers ─────────────────────────────────────────────────
       const ease4 = (t) => t < 0.5 ? 8*t*t*t*t : 1-Math.pow(-2*t+2,4)/2; // power4.inOut
@@ -213,12 +200,7 @@ export default function ScrollVideoHero() {
         if (Math.abs(p - lastProgress) < 0.001) return; // Skip if no meaningful change
         lastProgress = p;
 
-        // ── PHASE 1 (0.00–0.25): Video scrub ──────────────────────────
-        const vidP = remap(p, 0, 0.25);
-        if (videoEl && Number.isFinite(videoEl.duration) && videoEl.duration > 0) {
-          targetTime = vidP * videoEl.duration;
-          applySeek();
-        }
+        // ── PHASE 1 (0.00–0.25): Scroll indicator fades out ───────────
         if (p > 0.02 && scrollIndicatorRef.current) {
           gsap.to(scrollIndicatorRef.current, { opacity: 0, y: -30, duration: 0.3, overwrite: true });
         }
@@ -244,16 +226,12 @@ export default function ScrollVideoHero() {
           boxShadow: curShadow,
         });
 
-        if (p > 0.38 && !shrunkOnce) {
-          shrunkOnce = true;
-          if (videoEl) videoEl.pause();
-        }
         if (p < 0.20) shrunkOnce = false;
 
         // ── PHASE 3 (0.30–0.45): Mural bleeds in ─────────────────────
         const muralP = ease3out(remap(p, 0.30, 0.45));
         gsap.set(artworkRef.current, {
-          opacity: muralP * 0.55,
+          autoAlpha: muralP * 0.25,
           scale: 1 + (1.05 - 1) * (1 - muralP),
         });
 
@@ -268,34 +246,23 @@ export default function ScrollVideoHero() {
 
         // ── PHASE 4 (0.40–0.58): Title + CTA reveal ───────────────────
         const titleP = ease3out(remap(p, 0.40, 0.58));
-        const lineP = ease3out(remap(p, 0.50, 0.65)); // Delayed until title is mostly formed
-        gsap.set(titleGlowRef.current, { opacity: titleP, scale: 0.6 + 0.4 * titleP });
-        gsap.set('.svh-energy-line', { scaleX: lineP, opacity: lineP });
+        const lineP = ease3out(remap(p, 0.58, 0.68)); // Wait until title fully forms
+        gsap.set(titleGlowRef.current, { autoAlpha: titleP, scale: 0.6 + 0.4 * titleP });
+        
+        // Prevent 1px artifact/flashing before it's supposed to reveal
+        if (p < 0.57) {
+          gsap.set('.svh-energy-line', { autoAlpha: 0, scaleX: 0 });
+        } else {
+          gsap.set('.svh-energy-line', { scaleX: lineP, autoAlpha: lineP });
+        }
         gsap.set('.svh-title-char', {
-          opacity: titleP,
+          autoAlpha: titleP,
           rotationX: 40 * (1 - titleP),
           scale: 0.78 + 0.22 * titleP,
           y: 12 * (1 - titleP),
         });
         const ctaP = ease3out(remap(p, 0.46, 0.58));
-        gsap.set(ctaBoxRef.current, { opacity: ctaP, y: 20 * (1 - ctaP) });
-
-        // ── PHASE 5 (0.80–1.00): Exit — dissolve & lift ───────────────
-        const exitP = remap(p, 0.80, 1.0);
-        if (exitP > 0) {
-          const stay = 1 - exitP;
-          gsap.set([artworkRef.current, '.svh-title-char', titleGlowRef.current,
-                    '.svh-energy-line', ctaBoxRef.current],
-            { opacity: Math.min(stay * 2, 1), y: -10 * exitP, overwrite: false });
-          gsap.set(imageFrameRef.current, {
-            yPercent: -50 - (125 * exitP),
-            scale: 1 - 0.04 * exitP,
-            opacity: 1 - exitP,
-          });
-        } else {
-          // Reset exit transforms if scrolled back
-          gsap.set(imageFrameRef.current, { yPercent: -50, scale: 1, opacity: 1 });
-        }
+        gsap.set(ctaBoxRef.current, { autoAlpha: ctaP, y: 20 * (1 - ctaP) });
       };
 
       // ── Handler for native window scroll (fallback + programmatic scroll) ──
@@ -503,21 +470,21 @@ export default function ScrollVideoHero() {
 
       // ── PHASE 4 (0.74–0.92): Title + CTA box reveal ────────────────────
       tl.fromTo(titleGlowRef.current,
-        { opacity: 0, scale: 0.6 },
-        { opacity: 1, scale: 1, duration: 0.06, ease: 'power3.out' },
+        { autoAlpha: 0, scale: 0.6 },
+        { autoAlpha: 1, scale: 1, duration: 0.06, ease: 'power3.out' },
         0.74
       );
 
       tl.fromTo('.svh-energy-line',
-        { scaleX: 0, opacity: 0 },
-        { scaleX: 1, opacity: 1, duration: 0.06, ease: 'power3.out' },
-        0.80 // Delayed until after title characters (which start at 0.75) are mostly formed
+        { scaleX: 0, autoAlpha: 0 },
+        { scaleX: 1, autoAlpha: 1, duration: 0.05, ease: 'expo.out' },
+        0.795   // was 0.74 — now starts just after the title char color-flash (0.76) completes
       );
 
       tl.fromTo('.svh-title-char',
-        { opacity: 0, rotationX: 40, scale: 0.78, y: 12 },
+        { autoAlpha: 0, rotationX: 40, scale: 0.78, y: 12 },
         {
-          opacity: 1, rotationX: 0, scale: 1, y: 0,
+          autoAlpha: 1, rotationX: 0, scale: 1, y: 0,
           stagger: 0.002, duration: 0.05, ease: 'power4.out',
           transformOrigin: '50% 100%',
         },
@@ -525,8 +492,8 @@ export default function ScrollVideoHero() {
       );
 
       tl.fromTo(sweepRef.current,
-        { left: '-50%', x: 0, opacity: 0, skewX: -20 },
-        { left: '150%', x: 0, opacity: 1, skewX: -20, duration: 0.06, ease: 'power3.inOut' },
+        { left: '-50%', x: 0, autoAlpha: 0, skewX: -20 },
+        { left: '150%', x: 0, autoAlpha: 1, skewX: -20, duration: 0.06, ease: 'power3.inOut' },
         0.755
       );
 
@@ -540,8 +507,8 @@ export default function ScrollVideoHero() {
 
       // Mobile/Desktop CTA box fade in
       tl.fromTo(ctaBoxRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.05, ease: 'power3.out' },
+        { autoAlpha: 0, y: 20 },
+        { autoAlpha: 1, y: 0, duration: 0.05, ease: 'power3.out' },
         0.78
       );
 
@@ -611,13 +578,13 @@ export default function ScrollVideoHero() {
             ref={artworkRef}
             data-max-opacity="0.55"
             className="absolute inset-0 w-full h-full"
-            style={{ transformOrigin: 'center center', opacity: 0, willChange: 'opacity, transform' }}
+            style={{ transformOrigin: 'center center', opacity: 0, transform: 'translateZ(0)' }}
           >
             <img
               ref={muralImgRef}
               alt=""
               className="w-full h-full pointer-events-none mix-blend-multiply"
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: 'cover', transform: 'translateZ(0)' }}
             />
           </div>
         </div>
@@ -631,7 +598,7 @@ export default function ScrollVideoHero() {
               width: '100vw', height: '100dvh',
               borderRadius: '0px', boxShadow: 'none',
               border: '1px solid transparent',
-              willChange: 'transform, opacity, border-radius, width, height',
+              willChange: 'transform, opacity, border-radius',
             }}
           >
             {isMobile ? (
@@ -640,6 +607,8 @@ export default function ScrollVideoHero() {
                 ref={videoRef}
                 muted
                 playsInline
+                autoPlay
+                loop
                 preload="auto"
                 className="w-full h-full object-cover object-center brightness-[1.15] contrast-[1.05]"
               >
@@ -686,7 +655,7 @@ export default function ScrollVideoHero() {
             >
               <div
                 ref={sweepRef}
-                className="absolute top-0 bottom-0 pointer-events-none z-30"
+                className="hidden md:block absolute top-0 bottom-0 pointer-events-none mix-blend-screen opacity-0"
                 style={{
                   width: '280px', left: 0,
                   background: 'linear-gradient(90deg, transparent 0%, rgba(255,248,220,0.7) 35%, rgba(255,230,140,0.95) 50%, rgba(255,248,220,0.7) 65%, transparent 100%)',
@@ -710,11 +679,12 @@ export default function ScrollVideoHero() {
               </h1>
 
               <div
-                className="svh-energy-line hidden md:block absolute left-[4%] right-[4%] bottom-2 h-px opacity-0 z-0"
+                className="svh-energy-line absolute left-[4%] right-[4%] bottom-2 h-px opacity-0 z-0"
                 style={{
                   background: 'linear-gradient(90deg, transparent 0%, rgba(231,201,138,0.9) 50%, transparent 100%)',
                   boxShadow: '0 0 12px 1px rgba(231,201,138,0.6)',
                   transformOrigin: 'center center',
+                  visibility: 'hidden',
                 }}
               />
             </div>
@@ -735,12 +705,12 @@ export default function ScrollVideoHero() {
                 }}
               >
                 {/* Heritage Plaque Style */}
-                <h2
-                  className="font-inter font-light uppercase tracking-[0.3em] text-[11px] md:text-[13px] opacity-70"
-                  style={{ color: '#1B1B1B' }}
+                <p
+                  className="font-sans font-medium uppercase tracking-[0.25em] text-[11px] md:text-[12px]"
+                  style={{ color: 'rgba(27,27,27,0.7)' }}
                 >
-                  SINCE 2026
-                </h2>
+                  Since 2026
+                </p>
 
                 {/* Thin gold line */}
                 <div

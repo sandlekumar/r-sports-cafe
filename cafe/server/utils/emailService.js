@@ -95,4 +95,73 @@ async function sendBookingConfirmation({ email, name, bookingNumber, date, time,
   }
 }
 
-module.exports = { sendBookingConfirmation };
+/**
+ * Send a notification email to the admin when a new booking is made.
+ */
+async function sendAdminBookingNotification({ name, phone, email, bookingNumber, date, time, guests, specialRequest }) {
+  if (!process.env.SMTP_HOST) {
+    console.warn('⚠️  SMTP not configured — skipping admin notification email for', bookingNumber);
+    return;
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@rsportscafe.com';
+  const adminDashboardUrl = 'http://localhost:5174';
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"R Sports & Cafe System" <no-reply@rsportscafe.com>',
+      to: adminEmail,
+      subject: `🚨 New Table Booking — ${bookingNumber}`,
+      html: `
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px; background: #ffffff; color: #111111; border-radius: 12px; border: 1px solid #eaeaea;">
+          <h2 style="margin-top: 0; color: #D4AF37;">New Booking Alert</h2>
+          <p>A new table booking has been received.</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Ref No:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${bookingNumber}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Name:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Phone:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${phone}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Date:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${date}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Time:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${time}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Guests:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${guests}</td>
+            </tr>
+            ${specialRequest ? `
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Special Request:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0; color: #d97706;">${specialRequest}</td>
+            </tr>
+            ` : ''}
+          </table>
+
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${adminDashboardUrl}" style="display: inline-block; padding: 12px 24px; background: #111111; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold;">
+              Open Admin Dashboard
+            </a>
+          </div>
+        </div>
+      `,
+    });
+    console.log(`📧 Admin notification email sent for ${bookingNumber} → ${adminEmail}`);
+  } catch (err) {
+    console.error('sendAdminBookingNotification failed:', err.message);
+  }
+}
+
+module.exports = { sendBookingConfirmation, sendAdminBookingNotification };
