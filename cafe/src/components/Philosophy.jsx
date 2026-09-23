@@ -127,10 +127,10 @@ export default function Philosophy() {
           
           {/* Section Indicator */}
           <div className="space-y-4">
-            <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-sandalAccent uppercase block">
+            <span className="font-inter font-bold text-[12px] tracking-[0.24em] text-sandalAccent uppercase block">
               YOUR SPORTS & CAFE DESTINATION IN THOOTHUKUDI
             </span>
-            <div ref={dividerRef} className="w-16 h-[1px] bg-sandalAccent/60 reveal-up" />
+            <div ref={dividerRef} className="w-24 h-[2px] bg-gradient-to-r from-sandalAccent to-transparent reveal-up" />
           </div>
 
           {/* Massive Editorial Typography Heading */}
@@ -166,8 +166,7 @@ export default function Philosophy() {
           {/* Luxury Interior Image Container */}
           <div 
             ref={imageContainerRef}
-            className="w-full max-w-[400px] lg:max-w-none mx-auto aspect-[4/5] rounded-[32px] overflow-hidden relative group bg-neutral-200"
-            style={{ boxShadow: '0 30px 100px -20px rgba(26,26,26,0.06)' }}
+            className="premium-box w-full max-w-[400px] lg:max-w-none mx-auto aspect-[4/5] rounded-[32px] overflow-hidden relative group bg-neutral-200"
           >
             {/* Soft dark-warm cinematic overlay */}
             <div className="absolute inset-0 bg-[#1a1a1a]/5 mix-blend-multiply z-10 pointer-events-none" />
@@ -176,12 +175,12 @@ export default function Philosophy() {
               src={luxuryInterior}
               alt="Elite luxury sports cafe modern minimalist design interior"
               decoding="async"
-              className="w-full h-[120%] object-cover absolute top-0 left-0 will-change-transform scale-125"
+              className="w-full h-[120%] object-cover absolute top-0 left-0 will-change-transform scale-125 no-premium"
             />
           </div>
 
           {/* Short Philosophy Statement and Trust Section */}
-          <div ref={statementRef} className="reveal-up pl-4 border-l border-sandalAccent/30 space-y-8" style={{ '--delay': '0.3s' }}>
+          <div ref={statementRef} className="reveal-up premium-box p-6 md:p-8 rounded-[24px] bg-white/40 backdrop-blur-md border border-white/60 space-y-8" style={{ '--delay': '0.3s' }}>
             <div className="space-y-4">
               <p className="font-sans font-medium text-[16px] md:text-[18px] text-darkText/95 leading-relaxed">
                 Located in Caldwell Colony, Thoothukudi, R Sports & Cafe brings together a well-maintained sports turf and a premium cafe experience in one place.
@@ -191,18 +190,18 @@ export default function Philosophy() {
               </p>
             </div>
             
-            <div className="space-y-3 pt-6 border-t border-borderGlass">
+            <div className="space-y-3 pt-6 border-t border-darkText/5">
               <p className="font-sans font-bold text-[18px] md:text-[20px] text-darkText">
                 Loved for the Food. Remembered for the Vibe.
               </p>
               <p className="font-sans font-medium text-[14px] md:text-[16px] text-darkText/70 leading-relaxed">
                 Guests love R Sports & Cafe for its food, coffee, welcoming atmosphere, friendly service and well-maintained turf.
               </p>
-              <div className="flex items-center gap-2 pt-2">
-                <span className="font-sans font-bold text-[20px] text-yellow-600">4.5 ★</span>
-                <span className="font-sans font-medium text-[14px] text-darkText/60 uppercase tracking-widest">on Google</span>
+              <div className="flex items-center gap-3 pt-3">
+                <span className="font-sans font-bold text-[24px] text-yellow-600 drop-shadow-sm">4.5 ★</span>
+                <span className="font-sans font-bold text-[13px] text-darkText/60 uppercase tracking-widest bg-darkText/5 px-3 py-1 rounded-full">on Google</span>
               </div>
-              <p className="font-sans font-medium text-[12px] md:text-[13px] text-darkText/50 leading-relaxed mt-2 uppercase tracking-[0.1em]">
+              <p className="font-sans font-bold text-[11px] md:text-[12px] text-darkText/40 leading-relaxed mt-4 uppercase tracking-[0.2em]">
                 Great games. Great food. Great company.
               </p>
             </div>

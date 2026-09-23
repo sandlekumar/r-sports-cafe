@@ -205,14 +205,14 @@ export default function Reviews() {
 
         {/* â”€â”€ Main Review Slider â”€â”€ */}
         <motion.div 
-          className="max-w-[700px] mx-auto w-full relative z-10"
+          className="max-w-[700px] md:max-w-[950px] lg:max-w-[1050px] mx-auto w-full relative z-10"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           {/* Image & Text Container */}
-          <div className="relative w-full aspect-[4/3] md:aspect-[16/9] flex items-center justify-center">
+          <div className="relative w-full h-[550px] md:h-[420px] lg:h-[460px] flex items-center justify-center">
             <AnimatePresence mode="wait" custom={{ d: direction, i: activeIndex }}>
               <motion.div
                 key={`review-${activeIndex}`}
@@ -222,30 +222,34 @@ export default function Reviews() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 w-full h-full rounded-xl shadow-[0_20px_60px_rgba(17,17,17,0.15)] border border-[rgba(17,17,17,0.06)] overflow-hidden bg-[#FAFAF7]"
+                className="premium-box absolute inset-0 w-full h-full flex flex-col md:flex-row rounded-[24px] border border-[#D4AF37]/20 overflow-hidden bg-[#0A0A0A] shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
               >
                 {/* Background Box for Image fit */}
-                <div className="w-full h-[65%] sm:h-[75%] p-4 sm:p-8 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #111111 0%, #1a1a1a 100%)' }}>
+                <div className="w-full h-[50%] md:w-[45%] md:h-full p-6 sm:p-8 flex items-center justify-center relative border-b md:border-b-0 md:border-r border-[#D4AF37]/10" style={{ background: 'linear-gradient(135deg, #050505 0%, #111111 100%)' }}>
+                  <div className="absolute inset-0 bg-[#D4AF37]/5 mix-blend-overlay pointer-events-none" />
                   <img
                     src={currentReview.imageUrl}
                     alt={currentReview.name}
                     loading="lazy"
-                    className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
+                    className="no-premium w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] scale-[1.02]"
                   />
                 </div>
                 
                 {/* Text and Name Overlay Block */}
-                <div className="w-full h-[35%] sm:h-[25%] bg-[#FAFAF7] flex flex-col justify-center items-center px-4 sm:px-12 text-center relative z-10 border-t border-[rgba(17,17,17,0.05)]">
+                <div className="w-full h-[50%] md:w-[55%] md:h-full bg-gradient-to-br from-[#111111] to-[#0A0A0A] flex flex-col justify-center items-center md:items-start px-6 sm:px-12 md:px-16 text-center md:text-left relative z-10">
+                  <div className="text-[#D4AF37] mb-4 md:mb-6 opacity-40 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
+                  </div>
                   {currentReview.text && (
-                    <p className="text-[13px] sm:text-[15px] italic text-[#4a4a4a] mb-3 sm:mb-4 line-clamp-2 leading-relaxed" style={{ fontFamily: '"Inter", "Satoshi", sans-serif' }}>
+                    <p className="text-[15px] sm:text-[16px] md:text-[20px] text-[#EFE7DB] mb-6 md:mb-8 line-clamp-4 leading-relaxed tracking-wide" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
                       "{currentReview.text}"
                     </p>
                   )}
                   
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col md:flex-row items-center md:items-center gap-3 md:gap-4 mt-auto md:mt-0">
                     <StarRow rating={5} />
-                    <span className="w-px h-3.5 bg-[#d4af37]/40" />
-                    <span className="font-sans font-bold text-[#111111] text-[13px] sm:text-[14px] uppercase tracking-wider">
+                    <span className="w-px h-4 bg-[#d4af37]/40 hidden md:block" />
+                    <span className="font-sans font-bold text-[#D4AF37] text-[13px] sm:text-[14px] uppercase tracking-[0.15em] filter drop-shadow-[0_0_8px_rgba(212,175,55,0.3)]">
                       {currentReview.name}
                     </span>
                   </div>
@@ -279,6 +283,7 @@ export default function Reviews() {
               {reviews.map((_, i) => (
                 <button
                   key={i}
+                  className="no-premium"
                   onClick={() => goTo(i)}
                   aria-label={`Review ${i + 1}`}
                   style={{

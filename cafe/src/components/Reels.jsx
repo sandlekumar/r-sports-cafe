@@ -213,7 +213,7 @@ export default function Reels() {
       ref={sectionRef}
       className="reels-section relative py-20 xs:py-24 sm:py-28 md:py-40 px-4 xs:px-5 sm:px-6 md:px-20 overflow-hidden"
       id="reels"
-      style={{ background: 'linear-gradient(180deg, #F7F3EC 0%, #F0EDE6 50%, #F7F3EC 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #050505 100%)' }}
     >
       {/* ── Section Header ────────────────────────────────────────────── */}
       <div ref={headerRevealRef} className="max-w-7xl mx-auto mb-12 xs:mb-14 sm:mb-16 md:mb-24 reveal-up" style={{ '--delay': '0s' }}>
@@ -221,15 +221,15 @@ export default function Reels() {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-[2px] bg-gradient-to-r from-[#D4AF37] to-transparent" />
-              <span className="font-inter font-medium text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
+              <span className="font-inter font-medium text-[11px] tracking-[0.25em] text-[#D4AF37] uppercase">
                 REELS • HIGHLIGHTS
               </span>
             </div>
-            <h2 className="font-sans font-bold text-[clamp(32px,9vw,72px)] text-darkText leading-[0.95] tracking-[-0.03em] uppercase">
+            <h2 className="font-sans font-bold text-[clamp(32px,9vw,72px)] text-white leading-[0.95] tracking-[-0.03em] uppercase">
               Behind<br />The Scenes.
             </h2>
           </div>
-          <p className="font-inter text-[15px] text-neutral-500 leading-[1.7] max-w-[360px]">
+          <p className="font-inter text-[15px] text-white/50 leading-[1.7] max-w-[360px]">
             Catch the energy, the food, the games — raw, unfiltered moments from R Sports & Cafe captured in motion.
           </p>
         </div>
@@ -270,7 +270,7 @@ export default function Reels() {
                 return (
                   <div
                     key={reel.id}
-                    className={`reels-carousel-card group relative bg-white border-[6px] md:border-[8px] border-white overflow-hidden ${positionClass}`}
+                    className={`reels-carousel-card group relative bg-black border border-[#D4AF37]/20 shadow-[0_0_30px_rgba(0,0,0,0.6)] overflow-hidden ${positionClass}`}
                     onClick={() => handleCardClick(index)}
                   >
               {/* Video — only load if adjacent to active */}
@@ -286,9 +286,9 @@ export default function Reels() {
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-neutral-800 to-neutral-900 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white/40 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-neutral-900 to-black flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-[#D4AF37]/30 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                    <svg className="w-5 h-5 text-[#D4AF37] ml-0.5" viewBox="0 0 24 24" fill="currentColor">
                       <polygon points="5,3 19,12 5,21" />
                     </svg>
                   </div>
@@ -318,9 +318,9 @@ export default function Reels() {
 
               {/* Play/Pause indicator */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
-                  <svg className="w-6 h-6 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center border border-[#D4AF37]/30 shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                  style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)' }}>
+                  <svg className="w-6 h-6 text-[#D4AF37] ml-0.5" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5,3 19,12 5,21" />
                   </svg>
                 </div>

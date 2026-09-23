@@ -92,13 +92,15 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Center: Rounded Pill Navbar in transparent clear glass style */}
+        {/* Center: Rounded Pill Navbar in premium glass style */}
         <div 
-          className="pointer-events-auto hidden md:flex items-center gap-8 px-8 py-2.5 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.01)] transition-all duration-500"
+          className="pointer-events-auto hidden md:flex items-center gap-8 px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.01]"
           style={{
-            background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.45)',
-            backdropFilter: 'blur(18px)',
-            border: isDark ? '1px solid rgba(255, 255, 255, 0.10)' : '1px solid rgba(17, 17, 17, 0.12)',
+            background: isDark ? 'rgba(25, 25, 25, 0.4)' : 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.5)',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(0,0,0,0.05)',
           }}
         >
           {menuItems.map((item) => {
@@ -144,10 +146,10 @@ export default function Navbar() {
             <Link
               to="/book-table"
               onClick={() => trackEvent('Table Booking Click', 'Navigation', 'Navbar Reserve Table')}
-              className="pointer-events-auto flex font-sans font-medium text-[10px] xs:text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.08em] px-3 xs:px-4 sm:px-5 md:px-6 py-1.5 xs:py-2 md:py-2.5 rounded-full border transition-all duration-300 hover:scale-105 uppercase"
-              style={{ borderColor: '#D4AF37', color: '#D4AF37', background: 'transparent' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#D4AF37'; e.currentTarget.style.color = '#070707'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#D4AF37'; }}
+              className="pointer-events-auto flex font-sans font-bold text-[10px] xs:text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.08em] px-3 xs:px-4 sm:px-5 md:px-6 py-1.5 xs:py-2 md:py-2.5 rounded-full border border-[#F5E6A3]/30 transition-all duration-300 hover:scale-105 uppercase"
+              style={{ background: '#faf372f1', color: '#1B1B1B' }}
+              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(0.95)'; }}
+              onMouseLeave={e => { e.currentTarget.style.filter = 'brightness(1)'; }}
             >
               <span className="sm:hidden">{location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE'}</span>
               <span className="hidden sm:inline">{location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE TABLE'}</span>
@@ -229,7 +231,8 @@ export default function Navbar() {
               >
                  <Link
                     to="/book-table"
-                    className="font-sans font-medium text-[16px] tracking-widest uppercase text-sandalBg bg-darkText px-8 py-4 rounded-full transition-all hover:scale-105"
+                    className="font-sans font-medium text-[16px] tracking-widest uppercase px-8 py-4 rounded-full transition-all hover:scale-105"
+                    style={{ background: '#EFE7DB', color: '#1B1B1B' }}
                     onClick={() => setMenuOpen(false)}
                   >
                     {location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE TABLE'}

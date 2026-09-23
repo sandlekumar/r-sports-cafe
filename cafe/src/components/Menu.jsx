@@ -399,14 +399,26 @@ export default function Menu() {
                 {item.desc}
               </motion.p>
 
+              {item.tags?.length > 0 && (
+                <div className="flex gap-2 flex-wrap justify-center lg:justify-start mt-4">
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="border border-lightText/25 text-lightText/60 text-[10px] tracking-[0.1em] uppercase px-3 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* Price */}
-              <motion.div custom={3} variants={textVariants} ref={priceRef} className="pt-2">
-                <span
-                  className="font-sans font-bold text-[36px] sm:text-[44px] leading-none"
-                  style={{ color: item.accent }}
-                >
+              <motion.div custom={3} variants={textVariants} ref={priceRef} className="pt-2 flex items-center gap-3 justify-center lg:justify-start">
+                <span className="hidden sm:block w-6 h-px bg-lightText/20" />
+                <span className="font-sans font-bold text-[36px] sm:text-[44px] leading-none" style={{ color: item.accent }}>
                   {item.price}
                 </span>
+                <span className="hidden sm:block w-6 h-px bg-lightText/20" />
               </motion.div>
             </motion.div>
           </AnimatePresence>
@@ -419,8 +431,10 @@ export default function Menu() {
 
           {/* CTA */}
           <div ref={ctaRef}>
-            <Link
-              to="/menu"
+            <a
+              href="https://order.menulite.in/r-sports-cafe?table=2"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group relative inline-flex items-center gap-3 border border-lightText px-10 py-4 rounded-full font-sans text-[13px] font-medium tracking-[0.12em] text-lightText hover:text-darkBg transition-colors duration-500 overflow-hidden uppercase"
             >
               <span className="absolute inset-0 w-full h-full bg-lightText scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-0" />
@@ -428,7 +442,7 @@ export default function Menu() {
               <svg className="relative z-10 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </Link>
+            </a>
           </div>
         </div>
 
@@ -438,6 +452,13 @@ export default function Menu() {
           className="showcase-image-col lg:w-[38%] flex justify-center items-center relative reveal-up"
           style={{ perspective: '1200px', '--delay': '0.16s' }}
         >
+          <div className="absolute -inset-3 pointer-events-none hidden lg:block">
+            <div className="absolute top-0 left-0 w-6 h-6 border-t border-l" style={{ borderColor: 'rgba(255,255,255,0.35)' }} />
+            <div className="absolute top-0 right-0 w-6 h-6 border-t border-r" style={{ borderColor: 'rgba(255,255,255,0.35)' }} />
+            <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l" style={{ borderColor: 'rgba(255,255,255,0.35)' }} />
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r" style={{ borderColor: 'rgba(255,255,255,0.35)' }} />
+          </div>
+
           {/* decorative ring behind image */}
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none"
@@ -492,7 +513,7 @@ export default function Menu() {
                 key={mi.id}
                 onClick={() => setPage(([prev]) => [i, i > prev ? 1 : -1])}
                 aria-label={`Go to ${mi.name}`}
-                className="group relative flex items-center justify-center"
+                className="no-premium group relative flex items-center justify-center"
               >
                 <span
                   className="block rounded-full transition-all duration-500"
@@ -524,13 +545,15 @@ export default function Menu() {
             </motion.div>
           </AnimatePresence>
 
-          {/* order now mobile CTA */}
-          <Link
-            to="/menu"
+          {/* explore menu mobile CTA */}
+          <a
+            href="https://order.menulite.in/r-sports-cafe?table=2"
+            target="_blank"
+            rel="noopener noreferrer"
             className="lg:hidden group relative inline-flex items-center gap-3 bg-lightText text-darkBg px-10 py-4 rounded-full font-sans text-[13px] font-medium tracking-[0.12em] uppercase overflow-hidden transition-all duration-300 hover:bg-lightText/90 active:scale-95"
           >
-            <span>Order Now</span>
-          </Link>
+            <span>Explore Menu</span>
+          </a>
         </div>
       </div>
     </section>

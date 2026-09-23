@@ -44,8 +44,16 @@ app.use('/api/', apiLimiter);
 app.use('/api/admin/login', authLimiter);
 
 // ─── Middleware & Request Limits ──────────────────────────────────────────────
+// Allow both the customer app and admin dashboard origins
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : true;
 app.use(cors({
-  origin: process.env.CLIENT_URL || true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins === true || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Required for HttpOnly cookie exchange
 }));
 app.use(express.json({ limit: '10mb' }));

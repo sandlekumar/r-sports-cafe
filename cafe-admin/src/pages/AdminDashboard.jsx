@@ -47,7 +47,7 @@ const BLANK_EVENT_FORM = {
 
 /* ─── Menu form blank ─────────────────────────────────────────────────────── */
 const BLANK_MENU_FORM = {
-  name: '', category: 'SIGNATURE BURGER', desc: '', price: '₹349',
+  name: '', category: 'SIGNATURE BURGER', desc: '', price: '₹349', tags: '',
   photo: '', video_loop_url: '', is_trending: false, trending_score: 0,
   accent: '#C8956C', status: 'active', display_order: 0,
 };
@@ -266,6 +266,16 @@ export default function AdminDashboard() {
   const [reelVideoUploadId, setReelVideoUploadId] = useState(null);
   const reelVideoInputRef = useRef(null);
 
+  /* ── Tables State ─────────────────────────────────────────────────────── */
+  const [showTableModal, setShowTableModal] = useState(false);
+  const [editingTable, setEditingTable] = useState(null);
+  const [tableForm, setTableForm] = useState({ name: '', capacity: 2, area: '', photo: '', feature: '' });
+  const [tableFormError, setTableFormError] = useState('');
+  const [tableSaving, setTableSaving] = useState(false);
+  const [tableDeleteConfirm, setTableDeleteConfirm] = useState(null);
+  const [tablePhotoUploadId, setTablePhotoUploadId] = useState(null);
+  const tablePhotoInputRef = useRef(null);
+
   /* ── Manual Table Booking State ─────────────────────────────────────── */
   const [selectedTableForBooking, setSelectedTableForBooking] = useState(null);
   const [bookingForm, setBookingForm] = useState({ date: new Date().toISOString().split('T')[0], time: '19:00', name: '', phone: '', guests: 2 });
@@ -424,6 +434,7 @@ export default function AdminDashboard() {
       category: item.category || 'SIGNATURE BURGER',
       desc: item.desc || '',
       price: item.price || '',
+      tags: Array.isArray(item.tags) ? item.tags.join(', ') : (item.tags || ''),
       photo: item.photo || '',
       video_loop_url: item.video_loop_url || '',
       is_trending: Boolean(item.is_trending),
@@ -594,6 +605,80 @@ export default function AdminDashboard() {
     } finally {
       setReelVideoUploadId(null);
     }
+  };
+
+  /* ── Table Handlers ─────────────────────────────────────────────────── */
+  const openCreateTableModal = (areaId) => {
+    setEditingTable(null);
+    setTableForm({ name: '', capacity: 2, area: areaId || (tablesData.areas[0]?._id || ''), photo: '', feature: '' });
+    setTableFormError('');
+    setShowTableModal(true);
+  };
+
+  const openEditTableModal = (tbl) => {
+    setEditingTable(tbl);
+    setTableForm({
+      name: tbl.name || '',
+      capacity: tbl.capacity || 2,
+      area: tbl.area?._id || tbl.area || '',
+      photo: tbl.photo || '',
+      feature: tbl.feature || '',
+    });
+    setTableFormError('');
+    setShowTableModal(true);
+  };
+
+  const handleSaveTable = async () => {
+    if (!tableForm.name || !tableForm.capacity || !tableForm.area) {
+      setTableFormError('Name, capacity, and area are required.');
+      return;
+    }
+    setTableSaving(true);
+    setTableFormError('');
+    try {
+      const url = editingTable
+        ? `${API_BASE_URL}/admin/tables/${editingTable._id}`
+        : `${API_BASE_URL}/admin/tables`;
+      const method = editingTable ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: getHeaders(), body: JSON.stringify(tableForm) });
+      const d = await res.json();
+      if (d.success) {
+        setShowTableModal(false);
+        fetchDashboardData();
+      } else setTableFormError(d.error?.message || 'Failed to save table.');
+    } catch {
+      setTableFormError('Network error. Please try again.');
+    } finally {
+      setTableSaving(false);
+    }
+  };
+
+  const handleDeleteTable = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/tables/${id}`, { method: 'DELETE', headers: getHeaders() });
+      const d = await res.json();
+      if (d.success) {
+        setTableDeleteConfirm(null);
+        fetchDashboardData();
+      }
+    } catch (err) {
+      console.error('Failed to delete table:', err);
+    }
+  };
+
+  const handleTablePhotoUpload = async (tableId, file) => {
+    if (!file) return;
+    setTablePhotoUploadId(tableId);
+    const formData = new FormData();
+    formData.append('photo', file);
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/tables/${tableId}/photo`, {
+        method: 'POST', headers: getAuthHeaders(), body: formData,
+      });
+      const d = await res.json();
+      if (d.success) fetchDashboardData();
+    } catch (err) { console.error('Table photo upload failed:', err); }
+    finally { setTablePhotoUploadId(null); }
   };
 
   const handleManualBookingSubmit = async (e) => {
@@ -1348,6 +1433,16 @@ export default function AdminDashboard() {
               {/* ══ FLOOR PLAN ══ */}
               {activeTab === 'tables' && (
                 <motion.div key="tables" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-6">
+                  {/* Header row */}
+                  <div className="flex items-center justify-between">
+                    <p className="text-[13px] text-[#6b7280]">
+                      {tablesData.tables?.length} tables in {tablesData.areas?.length} areas
+                    </p>
+                    <button onClick={() => openCreateTableModal(tablesData.areas[0]?._id)} className="glass-btn-primary">
+                      <span className="text-[16px] leading-none">+</span> New Table
+                    </button>
+                  </div>
+
                   {tablesData.areas?.map((area) => (
                     <div key={area._id} className="glass-card p-6 space-y-5">
                       <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
@@ -1373,11 +1468,30 @@ export default function AdminDashboard() {
                                   setSelectedTableForBooking({ ...tbl, area: area });
                                   setBookingForm(prev => ({ ...prev, guests: tbl.capacity }));
                                 }}
-                                className={`p-4 rounded-2xl text-center transition-transform ${activeBooking ? 'opacity-90' : 'hover-lift cursor-pointer'}`}
+                                className={`p-4 rounded-2xl text-center transition-transform relative group ${activeBooking ? 'opacity-90' : 'hover-lift cursor-pointer'}`}
                                 style={activeBooking 
                                   ? { background: 'rgba(254,226,226,0.60)', border: '1px solid rgba(252,165,165,0.85)' }
                                   : { background: 'rgba(255,255,255,0.60)', border: '1px solid rgba(255,255,255,0.85)' }
                                 }>
+                                
+                                {/* Edit Table Button */}
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button onClick={(e) => { e.stopPropagation(); openEditTableModal(tbl); }} className="p-1.5 bg-white rounded-lg shadow-sm hover:bg-gray-50 border border-gray-100 text-[12px]">
+                                    ✏️
+                                  </button>
+                                </div>
+
+                                {/* Photo Thumbnail */}
+                                {tbl.photo ? (
+                                  <div className="w-12 h-12 rounded-xl mx-auto mb-3 overflow-hidden border border-black/10">
+                                    <img src={`${SERVER_BASE_URL}${tbl.photo}`} alt={tbl.name} className="w-full h-full object-cover" />
+                                  </div>
+                                ) : (
+                                  <div className="w-12 h-12 rounded-xl mx-auto mb-3 bg-black/5 border border-black/10 flex items-center justify-center text-[18px]">
+                                    🍽️
+                                  </div>
+                                )}
+
                                 <div className="font-sans font-bold text-[16px] text-[#1a1a2e] uppercase mb-1">{tbl.name}</div>
                                 <div className="text-[11px] text-[#6b7280] mb-2">
                                   {activeBooking ? `Booked by ${activeBooking.customer?.name || 'Guest'}` : `Seats ${tbl.capacity}`}
@@ -1391,6 +1505,20 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   ))}
+
+                  {/* Hidden photo input for tables */}
+                  <input
+                    ref={tablePhotoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      const tableId = e.target.dataset.tableid;
+                      if (file && tableId) handleTablePhotoUpload(tableId, file);
+                      e.target.value = '';
+                    }}
+                  />
                 </motion.div>
               )}
 
@@ -1823,6 +1951,20 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
+                      Tags (Optional, comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Chef's Pick, Spicy"
+                      value={menuForm.tags}
+                      onChange={(e) => setMenuForm(p => ({ ...p, tags: e.target.value }))}
+                      className="glass-input"
+                    />
+                  </div>
+
                   {/* Description */}
                   <div>
                     <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
@@ -2170,6 +2312,208 @@ export default function AdminDashboard() {
             </motion.div>
           </>
         )}
+
+      {/* ─── TABLE CREATE / EDIT MODAL ─────────────────────────────────────── */}
+      <AnimatePresence>
+        {showTableModal && (
+          <>
+            <motion.div
+              key="table-modal-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="glass-modal-backdrop"
+              onClick={() => setShowTableModal(false)}
+            />
+            <motion.div
+              key="table-modal"
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div className="glass-modal w-full max-w-lg p-7 md:p-9 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-start justify-between mb-7">
+                  <div>
+                    <h2 className="font-sans font-bold text-[22px] text-[#1a1a2e] tracking-tight">
+                      {editingTable ? 'Edit Table' : 'Create New Table'}
+                    </h2>
+                    <p className="text-[12px] text-[#9ca3af] mt-1">
+                      Configure table details and add an actual photo for the booking flow.
+                    </p>
+                  </div>
+                  <button onClick={() => setShowTableModal(false)} className="glass-btn-icon flex-shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-5">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
+                      Table Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Table 01"
+                      value={tableForm.name}
+                      onChange={(e) => setTableForm(p => ({ ...p, name: e.target.value }))}
+                      className="glass-input"
+                    />
+                  </div>
+
+                  {/* Feature Tag */}
+                  <div>
+                    <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
+                      Amenity Tag (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Window View, Private Booth"
+                      value={tableForm.feature}
+                      onChange={(e) => setTableForm(p => ({ ...p, feature: e.target.value }))}
+                      className="glass-input"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Capacity */}
+                    <div>
+                      <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
+                        Capacity *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={tableForm.capacity}
+                        onChange={(e) => setTableForm(p => ({ ...p, capacity: parseInt(e.target.value) || 2 }))}
+                        className="glass-input"
+                      />
+                    </div>
+                    {/* Area */}
+                    <div>
+                      <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
+                        Area *
+                      </label>
+                      <select
+                        value={tableForm.area}
+                        onChange={(e) => setTableForm(p => ({ ...p, area: e.target.value }))}
+                        className="glass-select"
+                      >
+                        <option value="">Select an area...</option>
+                        {tablesData.areas?.map(a => (
+                          <option key={a._id} value={a._id}>{a.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Photo Upload Info (for editing only) */}
+                  {editingTable && (
+                    <div className="pt-2 border-t border-black/10">
+                      <label className="block text-[10px] font-bold tracking-[0.16em] uppercase text-[#9ca3af] mb-1.5">
+                        Table Photo
+                      </label>
+                      <div className="flex items-center gap-4">
+                        {tableForm.photo ? (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden border border-black/10 flex-shrink-0">
+                            <img src={`${SERVER_BASE_URL}${tableForm.photo}`} alt="Table" className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-black/5 border border-black/10 flex items-center justify-center text-[24px] flex-shrink-0">
+                            📷
+                          </div>
+                        )}
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTablePhotoUploadId(editingTable._id);
+                              if (tablePhotoInputRef.current) {
+                                tablePhotoInputRef.current.dataset.tableid = editingTable._id;
+                                tablePhotoInputRef.current.click();
+                              }
+                            }}
+                            className="glass-btn-secondary py-1.5 px-3 text-[11px] rounded-[9px]"
+                          >
+                            Change Photo
+                          </button>
+                          <p className="text-[10px] text-[#6b7280] mt-1.5 leading-relaxed">
+                            Upload a real photo of this table to help guests choose. Recommended: 1600px, under 5MB.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!editingTable && (
+                    <p className="text-[11px] text-[#6b7280] italic pt-2">
+                      Note: Save the table first, then you can upload a photo for it.
+                    </p>
+                  )}
+
+                  {/* Form Error */}
+                  {tableFormError && (
+                    <div className="px-4 py-3 rounded-xl text-[13px] bg-red-100 border border-red-300 text-red-800">
+                      {tableFormError}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-black/10">
+                    {editingTable ? (
+                      <button onClick={() => setTableDeleteConfirm(editingTable)} className="glass-btn-danger py-1.5 px-3 text-[12px] rounded-[9px]">
+                        Delete
+                      </button>
+                    ) : <div />}
+                    
+                    <div className="flex items-center gap-2.5">
+                      <button onClick={() => setShowTableModal(false)} className="glass-btn-secondary">Cancel</button>
+                      <button onClick={handleSaveTable} disabled={tableSaving} className="glass-btn-primary">
+                        {tableSaving ? 'Saving…' : (editingTable ? '✓ Save Changes' : '+ Create Table')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ─── TABLE DELETE CONFIRM MODAL ────────────────────────────────────── */}
+      <AnimatePresence>
+        {tableDeleteConfirm && (
+          <>
+            <motion.div
+              key="table-del-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="glass-modal-backdrop"
+              onClick={() => setTableDeleteConfirm(null)}
+            />
+            <motion.div
+              key="table-del-modal"
+              initial={{ opacity: 0, scale: 0.93 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.93 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div className="glass-modal w-full max-w-sm p-8 text-center" style={{ border: '1px solid rgba(252,165,165,0.45)' }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-red-100 border border-red-200">
+                  <span className="text-[24px]">🗑️</span>
+                </div>
+                <h3 className="font-sans font-bold text-[18px] text-[#1a1a2e] mb-2">Delete Table?</h3>
+                <p className="text-[13px] text-[#6b7280] mb-6">
+                  "<strong className="text-[#1a1a2e]">{tableDeleteConfirm.name}</strong>" will be permanently removed from the system.
+                </p>
+                <div className="flex gap-3">
+                  <button onClick={() => setTableDeleteConfirm(null)} className="glass-btn-secondary flex-1 justify-center">Cancel</button>
+                  <button onClick={() => handleDeleteTable(tableDeleteConfirm._id)} className="glass-btn-danger flex-1 justify-center">Yes, Delete</button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
         {/* ─── MANUAL TABLE BOOKING MODAL ──────────────────────────────────── */}
         {selectedTableForBooking && (

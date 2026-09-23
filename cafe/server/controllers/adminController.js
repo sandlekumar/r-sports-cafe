@@ -4,6 +4,16 @@ const RestaurantArea = require('../models/RestaurantArea');
 const Customer = require('../models/Customer');
 const BookingHistory = require('../models/BookingHistory');
 const Booking = require('../models/Booking');
+const multer = require('multer');
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs');
+
+const uploadTablePhoto = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+});
 
 /**
  * POST /api/admin/login
@@ -312,6 +322,44 @@ exports.deleteTable = async (req, res, next) => {
     next(err);
   }
 };
+
+/**
+ * POST /api/admin/tables/:id/photo
+ * Uploads a photo for a table
+ */
+exports.uploadTablePhotoHandler = [
+  uploadTablePhoto.single('photo'),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: { message: 'No photo provided' } });
+      }
+
+      const dir = path.join(__dirname, '../uploads/tables');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+      const filename = `table-${Date.now()}.webp`;
+      await sharp(req.file.buffer)
+        .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toFile(path.join(dir, filename));
+
+      const table = await RestaurantTable.findByIdAndUpdate(
+        req.params.id,
+        { photo: `/uploads/tables/${filename}` },
+        { new: true }
+      );
+
+      if (!table) {
+        return res.status(404).json({ success: false, error: { message: 'Table not found' } });
+      }
+
+      res.json({ success: true, data: table });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 /**
  * GET /api/admin/customers

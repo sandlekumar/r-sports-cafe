@@ -40,6 +40,7 @@ router.get('/tables', adminController.getAllTables);
 router.post('/tables', adminController.createTable);
 router.put('/tables/:id', adminController.updateTable);
 router.delete('/tables/:id', adminController.deleteTable);
+router.post('/tables/:id/photo', adminController.uploadTablePhotoHandler);
 
 router.get('/customers', adminController.getAllCustomers);
 

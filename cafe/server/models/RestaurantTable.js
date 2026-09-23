@@ -43,6 +43,16 @@ const restaurantTableSchema = new mongoose.Schema(
       default: 'square',
     },
     rotation: { type: Number, default: 0 },
+    // Photo
+    photo: {
+      type: String,
+      default: null,
+    },
+    // Optional Amenity Tag
+    feature: {
+      type: String,
+      default: null,
+    },
     // Status flags
     bookable: {
       type: Boolean,

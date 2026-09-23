@@ -139,13 +139,7 @@ export default function Booking() {
 
         {/* Right Side: Glassmorphic Form */}
         <div ref={formColRef} className="lg:w-1/2 w-full relative reveal-up" style={{ '--delay': '0.6s' }}>
-          {/* Aesthetic background image behind the form */}
-          <div className="absolute -inset-4 z-0 rounded-[40px] overflow-hidden opacity-50 blur-[2px] hidden md:block">
-             <img src={bgImage} loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ filter: 'brightness(1.5) contrast(1.2)' }} alt="" />
-             <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/40 to-transparent" />
-          </div>
-          
-          <div className="relative z-10 bg-black/40 backdrop-blur-2xl border border-white/10 border-l-[#D4AF37]/30 border-l-2 rounded-[20px] xs:rounded-[24px] sm:rounded-[32px] p-5 xs:p-6 sm:p-8 md:p-12 shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
+          <div className="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[20px] xs:rounded-[24px] sm:rounded-[32px] p-5 xs:p-6 sm:p-8 md:p-12 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
             <AnimatePresence mode="wait">
               {!isSubmitted ? (
                 <motion.form 
@@ -237,7 +231,7 @@ export default function Booking() {
                   <div className="pt-6">
                     <button 
                       type="submit"
-                      className="relative w-full py-4 md:py-5 font-sans text-[14px] font-bold tracking-[0.1em] uppercase rounded-[12px] overflow-hidden group transition-all duration-500 hover:shadow-[0_0_50px_rgba(212,175,55,0.4)]"
+                      className="relative w-full py-4 md:py-5 font-sans text-[14px] font-bold tracking-[0.1em] uppercase rounded-[12px] overflow-hidden group transition-all duration-500 hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] text-[#111111]"
                       style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)' }}
                     >
                       <span className="relative z-10 flex items-center justify-center gap-3">

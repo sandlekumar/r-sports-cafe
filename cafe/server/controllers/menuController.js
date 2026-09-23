@@ -42,6 +42,7 @@ const formatMenuItem = (m) => ({
   category: m.category,
   desc: m.desc,
   price: m.price,
+  tags: m.tags || [],
   photo: m.photo || null,
   video_loop_url: m.video_loop_url || null,
   is_trending: m.is_trending || false,
@@ -87,7 +88,15 @@ exports.getAllMenuItemsAdmin = async (req, res, next) => {
  */
 exports.createMenuItem = async (req, res, next) => {
   try {
-    const { name, category, desc, price, photo, video_loop_url, is_trending, trending_score, accent, status, display_order } = req.body;
+    const { name, category, desc, price, tags, photo, video_loop_url, is_trending, trending_score, accent, status, display_order } = req.body;
+
+    // Parse tags if it's sent as a string (comma separated)
+    let parsedTags = [];
+    if (typeof tags === 'string') {
+      parsedTags = tags.split(',').map(t => t.trim()).filter(Boolean);
+    } else if (Array.isArray(tags)) {
+      parsedTags = tags;
+    }
 
     if (!name || !price) {
       return res.status(400).json({
@@ -101,6 +110,7 @@ exports.createMenuItem = async (req, res, next) => {
       category: category || 'SIGNATURE BURGER',
       desc: desc || '',
       price,
+      tags: parsedTags,
       photo: photo || null,
       video_loop_url: video_loop_url || null,
       is_trending: Boolean(is_trending),
@@ -123,6 +133,10 @@ exports.updateMenuItem = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    if (updates.tags && typeof updates.tags === 'string') {
+      updates.tags = updates.tags.split(',').map(t => t.trim()).filter(Boolean);
+    }
 
     if (updates.is_trending !== undefined) updates.is_trending = updates.is_trending === true || updates.is_trending === 'true';
     if (updates.trending_score !== undefined) updates.trending_score = Number(updates.trending_score);

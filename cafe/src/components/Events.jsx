@@ -221,7 +221,7 @@ export default function Events() {
               animate={getVariant(pos, isMobile)}
               transition={{ type: 'spring', damping: 20, stiffness: 120 }}
             >
-              <div className="ev-stamp-mask bg-ev-card w-full h-full p-4 xs:p-5 sm:p-7 md:p-8 flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl border border-black/5 shadow-2xl">
+              <div className="ev-stamp-mask bg-ev-card w-full h-full p-4 xs:p-5 sm:p-7 md:p-8 flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl border border-white/40 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),inset_0_-1px_3px_rgba(0,0,0,0.1),0_25px_50px_-12px_rgba(0,0,0,0.5)]">
                 <SportsWatermark />
 
                 {/* Event Image Box */}

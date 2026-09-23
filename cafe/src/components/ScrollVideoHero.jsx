@@ -731,9 +731,9 @@ export default function ScrollVideoHero() {
                   to="/booking"
                   className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 md:py-3.5 mt-1 rounded-full font-sans font-semibold text-[10px] md:text-[11px] uppercase tracking-[0.15em] transition-all duration-300 hover:scale-[1.02] active:scale-95"
                   style={{
-                    background: '#1B1B1B',
-                    color: '#FFF8E7',
-                    boxShadow: '0 6px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(181,138,85,0.3)',
+                    background: '#EFE7DB',
+                    color: '#1B1B1B',
+                    boxShadow: '0 6px 24px rgba(0,0,0,0.1), 0 0 0 1px rgba(181,138,85,0.2)',
                   }}
                 >
                   <span>Reserve Your Table</span>

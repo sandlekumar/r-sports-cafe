@@ -110,9 +110,9 @@ export default function App() {
         </Suspense>
 
         {/* Hyper-Aesthetic Luxury Footer */}
-        <footer className="bg-night text-lightText pt-32 pb-12 px-6 md:px-20 border-t-2 border-t-gold/20 relative overflow-hidden">
+        <footer className="bg-gradient-to-b from-[#0A0A0A] to-[#050505] text-lightText pt-32 pb-12 px-6 md:px-20 border-t border-t-[#D4AF37]/30 shadow-[inset_0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden">
           {/* Huge background text */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.06] overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none opacity-[0.08] overflow-hidden">
             <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-sans font-bold text-[15vw] leading-none whitespace-nowrap tracking-[-0.05em] text-gradient-gold" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>R SPORTS & CAFE</h2>
           </div>
 
@@ -187,7 +187,7 @@ export default function App() {
               </span>
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="group flex items-center gap-2 font-inter text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase hover:text-white/80 transition-colors duration-300"
+                className="no-premium group flex items-center gap-2 font-inter text-[11px] font-medium tracking-[0.2em] text-white/40 uppercase hover:text-white/80 transition-colors duration-300"
               >
                 <svg className="w-3 h-3 transform group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M12 19V5M5 12l7-7 7 7" />

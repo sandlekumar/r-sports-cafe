@@ -28,6 +28,11 @@ const menuItemSchema = new mongoose.Schema(
       required: [true, 'Price is required'],
       trim: true,
     },
+    // Optional dietary / flavor tags (e.g. "Chef's Pick", "Spicy")
+    tags: {
+      type: [String],
+      default: [],
+    },
     // Static photo / poster frame URL fallback
     photo: {
       type: String,

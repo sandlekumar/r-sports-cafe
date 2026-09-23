@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { getAvailability, submitTableBooking } from '../services/bookingApi';
 import SEO from '../../../components/SEO';
+const SERVER_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 import { trackEvent } from '../../../utils/analytics';
 import { TableSketch } from '../../../components/decor/SketchMotifs';
 import { useRevealOnScroll } from '../../../hooks/useRevealOnScroll';
@@ -189,6 +190,30 @@ const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
   );
 };
 
+function BookingStep({ number, label, children, isLast = false }) {
+  return (
+    <div className="flex gap-5">
+      <div className="flex flex-col items-center w-9 flex-shrink-0">
+        <span className="font-sans text-[28px] font-light leading-none" style={{ color: theme.accent }}>
+          {String(number).padStart(2, '0')}
+        </span>
+        {!isLast && (
+          <div
+            className="w-px flex-1 mt-2.5"
+            style={{ background: `linear-gradient(180deg, ${theme.accent}, ${theme.border})`, minHeight: '48px' }}
+          />
+        )}
+      </div>
+      <div className="flex-1 pb-8">
+        <label className="block font-sans text-[11px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: theme.textPri }}>
+          {label}
+        </label>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Component ──────────────────────────────────────────────────────── */
 export default function TableBooking() {
   const [booking, setBooking] = useState({
@@ -257,6 +282,10 @@ export default function TableBooking() {
 
   const updateBooking = (key, value) => {
     setBooking(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleConfirmTable = () => {
+    document.getElementById('booking-summary-box')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleConfirm = async (e) => {
@@ -393,8 +422,7 @@ export default function TableBooking() {
             <form id="booking-form" ref={formRef} onSubmit={handleConfirm} className="rounded-[24px] p-5 sm:p-8 overflow-hidden" style={{ background: theme.card, border: `1px solid ${theme.border}` }}>
               
               {/* 1. Guests */}
-              <div className="mb-10">
-                <label className="block font-sans text-[12px] font-medium tracking-wide uppercase mb-4" style={{ color: theme.textPri }}>1. Number of Guests</label>
+              <BookingStep number={1} label="Number of Guests">
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {[1, 2, 3, 4, 5, 6].map(n => {
                     const isSelected = booking.guests === n;
@@ -412,14 +440,10 @@ export default function TableBooking() {
                     )
                   })}
                 </div>
-              </div>
+              </BookingStep>
 
               {/* 2. Date */}
-              <div className="mb-10">
-                <div className="flex justify-between items-center mb-4">
-                  <label className="block font-sans text-[12px] font-medium tracking-wide uppercase" style={{ color: theme.textPri }}>2. Select Date</label>
-                  <svg className="w-4 h-4" fill="none" stroke={theme.textSec} strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                </div>
+              <BookingStep number={2} label="Select Date">
                 <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4 -mx-1 px-1 md:grid md:grid-cols-7">
                   {dates.map((d) => {
                     const isSelected = booking.date === d.iso;
@@ -437,11 +461,10 @@ export default function TableBooking() {
                     );
                   })}
                 </div>
-              </div>
+              </BookingStep>
 
               {/* 3. Time */}
-              <div className="mb-10">
-                <label className="block font-sans text-[12px] font-medium tracking-wide uppercase mb-4" style={{ color: theme.textPri }}>3. Select Time</label>
+              <BookingStep number={3} label="Select Time">
                 <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-3 pb-2 md:grid md:grid-cols-4 lg:grid-cols-5">
                   {times.map((t) => {
                     const isPast = isTimeSlotPast(booking.date, t);
@@ -466,11 +489,10 @@ export default function TableBooking() {
                     );
                   })}
                 </div>
-              </div>
+              </BookingStep>
 
               {/* 4. Customer Info */}
-              <div>
-                <label className="block font-sans text-[12px] font-medium tracking-wide uppercase mb-4" style={{ color: theme.textPri }}>4. Customer Details</label>
+              <BookingStep number={4} label="Your Details" isLast>
                 <div className="space-y-4">
                   {/* Name */}
                   <input type="text" required placeholder="Full Name" value={booking.name} onChange={e => updateBooking('name', e.target.value)}
@@ -501,7 +523,7 @@ export default function TableBooking() {
                     onBlur={e => e.target.style.borderColor = theme.border}
                   />
                 </div>
-              </div>
+              </BookingStep>
 
             </form>
           </div>
@@ -539,29 +561,72 @@ export default function TableBooking() {
             {/* Selected Table Info Card */}
             <AnimatePresence>
               {booking.table && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
-                  className="mt-8 p-6 rounded-2xl flex items-center justify-between"
-                  style={{ background: theme.card, border: `1px solid ${theme.border}` }}
+                  className="mt-4 rounded-2xl overflow-hidden"
+                  style={{ background: theme.card, border: `1px solid ${theme.border}`, boxShadow: '0 12px 32px rgba(0,0,0,0.08)' }}
                 >
-                  <div>
-                    <h4 className="font-sans text-[16px] font-medium mb-1" style={{ color: theme.textPri }}>{booking.table.name}</h4>
-                    <p className="font-sans text-[13px] mb-3" style={{ color: theme.textSec }}>{booking.table.capacity} Guests • {booking.table.area?.name || 'Main Area'}</p>
-                    <p className="font-sans text-[12px] italic" style={{ color: theme.textSec }}>A comfortable table in the {booking.table.area?.name || 'dining area'}.</p>
+                  <div className="relative h-48">
+                    {booking.table.photo ? (
+                      <img
+                        src={`${SERVER_BASE_URL}${booking.table.photo}`}
+                        alt={booking.table.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center" style={{ background: theme.bgSec, color: theme.textSec }}>
+                        <span className="text-[12px] tracking-widest uppercase">No photo yet</span>
+                      </div>
+                    )}
+
+                    {booking.table.feature && (
+                      <div
+                        className="absolute top-3 left-3 rounded-full px-3 py-1"
+                        style={{ background: 'rgba(255,253,252,0.9)', border: `1px solid ${theme.accent}60` }}
+                      >
+                        <span className="text-[10px] tracking-[0.15em] uppercase" style={{ color: theme.accent }}>
+                          {booking.table.feature}
+                        </span>
+                      </div>
+                    )}
+
+                    <div
+                      className="absolute bottom-0 left-0 right-0 px-4 py-3"
+                      style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.55))' }}
+                    >
+                      <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.75)' }}>Table</p>
+                      <p className="text-[26px] font-medium" style={{ color: '#FFFDFC' }}>{booking.table.name}</p>
+                    </div>
                   </div>
-                  <div className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full font-sans text-[11px] font-medium tracking-widest uppercase" style={{ color: theme.accent, background: `${theme.accent}15` }}>
-                    Selected
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+
+                  <div className="p-4">
+                    <p className="text-[13px] mb-4" style={{ color: theme.textSec }}>
+                      {booking.table.capacity} Seats &nbsp;•&nbsp; {booking.table.area?.name || 'Main Area'}
+                    </p>
+                    <div
+                      className="h-px mb-4"
+                      style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}80, transparent)` }}
+                    />
+                    <button
+                      className="w-full rounded-xl py-3.5 text-[13px] tracking-[0.1em] uppercase font-semibold transition-transform hover:scale-[1.02]"
+                      style={{ background: theme.cta, color: theme.card }}
+                      onClick={handleConfirmTable}
+                    >
+                      Select This Table
+                    </button>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {/* Booking Summary Box (Sticky at bottom on mobile, inline on desktop) */}
-            <div className="mt-8 p-6 rounded-[24px] shadow-sm" style={{ background: theme.card, border: `1px solid ${theme.border}` }}>
-              <h3 className="font-sans text-[16px] font-medium mb-5" style={{ color: theme.textPri }}>Your Reservation</h3>
+            <div id="booking-summary-box" className="fixed bottom-0 left-0 right-0 z-50 p-5 rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.15)] lg:static lg:mt-8 lg:p-6 lg:rounded-[24px] lg:shadow-sm" style={{ background: theme.card, borderTop: `1px solid ${theme.border}` }}>
               
-              <div className="space-y-3 mb-6 font-sans text-[14px]">
+              <h3 className="hidden lg:block font-sans text-[16px] font-medium mb-5" style={{ color: theme.textPri }}>Your Reservation</h3>
+              
+              {/* Desktop Details */}
+              <div className="hidden lg:block space-y-3 mb-6 font-sans text-[14px]">
                 <div className="flex justify-between">
                   <span style={{ color: theme.textSec }}>Date</span>
                   <span style={{ color: theme.textPri }}>{booking.date ? new Date(booking.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric'}) : '—'}</span>
@@ -580,6 +645,19 @@ export default function TableBooking() {
                 </div>
               </div>
 
+              {/* Mobile Compact Details */}
+              <div className="lg:hidden flex justify-between items-center mb-4 px-1">
+                 <div className="flex flex-col">
+                    <span className="font-sans font-bold text-[15px]" style={{ color: theme.textPri }}>{booking.table ? booking.table.name : 'No Table Selected'}</span>
+                    <span className="font-sans text-[12px] mt-0.5" style={{ color: theme.textSec }}>
+                      {booking.date ? new Date(booking.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short'}) : 'Date'} • {booking.time ? formatTime(booking.time) : 'Time'}
+                    </span>
+                 </div>
+                 <div className="flex flex-col items-end">
+                    <span className="font-sans font-medium text-[13px]" style={{ color: theme.textPri }}>{booking.guests} Guests</span>
+                 </div>
+              </div>
+
               {submitError && (
                 <div className="mb-4 p-3 rounded-xl font-sans text-[13px] text-red-600 bg-red-50 border border-red-100 flex gap-2 items-start">
                   <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -587,13 +665,13 @@ export default function TableBooking() {
                 </div>
               )}
 
-              <hr className="my-5 border-t" style={{ borderColor: theme.border }} />
+              <hr className="hidden lg:block my-5 border-t" style={{ borderColor: theme.border }} />
 
               <button 
                 type="submit" 
                 form="booking-form"
                 disabled={submitting || !booking.table}
-                className="w-full py-4 rounded-[14px] flex items-center justify-center gap-3 transition-transform duration-200"
+                className="w-full py-4 rounded-[14px] flex items-center justify-center gap-3 transition-transform duration-200 shadow-sm"
                 style={{ 
                   background: (submitting || !booking.table) ? `${theme.cta}80` : theme.cta, 
                   color: theme.card,
