@@ -145,98 +145,88 @@ export default function Booking() {
                 <motion.form 
                   key="booking-form"
                   onSubmit={handleSubmit}
-                  className="space-y-8"
+                  className="space-y-5 sm:space-y-6"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
                 >
                   {/* Name field */}
-                  <div className="relative group">
-                    <label 
-                      className={`absolute left-0 top-0 font-sans text-[13px] tracking-[0.1em] text-white/50 transition-all duration-300 pointer-events-none uppercase ${
-                        focusedField === 'name' || formData.name ? '-translate-y-6 text-white scale-90' : 'translate-y-3'
-                      }`}
-                    >
+                  <div className="flex flex-col">
+                    <label className="font-sans text-[11px] font-semibold tracking-[0.15em] text-white/60 uppercase mb-2 ml-1">
                       FULL NAME
                     </label>
                     <input 
-                      type="text" name="name" required value={formData.name}
-                      onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)} onChange={handleInputChange}
-                      className="w-full bg-transparent border-b border-white/20 py-3 text-[16px] font-sans text-white focus:outline-none focus:border-white transition-colors duration-500"
+                      type="text" name="name" required value={formData.name} onChange={handleInputChange}
+                      placeholder="Enter your name"
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 sm:py-4 text-[15px] sm:text-[16px] font-sans text-white placeholder-white/20 focus:outline-none focus:border-[#D4AF37]/60 focus:bg-white/[0.06] transition-all duration-300"
                     />
-                    <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37] origin-left scale-x-0 transition-transform duration-500 ${focusedField === 'name' ? 'scale-x-100' : ''}`} />
                   </div>
 
                   {/* Email field */}
-                  <div className="relative group">
-                    <label 
-                      className={`absolute left-0 top-0 font-sans text-[13px] tracking-[0.1em] text-white/50 transition-all duration-300 pointer-events-none uppercase ${
-                        focusedField === 'email' || formData.email ? '-translate-y-6 text-white scale-90' : 'translate-y-3'
-                      }`}
-                    >
+                  <div className="flex flex-col">
+                    <label className="font-sans text-[11px] font-semibold tracking-[0.15em] text-white/60 uppercase mb-2 ml-1">
                       EMAIL ADDRESS
                     </label>
                     <input 
-                      type="email" name="email" required value={formData.email}
-                      onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} onChange={handleInputChange}
-                      className="w-full bg-transparent border-b border-white/20 py-3 text-[16px] font-sans text-white focus:outline-none focus:border-white transition-colors duration-500"
+                      type="email" name="email" required value={formData.email} onChange={handleInputChange}
+                      placeholder="Enter your email"
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 sm:py-4 text-[15px] sm:text-[16px] font-sans text-white placeholder-white/20 focus:outline-none focus:border-[#D4AF37]/60 focus:bg-white/[0.06] transition-all duration-300"
                     />
-                    <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37] origin-left scale-x-0 transition-transform duration-500 ${focusedField === 'email' ? 'scale-x-100' : ''}`} />
                   </div>
 
                   {/* Service selection */}
-                  <div className="relative group">
-                    <label className="absolute left-0 -translate-y-6 font-sans text-[11px] tracking-[0.1em] text-white/50 uppercase">
+                  <div className="flex flex-col">
+                    <label className="font-sans text-[11px] font-semibold tracking-[0.15em] text-white/60 uppercase mb-2 ml-1">
                       SELECT SERVICE
                     </label>
-                    <select 
-                      name="service" value={formData.service}
-                      onFocus={() => setFocusedField('service')} onBlur={() => setFocusedField(null)} onChange={handleInputChange}
-                      className="w-full bg-transparent border-b border-white/20 py-3 text-[16px] font-sans text-white focus:outline-none focus:border-white transition-colors duration-500 appearance-none rounded-none cursor-pointer"
-                    >
-                      <option value="elite-membership" className="bg-[#111] text-white">ELITE MEMBERSHIP INQUIRY</option>
-                      <option value="turf-booking" className="bg-[#111] text-white">TURF COURT RESERVATION</option>
-                      <option value="table-booking" className="bg-[#111] text-white">TABLE BOOKING</option>
-                      <option value="gastronomy-booking" className="bg-[#111] text-white">GASTRONOMY RESERVATION</option>
-                      <option value="private-event" className="bg-[#111] text-white">PRIVATE EVENT HIRE</option>
-                    </select>
-                    <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37] origin-left scale-x-0 transition-transform duration-500 ${focusedField === 'service' ? 'scale-x-100' : ''}`} />
-                    <div className="absolute right-0 top-4 pointer-events-none text-white/50">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+                    <div className="relative">
+                      <select 
+                        name="service" value={formData.service} onChange={handleInputChange}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 sm:py-4 text-[15px] sm:text-[16px] font-sans text-white focus:outline-none focus:border-[#D4AF37]/60 focus:bg-white/[0.06] transition-all duration-300 appearance-none cursor-pointer"
+                      >
+                        <option value="elite-membership" className="bg-[#111] text-white">ELITE MEMBERSHIP INQUIRY</option>
+                        <option value="turf-booking" className="bg-[#111] text-white">TURF COURT RESERVATION</option>
+                        <option value="table-booking" className="bg-[#111] text-white">TABLE BOOKING</option>
+                        <option value="gastronomy-booking" className="bg-[#111] text-white">GASTRONOMY RESERVATION</option>
+                        <option value="private-event" className="bg-[#111] text-white">PRIVATE EVENT HIRE</option>
+                      </select>
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
                     </div>
                   </div>
 
                   {/* Date & Time */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    <div className="relative group">
-                      <label className="absolute left-0 -translate-y-6 font-sans text-[11px] tracking-[0.1em] text-white/50 uppercase">DATE</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                    <div className="flex flex-col">
+                      <label className="font-sans text-[11px] font-semibold tracking-[0.15em] text-white/60 uppercase mb-2 ml-1">
+                        DATE
+                      </label>
                       <input 
-                        type="date" name="date" value={formData.date}
-                        onFocus={() => setFocusedField('date')} onBlur={() => setFocusedField(null)} onChange={handleInputChange}
-                        className="w-full bg-transparent border-b border-white/20 py-3 text-[16px] font-sans text-white focus:outline-none focus:border-[#D4AF37] transition-colors duration-500"
+                        type="date" name="date" value={formData.date} onChange={handleInputChange}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 sm:py-4 text-[15px] sm:text-[16px] font-sans text-white focus:outline-none focus:border-[#D4AF37]/60 focus:bg-white/[0.06] transition-all duration-300 [color-scheme:dark] cursor-pointer"
                       />
-                      <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37] origin-left scale-x-0 transition-transform duration-500 ${focusedField === 'date' ? 'scale-x-100' : ''}`} />
                     </div>
-                    <div className="relative group">
-                      <label className="absolute left-0 -translate-y-6 font-sans text-[11px] tracking-[0.1em] text-white/50 uppercase">TIME</label>
+                    <div className="flex flex-col">
+                      <label className="font-sans text-[11px] font-semibold tracking-[0.15em] text-white/60 uppercase mb-2 ml-1">
+                        TIME
+                      </label>
                       <input 
-                        type="time" name="time" value={formData.time}
-                        onFocus={() => setFocusedField('time')} onBlur={() => setFocusedField(null)} onChange={handleInputChange}
-                        className="w-full bg-transparent border-b border-white/20 py-3 text-[16px] font-sans text-white focus:outline-none focus:border-[#D4AF37] transition-colors duration-500"
+                        type="time" name="time" value={formData.time} onChange={handleInputChange}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 sm:py-4 text-[15px] sm:text-[16px] font-sans text-white focus:outline-none focus:border-[#D4AF37]/60 focus:bg-white/[0.06] transition-all duration-300 [color-scheme:dark] cursor-pointer"
                       />
-                      <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-[#D4AF37] origin-left scale-x-0 transition-transform duration-500 ${focusedField === 'time' ? 'scale-x-100' : ''}`} />
                     </div>
                   </div>
 
                   {/* Submit Button */}
-                  <div className="pt-6">
+                  <div className="pt-4 sm:pt-6">
                     <button 
                       type="submit"
-                      className="relative w-full py-4 md:py-5 font-sans text-[14px] font-bold tracking-[0.1em] uppercase rounded-[12px] overflow-hidden group transition-all duration-500 hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] text-[#111111]"
+                      className="relative w-full py-4 sm:py-5 font-sans text-[13px] sm:text-[14px] font-bold tracking-[0.15em] uppercase rounded-xl overflow-hidden group transition-all duration-500 hover:shadow-[0_10px_30px_rgba(212,175,55,0.2)] text-[#111111]"
                       style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #F5E6A3 50%, #D4AF37 100%)' }}
                     >
                       <span className="relative z-10 flex items-center justify-center gap-3">
                         SUBMIT REQUEST
-                        <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        <svg className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                       </span>
                     </button>
                   </div>

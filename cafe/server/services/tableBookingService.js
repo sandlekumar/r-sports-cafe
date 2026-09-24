@@ -21,6 +21,7 @@ const { checkAvailability } = require('./availabilityService');
 const { generateSlots, computeEndTime } = require('../utils/timeSlots');
 const { BOOKING_STATUS, BOOKING_SOURCE } = require('../constants');
 const { sendBookingConfirmation, sendAdminBookingNotification } = require('../utils/emailService');
+const { sendBookingConfirmationWhatsApp, sendAdminLeadNotificationWhatsApp } = require('../utils/whatsappService');
 
 /**
  * Create a new table booking atomically.
@@ -219,6 +220,9 @@ const createTableBooking = async (data) => {
       guests,
       specialRequest,
     });
+
+    sendBookingConfirmationWhatsApp({ phone: customer.phone, name: customer.name, guests, date, time, bookingNumber: booking.bookingNumber });
+    sendAdminLeadNotificationWhatsApp({ name: customer.name, phone: customer.phone, guests, date, time, bookingNumber: booking.bookingNumber });
 
     return {
       bookingNumber: booking.bookingNumber,

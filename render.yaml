@@ -24,3 +24,9 @@ services:
         sync: false
       - key: SMTP_FROM
         sync: false
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: ADMIN_WHATSAPP_NUMBER
+        sync: false
