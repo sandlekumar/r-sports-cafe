@@ -214,36 +214,38 @@ export default function Events() {
               onClick={() => {
                 if (!isCenter) setActiveIndex(idx);
               }}
-              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[92vw] xs:w-[86vw] sm:w-[400px] md:w-[480px] max-w-[480px]`}
+              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[92vw] xs:w-[86vw] sm:w-[400px] md:w-[480px] max-w-[480px] aspect-[4/5]`}
               style={{
                 zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10
               }}
               animate={getVariant(pos, isMobile)}
               transition={{ type: 'spring', damping: 20, stiffness: 120 }}
             >
-              <div className="ev-stamp-mask bg-ev-card w-full h-full p-4 xs:p-5 sm:p-7 md:p-8 flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl border border-white/40 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),inset_0_-1px_3px_rgba(0,0,0,0.1),0_25px_50px_-12px_rgba(0,0,0,0.5)]">
-                <SportsWatermark />
-
-                {/* Event Image Box */}
+              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+                
+                {/* Full Background Image */}
                 <motion.div 
                   layout
-                  className="w-full bg-gray-200 overflow-hidden relative rounded-lg"
-                  style={{ aspectRatio: isCenter ? (isMobile ? '16/11' : '16/10') : '1/1' }}
+                  className="absolute inset-0 w-full h-full bg-gray-900"
                 >
                   {event.photo ? (
-                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]" alt={event.title || 'Event image'} loading="lazy" decoding="async" />
+                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.1]" alt={event.title || 'Event image'} loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
                       <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>
                     </div>
                   )}
-                  
-                  {isCenter && (
-                    <div className="absolute top-3 right-3 bg-ev-accent text-white px-3 py-1 rounded uppercase font-bold text-[9px] sm:text-[10px] tracking-widest shadow-md">
-                      {event.category || 'Special Event'}
-                    </div>
-                  )}
                 </motion.div>
+
+                {/* Gradient Overlay for Text Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 pointer-events-none" />
+
+                {/* Category badge */}
+                {isCenter && (
+                  <div className="absolute top-4 right-4 bg-ev-accent text-white px-3 py-1 rounded uppercase font-bold text-[9px] sm:text-[10px] tracking-widest shadow-md z-20 backdrop-blur-md">
+                    {event.category || 'Special Event'}
+                  </div>
+                )}
 
                 {/* Card Content - Center Only */}
                 <AnimatePresence mode="popLayout">
@@ -253,31 +255,31 @@ export default function Events() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
-                      className="flex flex-col flex-1 mt-4 sm:mt-5 relative z-10"
+                      className="flex flex-col justify-end flex-1 p-5 sm:p-8 relative z-10 w-full h-full"
                     >
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex justify-between items-end mb-3">
                         <div>
-                          <h3 className="font-sans font-black text-xl sm:text-2xl uppercase text-ev-text tracking-tight leading-none mb-1">
+                          <h3 className="font-sans font-black text-xl sm:text-2xl uppercase text-white/90 tracking-tight leading-none mb-1 drop-shadow-md">
                             {weekday}
                           </h3>
-                          <h4 className="font-sans font-black text-2xl sm:text-3xl text-ev-accent tracking-tighter leading-none">
+                          <h4 className="font-sans font-black text-2xl sm:text-3xl text-ev-accent tracking-tighter leading-none shadow-sm drop-shadow-md">
                             {day}/{month}/{year}
                           </h4>
                         </div>
                         
-                        <div className="border border-dashed border-ev-text/30 rounded px-2.5 py-1 flex items-center gap-1.5 bg-white/60 backdrop-blur-sm">
-                          <svg className="w-3.5 h-3.5 text-ev-text/80" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                          <span className="font-bold text-[9px] tracking-[0.1em] uppercase text-ev-text">Thoothukudi</span>
+                        <div className="border border-white/30 rounded px-2.5 py-1 flex items-center gap-1.5 bg-white/15 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+                          <svg className="w-3.5 h-3.5 text-white/90 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                          <span className="font-bold text-[9px] tracking-[0.1em] uppercase text-white drop-shadow-sm">Thoothukudi</span>
                         </div>
                       </div>
 
-                      <h2 className="font-sans font-black text-2xl sm:text-4xl leading-[1.05] text-ev-text uppercase tracking-tighter line-clamp-2 mb-2">
+                      <h2 className="font-sans font-black text-2xl sm:text-4xl leading-[1.05] text-white uppercase tracking-tighter line-clamp-2 mb-2 drop-shadow-lg">
                         {event.title}
                       </h2>
 
                       {event.description && (
-                        <div className="mt-2 border-t border-dashed border-ev-text/15 pt-3">
-                          <p className="text-ev-text/75 font-medium text-xs sm:text-sm leading-relaxed line-clamp-2">
+                        <div className="mt-2 border-t border-white/10 pt-3">
+                          <p className="text-white/80 font-medium text-xs sm:text-sm leading-relaxed line-clamp-2 drop-shadow-sm">
                             {event.description}
                           </p>
                         </div>
@@ -291,10 +293,10 @@ export default function Events() {
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="mt-3 text-center"
+                    className="absolute inset-0 p-4 flex flex-col justify-end z-10"
                   >
-                    <h3 className="font-sans font-black text-sm uppercase text-ev-text leading-tight line-clamp-1">{event.title}</h3>
-                    <p className="text-ev-accent font-bold text-[11px] mt-0.5">{day} {month}</p>
+                    <h3 className="font-sans font-black text-sm uppercase text-white leading-tight line-clamp-1 drop-shadow-md">{event.title}</h3>
+                    <p className="text-ev-accent font-bold text-[11px] mt-0.5 drop-shadow-md">{day} {month}</p>
                   </motion.div>
                 )}
               </div>
@@ -307,10 +309,10 @@ export default function Events() {
                     animate={{ opacity: 1, scale: 1, rotate: -18 }}
                     exit={{ opacity: 0, scale: 0.5 }}
                     transition={{ delay: 0.2, duration: 0.4, type: 'spring' }}
-                    className="ev-ink-stamp w-20 h-20 sm:w-28 sm:h-28 -top-4 -left-3 sm:-top-6 sm:-left-8 origin-center bg-ev-accent border-white text-white z-40"
+                    className="ev-ink-stamp absolute flex flex-col items-center justify-center w-20 h-20 sm:w-28 sm:h-28 -top-4 -left-3 sm:-top-6 sm:-left-8 origin-center bg-black border-2 sm:border-[3px] border-[#EFE7DB] text-[#EFE7DB] rounded-full z-40 shadow-xl"
                   >
                     <span className="text-[7px] sm:text-[9px] tracking-widest">JOIN US</span>
-                    <span className="text-[26px] sm:text-[34px] font-bold font-sans leading-none my-0.5">R</span>
+                    <span className="text-[26px] sm:text-[34px] font-bold font-sans leading-none my-0.5 text-[#D4AF37] drop-shadow-md">R</span>
                     <span className="text-[7px] sm:text-[9px] tracking-widest">SPORTS</span>
                   </motion.div>
                 )}
@@ -344,7 +346,7 @@ export default function Events() {
                 style={{
                   width: i === activeIndex ? '28px' : '8px',
                   height: '8px',
-                  background: i === activeIndex ? '#c91010' : 'rgba(26,26,26,0.25)',
+                  background: i === activeIndex ? '#C50337' : 'rgba(26,26,26,0.25)',
                 }}
               />
             ))}
@@ -353,7 +355,7 @@ export default function Events() {
           <button
             onClick={handleNext}
             aria-label="Next Event"
-            className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-charcoal text-white flex items-center justify-center shadow-lg hover:bg-[#c91010] transition-all active:scale-95"
+            className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-charcoal text-white flex items-center justify-center shadow-lg hover:bg-[#C50337] transition-all active:scale-95"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

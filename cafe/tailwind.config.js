@@ -76,7 +76,7 @@ export default {
           bg: '#FAFAF7',
           card: '#FDFBF7',
           text: '#1a1a1a',
-          accent: '#c91010',
+          accent: '#C50337',
         },
       },
       backdropBlur: {

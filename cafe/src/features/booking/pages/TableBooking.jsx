@@ -30,7 +30,11 @@ const getNext30Days = () => {
   for (let i = 0; i < 30; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    const iso = d.toISOString().split('T')[0];
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const date = String(d.getDate()).padStart(2, '0');
+    const iso = `${year}-${month}-${date}`;
+    
     days.push({
       iso,
       day: DAYS[d.getDay()],
@@ -444,7 +448,10 @@ export default function TableBooking() {
 
               {/* 2. Date */}
               <BookingStep number={2} label="Select Date">
-                <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4 -mx-1 px-1 md:grid md:grid-cols-7">
+                <div 
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4 -mx-1 px-1 md:grid md:grid-cols-7 touch-pan-x"
+                  data-lenis-prevent="true"
+                >
                   {dates.map((d) => {
                     const isSelected = booking.date === d.iso;
                     return (
@@ -465,7 +472,10 @@ export default function TableBooking() {
 
               {/* 3. Time */}
               <BookingStep number={3} label="Select Time">
-                <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-3 pb-2 md:grid md:grid-cols-4 lg:grid-cols-5">
+                <div 
+                  className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-3 pb-2 md:grid md:grid-cols-4 lg:grid-cols-5 touch-pan-x"
+                  data-lenis-prevent="true"
+                >
                   {times.map((t) => {
                     const isPast = isTimeSlotPast(booking.date, t);
                     const isSelected = booking.time === t;

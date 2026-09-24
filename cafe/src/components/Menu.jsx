@@ -355,7 +355,7 @@ export default function Menu() {
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 min-h-[500px]">
         {/* ════ LEFT: text metadata ════ */}
-        <div ref={textColRef} className="showcase-text-col lg:w-[38%] flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 reveal-up" style={{ '--delay': '0.08s' }}>
+        <div ref={textColRef} className="showcase-text-col lg:w-[38%] flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 reveal-up order-3 lg:order-1" style={{ '--delay': '0.08s' }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={`text-${activeIndex}`}
@@ -430,14 +430,13 @@ export default function Menu() {
           />
 
           {/* CTA */}
-          <div ref={ctaRef}>
+          <div ref={ctaRef} className="mt-4 lg:mt-0">
             <a
               href="https://order.menulite.in/r-sports-cafe?table=2"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-3 border border-lightText px-10 py-4 rounded-full font-sans text-[13px] font-medium tracking-[0.12em] text-lightText hover:text-darkBg transition-colors duration-500 overflow-hidden uppercase"
+              className="group relative inline-flex items-center gap-3 bg-lightText text-darkBg px-10 py-4 rounded-full font-sans text-[13px] font-medium tracking-[0.12em] uppercase overflow-hidden transition-all duration-300 hover:bg-lightText/90 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
             >
-              <span className="absolute inset-0 w-full h-full bg-lightText scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-0" />
               <span className="relative z-10">Explore Menu</span>
               <svg className="relative z-10 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path d="M5 12h14M13 6l6 6-6 6" />
@@ -449,7 +448,7 @@ export default function Menu() {
         {/* ════ CENTER: Media Carousel (Video Loop / Photo) ════ */}
         <div
           ref={mediaColRef}
-          className="showcase-image-col lg:w-[38%] flex justify-center items-center relative reveal-up"
+          className="showcase-image-col lg:w-[38%] flex justify-center items-center relative reveal-up order-1 lg:order-2"
           style={{ perspective: '1200px', '--delay': '0.16s' }}
         >
           <div className="absolute -inset-3 pointer-events-none hidden lg:block">
@@ -504,7 +503,7 @@ export default function Menu() {
         </div>
 
         {/* ════ RIGHT: meta + pagination ════ */}
-        <div ref={ctaColRef} className="showcase-cta-col lg:w-[24%] flex flex-col items-center lg:items-end justify-center gap-10 reveal-up" style={{ '--delay': '0.24s' }}>
+        <div ref={ctaColRef} className="showcase-cta-col lg:w-[24%] flex flex-col items-center lg:items-end justify-center gap-6 lg:gap-10 reveal-up order-2 lg:order-3 -mt-6 lg:mt-0" style={{ '--delay': '0.24s' }}>
           
           {/* pagination dots */}
           <div className="flex lg:flex-col gap-3">
@@ -539,21 +538,11 @@ export default function Menu() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.35 }}
-              className="font-sans font-bold text-[48px] lg:text-[64px] leading-none text-lightText/[0.06] lg:text-right w-full select-none"
+              className="hidden lg:block font-sans font-bold text-[48px] lg:text-[64px] leading-none text-lightText/[0.06] lg:text-right w-full select-none"
             >
               {String(activeIndex + 1).padStart(2, '0')}
             </motion.div>
           </AnimatePresence>
-
-          {/* explore menu mobile CTA */}
-          <a
-            href="https://order.menulite.in/r-sports-cafe?table=2"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="lg:hidden group relative inline-flex items-center gap-3 bg-lightText text-darkBg px-10 py-4 rounded-full font-sans text-[13px] font-medium tracking-[0.12em] uppercase overflow-hidden transition-all duration-300 hover:bg-lightText/90 active:scale-95"
-          >
-            <span>Explore Menu</span>
-          </a>
         </div>
       </div>
     </section>

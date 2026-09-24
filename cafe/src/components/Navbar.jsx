@@ -61,6 +61,16 @@ export default function Navbar() {
 
   return (
     <>
+      <style>{`
+        @keyframes shimmer-slide {
+          0% { transform: translateX(-150%) skewX(-20deg); }
+          50% { transform: translateX(150%) skewX(-20deg); }
+          100% { transform: translateX(150%) skewX(-20deg); }
+        }
+        .animate-shimmer-slide {
+          animation: shimmer-slide 4s ease-in-out infinite;
+        }
+      `}</style>
       <nav className={`fixed top-0 left-0 w-full z-50 px-3 xs:px-4 sm:px-6 md:px-12 pointer-events-none flex justify-between items-center font-sans transition-all duration-500 ${scrolled ? 'py-3 sm:py-4' : 'py-4 sm:py-6 md:py-8'}`}
         style={{
           background: 'transparent',
@@ -146,13 +156,13 @@ export default function Navbar() {
             <Link
               to="/book-table"
               onClick={() => trackEvent('Table Booking Click', 'Navigation', 'Navbar Reserve Table')}
-              className="pointer-events-auto flex font-sans font-bold text-[10px] xs:text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.08em] px-3 xs:px-4 sm:px-5 md:px-6 py-1.5 xs:py-2 md:py-2.5 rounded-full border border-[#F5E6A3]/30 transition-all duration-300 hover:scale-105 uppercase"
-              style={{ background: '#faf372f1', color: '#1B1B1B' }}
-              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(0.95)'; }}
-              onMouseLeave={e => { e.currentTarget.style.filter = 'brightness(1)'; }}
+              className={`pointer-events-auto relative overflow-hidden group flex items-center justify-center font-sans font-bold text-[10px] xs:text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.08em] px-4 xs:px-5 sm:px-6 md:px-7 py-2 xs:py-2.5 md:py-2.5 rounded-full transition-all duration-300 hover:scale-105 uppercase shadow-[0_8px_32px_rgba(0,0,0,0.12)] border backdrop-blur-xl ${isDark ? 'bg-white/15 border-white/30 text-white hover:bg-white/25' : 'bg-white/40 border-white/60 text-[#111] hover:bg-white/60'}`}
             >
-              <span className="sm:hidden">{location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE'}</span>
-              <span className="hidden sm:inline">{location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE TABLE'}</span>
+              {/* Shimmer sweeping element */}
+              <span className="absolute inset-0 w-[80%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-[150%] animate-shimmer-slide z-0 pointer-events-none" />
+              
+              <span className="relative z-10 sm:hidden">{location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE'}</span>
+              <span className="relative z-10 hidden sm:inline">{location.pathname === '/turf' ? 'BOOK TURF' : 'RESERVE TABLE'}</span>
             </Link>
           </MagneticButton>
 
