@@ -31,7 +31,7 @@ async function sendBookingConfirmation({ email, name, bookingNumber, date, time,
     return;
   }
 
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const clientUrl = process.env.CUSTOMER_SITE_URL || 'http://localhost:5173';
   const cancelUrl = `${clientUrl}/cancel-booking?ref=${bookingNumber}&token=${cancellationToken}`;
 
   try {

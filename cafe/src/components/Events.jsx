@@ -219,13 +219,12 @@ export default function Events() {
                 zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10
               }}
               animate={getVariant(pos, isMobile)}
-              transition={{ type: 'spring', damping: 20, stiffness: 120 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
             >
-              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden transition-all duration-500 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden transition-all duration-300 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
                 
                 {/* Full Background Image */}
-                <motion.div 
-                  layout
+                <div 
                   className="absolute inset-0 w-full h-full bg-gray-900"
                 >
                   {event.photo ? (
@@ -235,7 +234,7 @@ export default function Events() {
                       <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>
                     </div>
                   )}
-                </motion.div>
+                </div>
 
                 {/* Gradient Overlay for Text Readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 pointer-events-none" />

@@ -7,6 +7,14 @@ const SERVER_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:500
 import { trackEvent } from '../../../utils/analytics';
 import { TableSketch } from '../../../components/decor/SketchMotifs';
 import { useRevealOnScroll } from '../../../hooks/useRevealOnScroll';
+import img1 from '../../../assets/tables/center.jpg';
+import img2 from '../../../assets/tables/indoor.jpg';
+import img3 from '../../../assets/tables/outdoor.jpg';
+import img4 from '../../../assets/tables/reservetable.jpeg';
+import img5 from '../../../assets/tables/sideangle.jpg';
+import img6 from '../../../assets/tables/tabkes.jpg';
+
+const sliderImages = [img1, img2, img3, img4, img5, img6];
 
 /* ─── Premium Theme Colors ───────────────────────────────────────────── */
 const theme = {
@@ -208,7 +216,7 @@ function BookingStep({ number, label, children, isLast = false }) {
           />
         )}
       </div>
-      <div className="flex-1 pb-8">
+      <div className="flex-1 min-w-0 pb-8">
         <label className="block font-sans text-[11px] font-medium tracking-[0.15em] uppercase mb-4" style={{ color: theme.textPri }}>
           {label}
         </label>
@@ -220,6 +228,15 @@ function BookingStep({ number, label, children, isLast = false }) {
 
 /* ─── Main Component ──────────────────────────────────────────────────────── */
 export default function TableBooking() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   const [booking, setBooking] = useState({
     guests: 2,
     date: getNext30Days()[0].iso,
@@ -407,14 +424,32 @@ export default function TableBooking() {
         <TableSketch className="absolute top-20 right-10 w-64 h-64 pointer-events-none select-none hidden lg:block z-0" style={{ color: `${theme.textPri}08` }} />
         
         {/* HERO SECTION */}
-        <div ref={heroRef} className="max-w-2xl mb-12 reveal-up" style={{ '--delay': '0s' }}>
-          <span className="block font-sans text-[11px] tracking-[0.2em] uppercase mb-4" style={{ color: theme.accent }}>Reservations</span>
-          <h1 className="font-sans font-normal text-[42px] md:text-[56px] leading-tight mb-4 tracking-tight" style={{ color: theme.textPri }}>
-            Reserve Your Table
-          </h1>
-          <p className="font-sans text-[16px] leading-relaxed" style={{ color: theme.textSec }}>
-            Choose your preferred date, time and table for a relaxed dining experience.
-          </p>
+        <div ref={heroRef} className="flex flex-col items-center text-center mb-16 reveal-up" style={{ '--delay': '0s' }}>
+          <div className="max-w-2xl mb-10">
+            <span className="block font-sans text-[11px] tracking-[0.2em] uppercase mb-4" style={{ color: theme.accent }}>Reservations</span>
+            <h1 className="font-sans font-normal text-[42px] md:text-[56px] leading-tight mb-4 tracking-tight" style={{ color: theme.textPri }}>
+              Reserve Your Table
+            </h1>
+            <p className="font-sans text-[16px] leading-relaxed mx-auto" style={{ color: theme.textSec }}>
+              Choose your preferred date, time and table for a relaxed dining experience.
+            </p>
+          </div>
+          
+          {/* Large Centered Image Slider */}
+          <div className="relative w-full max-w-5xl h-64 sm:h-80 md:h-[450px] rounded-[32px] overflow-hidden shadow-lg border bg-black/5" style={{ borderColor: theme.border }}>
+            <AnimatePresence initial={false}>
+              <motion.img 
+                key={currentSlide}
+                src={sliderImages[currentSlide]}
+                alt={`Table View ${currentSlide + 1}`}
+                className="absolute inset-0 w-full h-full object-cover"
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2, ease: 'easeInOut' }}
+              />
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* 2-COLUMN LAYOUT */}
