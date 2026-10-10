@@ -18,7 +18,7 @@ export default function Navbar() {
   let isDark = DARK_SECTIONS.includes(activeSection);
   
   if (!isHomePage) {
-    if (location.pathname === '/menu') isDark = true;
+    if (location.pathname === '/menu') isDark = false;
     if (location.pathname === '/turf') isDark = false;
     if (location.pathname === '/events') isDark = true;
     if (location.pathname === '/gallery') isDark = true;

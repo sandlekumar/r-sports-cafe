@@ -431,17 +431,15 @@ export default function Menu() {
 
           {/* CTA */}
           <div ref={ctaRef} className="mt-4 lg:mt-0">
-            <a
-              href="https://order.menulite.in/r-sports-cafe?table=2"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/menu"
               className="group relative inline-flex items-center gap-3 bg-lightText text-darkBg px-10 py-4 rounded-full font-sans text-[13px] font-medium tracking-[0.12em] uppercase overflow-hidden transition-all duration-300 hover:bg-lightText/90 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
             >
               <span className="relative z-10">Explore Menu</span>
               <svg className="relative z-10 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
 

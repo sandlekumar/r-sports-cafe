@@ -14,360 +14,352 @@ import latteImg from '../assets/menu_latte.webp';
 import shrimpImg from '../assets/menu_shrimp.webp';
 import teaImg from '../assets/menu_tea.webp';
 
-// Video loops
-import coffeeVideo from '../assets/hero-video-opt.mp4';
-import pizzaVideo from '../assets/turf.mp4';
-import burgerVideo from '../assets/hero-video-opt.mp4';
-import drinkVideo from '../assets/turf.mp4';
-
 // ─── Menu Categories ────────────────────────────────────────────────────────
 const MENU_CATEGORIES = [
-  { id: 'all', label: 'All Collection', icon: '✨' },
-  { id: 'beverages', label: 'Specialty Beverages', icon: '☕' },
-  { id: 'pizzas', label: 'Woodfired Pizzas', icon: '🍕' },
-  { id: 'burgers', label: 'Gourmet Burgers', icon: '🍔' },
-  { id: 'mains', label: 'Royal Mains & Biryani', icon: '🍛' },
-  { id: 'bowls', label: 'Energy Bowls', icon: '🥗' },
-  { id: 'desserts', label: 'Artisanal Desserts', icon: '🍰' },
+  { id: 'salads', label: 'Salads & Proteins' },
+  { id: 'eggs', label: 'Egg Station' },
+  { id: 'fries', label: 'Friestation' },
+  { id: 'breads', label: 'Between The Breads' },
+  { id: 'global', label: 'Local Meets Global' },
+  { id: 'pastas', label: 'Pastas & Works' },
+  { id: 'sharing', label: 'Sharing Plates' },
+  { id: 'catch', label: 'From Fresh Catch' },
+  { id: 'pizzas', label: 'Pizzas' },
+  { id: 'housebrew', label: 'House Brew' },
+  { id: 'cloudcoffee', label: 'Cloud Coffees & Matcha' },
+  { id: 'frappes', label: 'Coffee Packed Frappes' },
+  { id: 'shakes', label: 'Signature Shaken Sips' },
+  { id: 'mocktails', label: 'Mocktails' },
 ];
 
-// ─── Motion Loops Showcase Brief Data ──────────────────────────────────────
-const MOTION_LOOPS = [
-  {
-    id: 'loop-coffee',
-    name: 'Signature Davara Filter Coffee',
-    category: 'Beverage Motion',
-    hero: '3/4 top-down angle, brass davara-tumbler on dark wood',
-    motionBeat: 'Subtle steam curl drifting right catching 45° warm rim-light',
-    loopMethod: 'Steam isolated on alpha layer, 3-sec seamless density crossfade',
-    video: coffeeVideo,
-    image: coffeeImg,
-    fps: '24-30 fps',
-    aspect: '1080 × 1080',
-    accent: '#D4AF37',
-  },
-  {
-    id: 'loop-pizza',
-    name: 'Napoli Truffle Sourdough Pizza',
-    category: 'Loaded Motion',
-    hero: 'Woodfired sourdough crust, fresh burrata & truffle shavings',
-    motionBeat: 'Ultra slow cheese-pull & glossy extra virgin olive oil drizzle',
-    loopMethod: 'Glaze-drip loop back-blended to key composition frame',
-    video: pizzaVideo,
-    image: pizzaImg,
-    fps: '24 fps',
-    aspect: '1080 × 1080',
-    accent: '#EC4899',
-  },
-  {
-    id: 'loop-burger',
-    name: 'The Royal Wagyu Smash',
-    category: 'Gourmet Motion',
-    hero: 'Double wagyu patties, melted aged cheddar on brioche',
-    motionBeat: 'Micro-sizzle steam & glossy juice light-catch',
-    loopMethod: 'Controlled camera lock with seamless flame-light shimmer',
-    video: burgerVideo,
-    image: burgerImg,
-    fps: '30 fps',
-    aspect: '1080 × 1080',
-    accent: '#C8956C',
-  },
-  {
-    id: 'loop-elixir',
-    name: 'Wild Berry Mint Elixir',
-    category: 'Cold Motion',
-    hero: 'Highball crystal glass, wild berries & edible flowers',
-    motionBeat: 'Condensation bead drift & subtle rose water drop ripple',
-    loopMethod: 'Ripple dissipation matched to initial surface stillness',
-    video: drinkVideo,
-    image: juiceImg,
-    fps: '30 fps',
-    aspect: '1080 × 1080',
-    accent: '#B07D9E',
-  },
-];
+const FULL_MENU = {
+  salads: [
+    { name: 'Healthy Greens', price: 200, veg: true, desc: 'All veggies — lettuce, carrots, cherry tomatoes, wild cucumbers, peppers and watermelon with spicy mango dressing.' },
+    { name: 'Supplement: Grilled Chicken Supremes', price: 100, veg: false },
+    { name: 'Supplement: Grilled Marinated Paneer', price: 110, veg: true },
+    { name: 'Supplement: Chilli Garlic Prawn Skewer', price: 150, veg: false },
+    { name: 'Supplement: Smashed Avocado (Seasonal)', price: 120, veg: true },
+    { name: 'Black Channa and Grilled Chicken', price: 390, veg: false, desc: 'Layers of mushy treated black channa, boiled channa with a grilled chicken supreme, lettuce and cherry tomatoes.' },
+  ],
+  eggs: [
+    { name: 'Scrambled Eggs', price: 210, veg: true, desc: 'Three eggs with butter, cream and white pepper powder softly scrambled, served on toasted bread.' },
+    { name: 'Railway Station Omelette with Butter Toast', price: 220, veg: true, desc: 'Done on a flat top with onions, tomatoes, chillies and masala powders, buttered grilled milk bread and ketchup.' },
+    { name: 'Ask For Omelette — Cheese and Onion', price: 200, veg: true },
+    { name: 'Ask For Omelette — Mushroom and Peppers', price: 220, veg: true },
+    { name: 'Ask For Omelette — Spanish Flat', price: 235, veg: true },
+    { name: 'Sakshuka', price: 280, veg: true, desc: 'Lebanese style spicy tomato sauce with egg baked on top — feta and basil.' },
+    { name: 'Classic Benedict', price: 280, veg: true, desc: 'Poached eggs doused with buttery hollandaise served on top of bread.' },
+  ],
+  fries: [
+    { name: 'Classic Salted Fries (Reg/Large)', price: '120 / 180', veg: true, desc: 'With sea salt and garlic powder.' },
+    { name: 'Peri Peri Fries (Reg/Large)', price: '125 / 190', veg: true, desc: 'Dusted with South African peri peri dust.' },
+    { name: 'Cheesy Fries', price: 220, veg: true, desc: 'Just simple fries loaded with cheese.' },
+    { name: 'Commando Fries — Spicy Baked Beans', price: 230, veg: true, desc: 'Fully loaded fries with cheese sauce, chipotle, jalapeños and tomato salsa.' },
+    { name: 'Commando Fries — Seasoned Chilli Chicken Mince', price: 250, veg: false },
+    { name: 'Potato Wedges', price: 210, veg: true, desc: 'Served fried or with peri peri.' },
+    { name: 'Loaded Nachos — Spicy Baked Beans', price: 230, veg: true, desc: 'Fully loaded nachos with cheese sauce, chipotle, jalapeños and tomato salsa.' },
+    { name: 'Loaded Nachos — Seasoned Chilli Chicken Mince', price: 250, veg: false },
+  ],
+  breads: [
+    { name: 'The Simple Veg White', price: 220, veg: true, desc: 'Thinly sliced cucumber, tomatoes with a layer of cheddar, salt and pepper in white sandwich bread. (Ask for grilled)' },
+    { name: 'Duo of Saucy Paneer Slider', price: 265, veg: true, desc: 'Grilled paneer patties between slider buns with chipotle and tomato sauce.' },
+    { name: 'Classic Chicken N Cheese', price: 250, veg: false, desc: 'Slow cooked hand-pulled chicken with lettuce, tomatoes, dijon mustard and mayonnaise, cheese and pickles. (Ask for grilled)' },
+    { name: 'Club NY', price: 270, veg: false, desc: 'Classic layered club sandwich with veggies, fried egg, chicken and cheese.' },
+    { name: 'Cajun Paneer Wraps', price: 245, veg: true, desc: 'Cajun grilled paneer tossed with peppers, onions, garlic and cheese — wrapped.' },
+    { name: 'Peri Peri Chicken Wraps', price: 340, veg: false, desc: 'Seasoned chicken tossed in bold peri-peri flavours, wrapped with crisp veggies and cheese.' },
+    { name: 'Paneer Quesadilla', price: 340, veg: true, desc: 'Mexican cheese and paneer loaded tortillas grilled, served with Mexican chilli salsa.' },
+    { name: 'Chicken Quesadilla', price: 395, veg: false, desc: 'Chicken fajita mix stuffed tortillas with cheese, grilled.' },
+    { name: 'Duo of Chicken Sliders', price: 290, veg: false, desc: 'Minced chicken mini burgers with pickle, cheese and salsa.' },
+    { name: 'The Over Load Burger', price: 350, veg: false, desc: 'A heavy chicken burger, 2 layers of chicken, cheese, fried egg and veggies.' },
+    { name: 'Crispy Chicken Burger', price: 325, veg: false, desc: 'Buttermilk soaked chicken strips crispy fried, stacked with cheese, mayonnaise and veggies.' },
+    { name: 'Veg Burger', price: 300, veg: true, desc: 'A golden-fried, spiced mixed-vegetable and potato patty with lettuce, tomato and tomato sauce.' },
+  ],
+  global: [
+    { name: 'Thai Green Curry Rice Bowl — Veg', price: 400, veg: true, desc: 'Fresh seasonal vegetables in an authentic Thai green curry, over fragrant steamed rice.' },
+    { name: 'Thai Green Curry Rice Bowl — Chicken', price: 450, veg: false, desc: 'Tender chicken in a creamy coconut Thai green curry, over fragrant steamed rice.' },
+    { name: 'Thai Green Curry Rice Bowl — Prawns', price: 480, veg: false, desc: 'Fresh prawns in a creamy coconut Thai green curry. Choose basmati or sticky rice.' },
+    { name: 'Pepper Corn Chicken Rice Bowl', price: 450, veg: false, desc: 'Fragrant steamed basmati rice topped with signature pepper chicken and sautéed vegetables.' },
+    { name: 'Signature Thoothukudi Parotta & Pepper Chicken', price: 400, veg: false, desc: 'Flaky Thoothukudi coin parottas with signature pepper chicken — a local classic, elevated. Ask for fried/thawed (vatta).' },
+  ],
+  pastas: [
+    { name: 'Spicy Arabiatta', price: 340, veg: true, desc: 'Bold, spicy tomato sauce with garlic and herbs, served with garlic bread.' },
+    { name: 'Two Cheese Sauce', price: 370, veg: true, desc: 'Rich, creamy blend of two cheeses, served with garlic bread.' },
+    { name: 'Mushroom and Cheese Sauce', price: 385, veg: true, desc: 'Sautéed mushrooms in a creamy cheese sauce, served with garlic bread.' },
+    { name: 'The Pink Sauce', price: 390, veg: true, desc: 'A luscious blend of tomato and cream, served with garlic bread.' },
+    { name: 'Chicken Bolognaise', price: 400, veg: false, desc: 'Rich tomato sauce with savoury minced chicken, herbs and spices, served with garlic bread.' },
+    { name: 'Creamy Chicken', price: 400, veg: false, desc: 'Tender chicken in a smooth, creamy herb sauce, served with garlic bread.' },
+  ],
+  sharing: [
+    { name: 'Chili Paneer Skewers', price: 300, veg: true, desc: 'Paprika marinated skewers with peppers and onions, side salad.' },
+    { name: 'Mac Cubes', price: 310, veg: true, desc: 'Three cheesy macaroni cubes, crumb fried, over pomodoro sauce.' },
+    { name: 'Texan Chilli BBQ Wings', price: 395, veg: false, desc: 'Floured chicken wings tossed in Texan BBQ and chilli sauce.' },
+    { name: 'Gochujang Chicken Skewers', price: 370, veg: false, desc: 'Korean style tightly packed chicken skewers, chilli marinade, grilled.' },
+    { name: 'Roast Spiced Chicken', price: 475, veg: false, desc: 'Leg quarters of spiced roasted chicken on creamy pea risotto.' },
+    { name: 'Crispy Tender Chicken', price: 370, veg: false, desc: 'Served with peri peri dust and chipotle sauce.' },
+    { name: "Chicken Platter", price: 495, veg: false, desc: "Combination of chef's choice of chicken dishes for two to share." },
+    { name: 'American Corn Cheese Balls', price: 250, veg: true, desc: 'A classic cheese ball with jalapeños and chopped olives.' },
+    { name: 'Greek Lamb Keftedes', price: 450, veg: false, desc: 'Lamb mince poached and crumb fried, soft inside.' },
+  ],
+  catch: [
+    { name: 'Fish N Chips', price: 375, veg: false, desc: 'Mini fish fingers with chilli fries, peri peri dusted, served with tartare sauce.' },
+    { name: 'Squid Fritters', price: 450, veg: false, desc: 'Marinated squid roundels, seasoned flour, crispy fried, peri peri dusted.' },
+    { name: 'Prawn Tempura 65 Style', price: 480, veg: false, desc: 'Crispy prawn tempura, bold south Indian 65-style seasoning, fresh salad.' },
+    { name: 'Seafood Basket', price: 590, veg: false, desc: "Fresh catch of the day with calamari and bay prawns, served with salad." },
+  ],
+  pizzas: [
+    { name: 'Margarita', price: 355, veg: true, desc: 'Simple pomodoro sauce, cheese, fresh basil.' },
+    { name: 'Veggie Blast', price: 375, veg: true, desc: 'Grilled veggies with olives and jalapeños.' },
+    { name: 'Mushroom and Corn', price: 375, veg: true, desc: 'Sautéed wild mushrooms, corn kernels, pickle and chillies. Red or white sauce.' },
+    { name: 'Classic Pepperoni Supreme', price: 410, veg: false, desc: 'Hand-stretched crust, premium pepperoni, mozzarella, Italian tomato sauce.' },
+    { name: 'Spicy Peri Peri Chicken', price: 395, veg: false, desc: 'Grilled spiced peri peri chicken, peppers and green chillies.' },
+    { name: 'Shrimpizza', price: 420, veg: false, desc: 'Grilled mustard marinated prawns with vegetables, peri peri kick, melted cheese.' },
+    { name: 'Meat Feast', price: 435, veg: false, desc: 'Grilled chicken, chicken bolognaise and grilled chicken sausages with peppers.' },
+  ],
+  housebrew: [
+    { name: 'Solo', price: 165, veg: true, desc: 'A single shot of espresso.' },
+    { name: 'Doppio', price: 185, veg: true, desc: 'Double shot espresso for a deeper, stronger kick.' },
+    { name: 'Latte', price: 225, veg: true, desc: 'A smooth espresso, made creamy with milk.' },
+    { name: 'Cappuccino', price: 225, veg: true, desc: 'Bold espresso topped with airy foam.' },
+    { name: 'Flat White', price: 255, veg: true, desc: 'Strong like filter coffee but smooth and silky.' },
+    { name: 'Caramel Macchiato', price: 255, veg: true, desc: 'Swirl of espresso, milk and buttery caramel.' },
+    { name: 'Americano', price: 235, veg: true, desc: 'Bold espresso softened with water, balanced and full-bodied.' },
+    { name: 'Mocha', price: 255, veg: true, desc: 'Rich chocolate and bold coffee. Served hot or cold.' },
+    { name: 'White Mocha', price: 255, veg: true, desc: 'Rich white chocolate and bold coffee. Served hot or cold.' },
+    { name: 'Hot Chocolate', price: 225, veg: true, desc: 'A rich, velvety cocoa drink.' },
+    { name: 'Affogato', price: 235, veg: true, desc: 'A scoop of ice cream topped with a shot of hot espresso.' },
+  ],
+  cloudcoffee: [
+    { name: 'Red Velvety', price: 290, veg: true, desc: 'Smooth coffee, red velvet sweetness and velvety cloud foam.' },
+    { name: 'Thoothukudi Macron', price: 310, veg: true, desc: 'Indulgent coffee inspired by macarons, topped with a velvety cloud.' },
+    { name: 'Matcha — Cloud Tender Coconut', price: 300, veg: true, desc: 'Earthy matcha with tender coconut, soft creamy cloud.' },
+    { name: 'Matcha — Strawberry', price: 300, veg: true, desc: 'Vibrant matcha layered with strawberry and a creamy finish.' },
+    { name: 'Matcha — Classic', price: 280, veg: true, desc: 'Smooth, earthy matcha, naturally mellow, creamy finish.' },
+  ],
+  frappes: [
+    { name: 'Hazelnut Cafe Frappe', price: 270, veg: true },
+    { name: 'Javachip Coffee Frappe', price: 270, veg: true, desc: 'Rich coffee with chocolate chips.' },
+    { name: 'Tiramisu Mocha Frappe', price: 300, veg: true, desc: 'Espresso, chocolate and cocoa, dessert-style frappe.' },
+    { name: 'Salted Caramel Frappe', price: 280, veg: true },
+    { name: 'Iced Spanish Latte', price: 275, veg: true },
+    { name: 'Sun Kissed Coconut Frappe', price: 330, veg: true },
+    { name: 'Dubai Chocolate Pistachio Frappe', price: 325, veg: true },
+    { name: 'Lava Chocolate Mocha', price: 325, veg: true },
+    { name: 'Iced Shaken White Mocha', price: 300, veg: true },
+    { name: 'Blue Spanish Latte', price: 280, veg: true, desc: 'Vibrant blue twist on a classic Spanish latte.' },
+    { name: 'Classic Cold Coffee Expresso', price: 265, veg: true },
+  ],
+  shakes: [
+    { name: 'Ferrero Rocher Milk Shake', price: 290, veg: true, desc: 'Vanilla bean ice cream, crushed Ferrero Rocher, silky chocolate sauce.' },
+    { name: 'Madagascar Vanilla Shake', price: 290, veg: true, desc: 'Premium ice cream infused with Madagascar vanilla beans.' },
+    { name: 'Strawberry Creamy Shake', price: 290, veg: true },
+    { name: 'Avocado Milkshake (Seasonal)', price: 370, veg: true },
+    { name: 'Banana Protein Milkshake', price: 280, veg: true },
+  ],
+  mocktails: [
+    { name: 'Mango Spiced Mocktail', price: 185, veg: true, desc: 'Mango, lemon and ginger with a subtle chilli kick.' },
+    { name: 'Watermelon Mocktail', price: 185, veg: true, desc: 'Juicy watermelon, zesty lime, honey, fresh mint.' },
+    { name: 'Tender Coconut Cooler', price: 190, veg: true, desc: 'Fresh tender coconut water, coconut pulp, pomegranate, cooling mint.' },
+    { name: 'Passion Tea Lemonade', price: 190, veg: true, desc: 'Passion tea and lemonade with a sweet strawberry twist.' },
+    { name: 'Blue Logan Mocktail', price: 190, veg: true, desc: 'Zesty citrus and vibrant blue flavours, served chilled.' },
+    { name: 'Strawberry Mocktail', price: 190, veg: true, desc: 'Sweet, juicy strawberry with a citrus twist and honey.' },
+  ],
+};
 
-// ─── Full Menu Items Dataset ────────────────────────────────────────────────
-const FULL_MENU = [
-  {
-    id: 'm1',
-    category: 'burgers',
-    name: 'The Royal Wagyu Smash',
-    tagline: 'Chef\'s Masterpiece Smash Burger',
-    desc: 'Double-smashed premium wagyu beef patties, aged white cheddar, slow-caramelized onion jam, truffle aioli on toasted artisanal brioche.',
-    price: '₹349',
-    isVeg: false,
-    isChefSpecial: true,
-    isTrending: true,
-    calories: '680 kcal',
-    prepTime: '12-15 mins',
-    pairing: 'Pairs best with Cold Brew or IPA',
-    image: burgerImg,
-    video: burgerVideo,
-    accent: '#C8956C',
-    ingredients: ['Wagyu Beef', 'Aged Cheddar', 'Truffle Aioli', 'Caramelized Onion', 'Brioche'],
-  },
-  {
-    id: 'm2',
-    category: 'pizzas',
-    name: 'Napoli Truffle Sourdough',
-    tagline: '72-Hour Fermented Woodfired Crust',
-    desc: 'San Marzano plum tomatoes, fresh imported burrata, wild forest mushrooms, black truffle shavings, finished with cold-pressed olive oil.',
-    price: '₹449',
-    isVeg: true,
-    isChefSpecial: true,
-    isTrending: true,
-    calories: '720 kcal',
-    prepTime: '15-18 mins',
-    pairing: 'Pairs best with Sparkling Rose or Iced Peach Tea',
-    image: pizzaImg,
-    video: pizzaVideo,
-    accent: '#D4A574',
-    ingredients: ['Sourdough', 'Burrata', 'Black Truffle', 'San Marzano Tomatoes', 'Basil'],
-  },
-  {
-    id: 'm3',
-    category: 'beverages',
-    name: 'Davara Specialty Filter Coffee',
-    tagline: 'Traditional South Indian Velvet Roast',
-    desc: 'Hand-picked Chikmagalur Arabica & Robusta beans, brewed in brass filter, aerated with foamed whole milk in classic brass Davara.',
-    price: '₹149',
-    isVeg: true,
-    isChefSpecial: true,
-    isTrending: true,
-    calories: '110 kcal',
-    prepTime: '5-7 mins',
-    pairing: 'Pairs best with Banana Jaggery Loaf',
-    image: coffeeImg,
-    video: coffeeVideo,
-    accent: '#D4AF37',
-    ingredients: ['Chikmagalur Beans', 'Jaggery/Sugar', 'Whole Milk', 'Chicory 15%'],
-  },
-  {
-    id: 'm4',
-    category: 'beverages',
-    name: 'Wild Berry Mint Elixir',
-    tagline: 'Cold-Pressed Antioxidant Elixir',
-    desc: 'Cold-pressed wild raspberries, pomegranate, crushed fresh spearmint, subtle organic rose water, served over clear sphere ice.',
-    price: '₹199',
-    isVeg: true,
-    isChefSpecial: false,
-    isTrending: true,
-    calories: '90 kcal',
-    prepTime: '5 mins',
-    pairing: 'Pairs best with Avocado Tartine',
-    image: juiceImg,
-    video: drinkVideo,
-    accent: '#B07D9E',
-    ingredients: ['Wild Raspberry', 'Pomegranate', 'Spearmint', 'Rose Water', 'Clear Ice'],
-  },
-  {
-    id: 'm5',
-    category: 'mains',
-    name: 'Velvet Royal Mutton Biryani',
-    tagline: 'Slow Dum-Cooked Nizam Recipe',
-    desc: 'Tender tenderloin mutton marinated in green cardamom, saffron, curd & herbs, layered with long-grain Basmati rice, dum-cooked in clay pot.',
-    price: '₹489',
-    isVeg: false,
-    isChefSpecial: true,
-    isTrending: true,
-    calories: '850 kcal',
-    prepTime: '20 mins',
-    pairing: 'Served with Mirchi ka Salan & Burani Raita',
-    image: chickenImg,
-    accent: '#E65100',
-    ingredients: ['Prime Mutton', 'Kashmiri Saffron', 'Aged Basmati', 'Green Cardamom', 'Desi Ghee'],
-  },
-  {
-    id: 'm6',
-    category: 'beverages',
-    name: 'Spanish Cortado Velvet',
-    tagline: 'Double Shot Espresso & Textured Milk',
-    desc: 'Equal parts single-origin espresso and silky steamed milk served in cut glass. Rich notes of roasted hazelnut & dark cocoa.',
-    price: '₹229',
-    isVeg: true,
-    isChefSpecial: false,
-    isTrending: false,
-    calories: '85 kcal',
-    prepTime: '5 mins',
-    pairing: 'Pairs with Butter Croissant',
-    image: latteImg,
-    accent: '#8D6E63',
-    ingredients: ['Espresso Double Shot', 'Textured Whole Milk'],
-  },
-  {
-    id: 'm7',
-    category: 'mains',
-    name: 'Tandoori Smoked Tiger Prawns',
-    tagline: 'Charcoal-Grilled Coastal Spices',
-    desc: 'Jumbo ocean tiger prawns marinated in yellow chili, mustard oil, lemon juice & crushed carom seeds, seared over bhabha charcoal.',
-    price: '₹529',
-    isVeg: false,
-    isChefSpecial: true,
-    isTrending: false,
-    calories: '420 kcal',
-    prepTime: '15 mins',
-    pairing: 'Pairs with Mint Coriander Chutney',
-    image: shrimpImg,
-    accent: '#FF7043',
-    ingredients: ['Tiger Prawns', 'Carom Seeds', 'Mustard Oil', 'Yellow Chili', 'Lemon'],
-  },
-  {
-    id: 'm8',
-    category: 'mains',
-    name: 'Pan-Seared Sea Bass',
-    tagline: 'Crispy Skin with Lemon Butter Glaze',
-    desc: 'Fresh wild sea bass fillet seared in noisette butter, garlic thyme reduction, served over roasted saffron baby potatoes & asparagus.',
-    price: '₹569',
-    isVeg: false,
-    isChefSpecial: false,
-    isTrending: false,
-    calories: '490 kcal',
-    prepTime: '18 mins',
-    pairing: 'Pairs with Sparkling Citrus Tonic',
-    image: fishImg,
-    accent: '#26A69A',
-    ingredients: ['Sea Bass', 'Noisette Butter', 'Thyme', 'Asparagus', 'Baby Potatoes'],
-  },
-  {
-    id: 'm9',
-    category: 'bowls',
-    name: 'Matchday Champion Bowl',
-    tagline: 'High Protein Athlete Recovery Bowl',
-    desc: 'Grilled herb chicken breast, tri-color quinoa, charred sweet corn, avocado slices, roasted chickpeas, tahini lime drizzle.',
-    price: '₹379',
-    isVeg: false,
-    isChefSpecial: false,
-    isTrending: false,
-    calories: '540 kcal',
-    prepTime: '12 mins',
-    pairing: 'Pairs with Fresh Coconut Water',
-    image: chickenImg,
-    accent: '#66BB6A',
-    ingredients: ['Herb Chicken', 'Quinoa', 'Avocado', 'Chickpeas', 'Tahini Lime'],
-  },
-  {
-    id: 'm10',
-    category: 'beverages',
-    name: 'Artisanal Himalayan Green Tea',
-    tagline: 'Single Estate Whole Leaf Steep',
-    desc: 'Whole leaf green tea hand-picked from Kangra valley estates, infused with lemongrass & dried marigold petals.',
-    price: '₹169',
-    isVeg: true,
-    isChefSpecial: false,
-    isTrending: false,
-    calories: '5 kcal',
-    prepTime: '4 mins',
-    pairing: 'Pairs with Almond Biscotti',
-    image: teaImg,
-    accent: '#9CCC65',
-    ingredients: ['Whole Green Tea Leaves', 'Lemongrass', 'Marigold Petals'],
-  },
-];
+const menuTheme = {
+  pageBg: '#FDFBF6',       // warm cream, matches the PDF's content pages
+  blobTan: '#EFE6D6',      // soft organic blob accent
+  blobSage: '#DCE3D4',     // soft organic blob accent
+  headerGreen: '#3F5A3A',  // category header color
+  gold: '#B58A55',         // underline + price (already used site-wide)
+  vegGreen: '#2E7D32',
+  nonVegRed: '#C62828',
+  textPri: '#1B1B1B',
+  textSec: '#6F675E',
+};
+
+function LeafFlourish({ className }) {
+  return (
+    <svg viewBox="0 0 70 70" className={className} fill="none" strokeLinecap="round">
+      <g stroke="#B58A55" strokeWidth="1.3">
+        <path d="M5 60 Q30 40 60 10" />
+        <ellipse cx="20" cy="48" rx="7" ry="3" transform="rotate(-40 20 48)" fill="#B58A55" opacity="0.3" />
+        <ellipse cx="35" cy="33" rx="7" ry="3" transform="rotate(-40 35 33)" fill="#6B8E5A" opacity="0.4" />
+        <ellipse cx="50" cy="18" rx="7" ry="3" transform="rotate(-40 50 18)" fill="#B58A55" opacity="0.3" />
+      </g>
+    </svg>
+  );
+}
+
+function ImageMarquee() {
+  const images = [burgerImg, pizzaImg, coffeeImg, juiceImg, chickenImg, fishImg, latteImg, shrimpImg, teaImg];
+  
+  return (
+    <section className="relative pt-24 pb-8 md:pt-32 md:pb-12 border-b overflow-hidden z-10" style={{ borderColor: `${menuTheme.textSec}20`, background: `${menuTheme.pageBg}E6` }}>
+      <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
+        <div className="flex gap-4 md:gap-6 px-2 md:px-3">
+          {images.map((src, i) => (
+            <div key={`set1-${i}`} className="w-[180px] h-[240px] md:w-[260px] md:h-[340px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md">
+              <img src={src} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" loading="lazy" />
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-4 md:gap-6 px-2 md:px-3">
+          {images.map((src, i) => (
+            <div key={`set2-${i}`} className="w-[180px] h-[240px] md:w-[260px] md:h-[340px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md">
+              <img src={src} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 35s linear infinite;
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function MenuShowcase() {
+  const [active, setActive] = useState('salads');
+
+  const getCategoryImage = (categoryId, itemName) => {
+    const name = itemName.toLowerCase();
+    if (name.includes('shrimp') || name.includes('prawn')) return shrimpImg;
+    if (name.includes('fish') || name.includes('squid')) return fishImg;
+    if (name.includes('chicken')) return chickenImg;
+    if (name.includes('tea')) return teaImg;
+    if (name.includes('burger') || name.includes('slider')) return burgerImg;
+    if (name.includes('pizza')) return pizzaImg;
+    if (name.includes('latte') || name.includes('matcha')) return latteImg;
+    if (name.includes('coffee') || name.includes('americano') || name.includes('espresso') || name.includes('macchiato')) return coffeeImg;
+    
+    // Category fallbacks
+    switch (categoryId) {
+      case 'pizzas': return pizzaImg;
+      case 'breads': return burgerImg;
+      case 'housebrew':
+      case 'frappes': return coffeeImg;
+      case 'cloudcoffee': return latteImg;
+      case 'shakes':
+      case 'mocktails': return juiceImg;
+      case 'catch': return fishImg;
+      case 'sharing':
+      case 'global': return chickenImg;
+      default: return burgerImg; // Fallback for salads, eggs, fries, pastas, etc.
+    }
+  };
+
+  return (
+    <div className="relative z-10 text-darkText">
+      {/* Sticky category nav */}
+      <nav 
+        className="sticky top-0 z-20 backdrop-blur-md border-b overflow-x-auto no-scrollbar"
+        style={{ borderColor: `${menuTheme.textSec}20`, background: `${menuTheme.pageBg}E6` }}
+      >
+        <div className="flex gap-2 px-6 py-4 min-w-max">
+          {MENU_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActive(cat.id)}
+              className="px-5 py-2 rounded-full text-[12px] tracking-[0.08em] uppercase whitespace-nowrap transition-colors"
+              style={{
+                background: active === cat.id ? menuTheme.headerGreen : 'transparent',
+                color: active === cat.id ? '#FDFBF6' : menuTheme.textPri,
+                border: `1px solid ${menuTheme.textSec}30`,
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Item list for the active category */}
+      <section className="relative max-w-4xl mx-auto px-6 py-16">
+        <LeafFlourish className="absolute top-12 right-4 w-16 opacity-80" />
+        <h2
+          className="text-[30px] md:text-[40px] font-normal mb-1 relative z-10"
+          style={{ color: menuTheme.headerGreen, fontFamily: "Georgia, 'Times New Roman', serif" }}
+        >
+          {MENU_CATEGORIES.find((c) => c.id === active)?.label}
+        </h2>
+        <div className="w-14 h-0.5 mb-8" style={{ background: menuTheme.gold }} />
+
+        <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+          {FULL_MENU[active]?.map((item, i) => {
+            const photoSrc = item.photo || getCategoryImage(active, item.name);
+            return (
+              <div key={i} className="flex gap-4 items-start pb-6 border-b" style={{ borderColor: `${menuTheme.textSec}20` }}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span
+                      className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                      style={{ background: item.veg ? menuTheme.vegGreen : menuTheme.nonVegRed }}
+                    />
+                    <strong className="text-[15px]" style={{ color: menuTheme.textPri }}>{item.name}</strong>
+                  </div>
+                  {item.desc && <p className="text-[13px] mb-1.5 leading-relaxed" style={{ color: menuTheme.textSec }}>{item.desc}</p>}
+                  <span className="text-[14px] font-semibold" style={{ color: menuTheme.gold }}>₹{item.price}</span>
+                </div>
+                {photoSrc && (
+                  <img src={photoSrc} alt={item.name} loading="lazy" className="w-18 h-18 rounded-xl object-cover flex-shrink-0" style={{ width: 72, height: 72 }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 // ─── Main Menu Page ───────────────────────────────────────────────────────────
 export default function MenuPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [dietaryFilter, setDietaryFilter] = useState('all'); // 'all', 'veg', 'nonveg', 'special'
-  const [activeModalItem, setActiveModalItem] = useState(null);
-  const [mutedStates, setMutedStates] = useState({
-    'loop-coffee': true,
-    'loop-pizza': true,
-    'loop-burger': true,
-    'loop-elixir': true,
-  });
-
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const toggleMute = (id) => {
-    setMutedStates((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  // Filtered dishes calculation
-  const filteredDishes = FULL_MENU.filter((item) => {
-    // Category match
-    const matchCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    // Search query match
-    const matchSearch =
-      searchQuery.trim() === '' ||
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.ingredients.some((i) => i.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    // Dietary match
-    let matchDiet = true;
-    if (dietaryFilter === 'veg') matchDiet = item.isVeg === true;
-    if (dietaryFilter === 'nonveg') matchDiet = item.isVeg === false;
-    if (dietaryFilter === 'special') matchDiet = item.isChefSpecial === true;
-
-    return matchCategory && matchSearch && matchDiet;
-  });
-
   return (
-    <div className="min-h-screen bg-sandalBg text-darkText font-sans antialiased selection:bg-[#B58A55] selection:text-white">
+    <div className="min-h-screen font-sans antialiased selection:bg-[#B58A55] selection:text-white relative" style={{ color: menuTheme.textPri }}>
+      
+      {/* Background blobs */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" style={{ background: menuTheme.pageBg }}>
+        <svg className="absolute -top-10 -left-16 w-48 opacity-60" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="70" fill={menuTheme.blobTan} />
+        </svg>
+        <svg className="absolute -bottom-20 -right-16 w-56 opacity-60" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="80" fill={menuTheme.blobSage} />
+        </svg>
+        <svg className="absolute top-[35%] right-[-10%] w-64 opacity-50" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="100" fill={menuTheme.blobTan} />
+        </svg>
+        <svg className="absolute top-[65%] left-[-5%] w-40 opacity-40" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="60" fill={menuTheme.blobSage} />
+        </svg>
+      </div>
+
       <SEO
         title="Cafe Menu in Thoothukudi | R Sports & Cafe"
         description="Explore food, coffee, refreshing drinks, pizzas and desserts at R Sports & Cafe in Thoothukudi."
         canonical="/menu"
       />
       
-      {/* ─── Hero Banner Section ─────────────────────────────────────────── */}
-      <section className="relative pt-28 pb-16 md:pt-32 md:pb-24 px-6 lg:px-16 border-b border-borderGlass overflow-hidden bg-cream">
-        
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B58A55]/10 border border-[#B58A55]/30 text-[#B58A55] text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-            <span>✨</span> ARTISANAL GOURMET SELECTION
-          </div>
+      {/* ─── Hero Image Marquee ─────────────────────────────────────────── */}
+      <ImageMarquee />
 
-          <h1 className="font-sans font-bold text-[clamp(36px,7vw,76px)] uppercase leading-[0.95] tracking-tight mb-6 text-darkText">
-            Culinary Mastery <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B58A55] to-[#8C6239]">
-              In Every Detail.
-            </span>
-          </h1>
-
-          <p className="font-inter text-[15px] md:text-[18px] text-darkText/70 max-w-2xl mx-auto leading-[1.8] mb-10">
-            From 72-hour fermented woodfired pizzas to authentic Davara filter coffee and slow-dum biryanis. Explore our complete food & beverage collection.
-          </p>
-
-          {/* External Menu Link */}
-          <div className="mt-8 flex justify-center">
-            <a 
-              href="http://localhost:3001/r-sports-cafe" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-sans font-semibold text-[13px] uppercase tracking-[0.2em] transition-all duration-300"
-              style={{
-                background: '#1B1B1B',
-                color: '#FFF8E7',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(181,138,85,0.3)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = '#B58A55';
-                e.currentTarget.style.color = '#FFF';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(181,138,85,0.3), 0 0 0 1px rgba(181,138,85,0.6)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = '#1B1B1B';
-                e.currentTarget.style.color = '#FFF8E7';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(181,138,85,0.3)';
-              }}
-            >
-              Explore Full Menu →
-            </a>
-          </div>
-        </div>
-      </section>
+      <MenuShowcase />
 
       {/* ─── Footer ────────────────────────────────────────────────────── */}
-      <footer className="border-t border-borderGlass py-12 px-6 lg:px-16 text-center text-darkText/50 font-inter text-[12px] bg-sandalBg">
+      <footer className="border-t py-12 px-6 lg:px-16 text-center font-inter text-[12px] relative z-10" style={{ borderColor: `${menuTheme.textSec}20`, background: menuTheme.pageBg, color: menuTheme.textSec }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p>© 2026 R Sports & Cafe. Gourmet Dining & Sports Club Experience.</p>
-          <div className="flex items-center gap-6 font-bold uppercase tracking-[0.12em] text-[11px] text-darkText/70">
+          <div className="flex items-center gap-6 font-bold uppercase tracking-[0.12em] text-[11px]" style={{ color: menuTheme.textPri }}>
             <Link to="/" className="hover:text-[#B58A55] transition-colors">Home</Link>
             <Link to="/turf" className="hover:text-[#B58A55] transition-colors">Turf</Link>
             <Link to="/booking" className="hover:text-[#B58A55] transition-colors">Reserve Table</Link>
