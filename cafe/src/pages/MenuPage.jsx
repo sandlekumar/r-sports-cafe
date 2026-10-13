@@ -191,33 +191,99 @@ function LeafFlourish({ className }) {
 }
 
 function ImageMarquee() {
+  const marqueeRef = useRef(null);
   const images = [burgerImg, pizzaImg, coffeeImg, juiceImg, chickenImg, fishImg, latteImg, shrimpImg, teaImg];
-  
+
+  const handleScroll = (dir) => {
+    if (marqueeRef.current) {
+      const scrollStep = window.innerWidth < 768 ? 220 : 340;
+      marqueeRef.current.scrollBy({ left: dir * scrollStep, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section className="relative pt-24 pb-8 md:pt-32 md:pb-12 border-b overflow-hidden z-10" style={{ borderColor: `${menuTheme.textSec}20`, background: `${menuTheme.pageBg}E6` }}>
-      <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
-        <div className="flex gap-4 md:gap-6 px-2 md:px-3">
-          {images.map((src, i) => (
-            <div key={`set1-${i}`} className="w-[180px] h-[240px] md:w-[260px] md:h-[340px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md">
-              <img src={src} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" loading="lazy" />
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-4 md:gap-6 px-2 md:px-3">
-          {images.map((src, i) => (
-            <div key={`set2-${i}`} className="w-[180px] h-[240px] md:w-[260px] md:h-[340px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md">
-              <img src={src} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" loading="lazy" />
+    <section
+      className="relative pt-24 pb-8 md:pt-32 md:pb-12 border-b overflow-hidden z-10 group/gallery"
+      style={{ borderColor: `${menuTheme.textSec}20`, background: `${menuTheme.pageBg}E6` }}
+    >
+      {/* ─── Animated Side Navigation Arrows ("<" and ">") ─── */}
+      <button
+        onClick={() => handleScroll(-1)}
+        aria-label="Previous dishes in gallery"
+        className="menu-gallery-nav-left absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-13 md:h-13 rounded-full flex items-center justify-center bg-white/90 hover:bg-[#3F5A3A] text-[#B58A55] hover:text-white border border-[#B58A55]/40 hover:border-[#3F5A3A] shadow-[0_8px_25px_rgba(0,0,0,0.12),0_0_15px_rgba(181,138,85,0.2)] hover:shadow-[0_10px_30px_rgba(63,90,58,0.35)] transition-all duration-300 backdrop-blur-md active:scale-95 group/arrow cursor-pointer"
+      >
+        <span className="sr-only">Previous Dishes</span>
+        <svg
+          className="w-5 h-5 md:w-6 md:h-6 transform transition-transform duration-300 group-hover/arrow:-translate-x-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span className="absolute inset-0 rounded-full border border-[#B58A55]/40 animate-ping pointer-events-none opacity-20" />
+      </button>
+
+      <button
+        onClick={() => handleScroll(1)}
+        aria-label="Next dishes in gallery"
+        className="menu-gallery-nav-right absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-13 md:h-13 rounded-full flex items-center justify-center bg-white/90 hover:bg-[#3F5A3A] text-[#B58A55] hover:text-white border border-[#B58A55]/40 hover:border-[#3F5A3A] shadow-[0_8px_25px_rgba(0,0,0,0.12),0_0_15px_rgba(181,138,85,0.2)] hover:shadow-[0_10px_30px_rgba(63,90,58,0.35)] transition-all duration-300 backdrop-blur-md active:scale-95 group/arrow cursor-pointer"
+      >
+        <span className="sr-only">Next Dishes</span>
+        <svg
+          className="w-5 h-5 md:w-6 md:h-6 transform transition-transform duration-300 group-hover/arrow:translate-x-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        <span className="absolute inset-0 rounded-full border border-[#B58A55]/40 animate-ping pointer-events-none opacity-20" />
+      </button>
+
+      {/* Interactive Scrollable Food Gallery */}
+      <div
+        ref={marqueeRef}
+        className="flex overflow-x-auto no-scrollbar scroll-smooth px-4 md:px-14"
+      >
+        <div className="flex gap-4 md:gap-6 min-w-max py-2">
+          {[...images, ...images].map((src, i) => (
+            <div
+              key={`item-${i}`}
+              className="w-[180px] h-[240px] md:w-[260px] md:h-[340px] flex-shrink-0 rounded-2xl overflow-hidden shadow-md group relative"
+            >
+              <img
+                src={src}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                alt="Culinary highlight"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             </div>
           ))}
         </div>
       </div>
+
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        @keyframes float-m-left {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50% { transform: translateY(-50%) translateX(-5px); }
         }
-        .animate-marquee {
-          animation: marquee 35s linear infinite;
+        @keyframes float-m-right {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50% { transform: translateY(-50%) translateX(5px); }
+        }
+        .menu-gallery-nav-left {
+          animation: float-m-left 2.6s ease-in-out infinite;
+        }
+        .menu-gallery-nav-right {
+          animation: float-m-right 2.6s ease-in-out infinite;
+        }
+        .menu-gallery-nav-left:hover,
+        .menu-gallery-nav-right:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </section>
@@ -226,6 +292,7 @@ function ImageMarquee() {
 
 function MenuShowcase() {
   const [active, setActive] = useState('salads');
+  const navScrollRef = useRef(null);
 
   const getCategoryImage = (categoryId, itemName) => {
     const name = itemName.toLowerCase();
@@ -256,26 +323,51 @@ function MenuShowcase() {
 
   return (
     <div className="relative z-10 text-darkText">
-      {/* Sticky category nav */}
+      {/* Sticky category nav with scroll buttons */}
       <nav 
-        className="sticky top-0 z-20 backdrop-blur-md border-b overflow-x-auto no-scrollbar"
+        className="sticky top-0 z-20 backdrop-blur-md border-b"
         style={{ borderColor: `${menuTheme.textSec}20`, background: `${menuTheme.pageBg}E6` }}
       >
-        <div className="flex gap-2 px-6 py-4 min-w-max">
-          {MENU_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActive(cat.id)}
-              className="px-5 py-2 rounded-full text-[12px] tracking-[0.08em] uppercase whitespace-nowrap transition-colors"
-              style={{
-                background: active === cat.id ? menuTheme.headerGreen : 'transparent',
-                color: active === cat.id ? '#FDFBF6' : menuTheme.textPri,
-                border: `1px solid ${menuTheme.textSec}30`,
-              }}
-            >
-              {cat.label}
-            </button>
-          ))}
+        <div className="max-w-7xl mx-auto flex items-center px-2 md:px-6">
+          <button
+            onClick={() => navScrollRef.current?.scrollBy({ left: -220, behavior: 'smooth' })}
+            aria-label="Scroll categories left"
+            className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[#3F5A3A] hover:bg-black/5 transition-colors cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div 
+            ref={navScrollRef}
+            className="flex gap-2 py-4 overflow-x-auto no-scrollbar scroll-smooth flex-1 px-1"
+          >
+            {MENU_CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActive(cat.id)}
+                className="px-5 py-2 rounded-full text-[12px] tracking-[0.08em] uppercase whitespace-nowrap transition-colors cursor-pointer"
+                style={{
+                  background: active === cat.id ? menuTheme.headerGreen : 'transparent',
+                  color: active === cat.id ? '#FDFBF6' : menuTheme.textPri,
+                  border: `1px solid ${menuTheme.textSec}30`,
+                }}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => navScrollRef.current?.scrollBy({ left: 220, behavior: 'smooth' })}
+            aria-label="Scroll categories right"
+            className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[#3F5A3A] hover:bg-black/5 transition-colors cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       </nav>
 

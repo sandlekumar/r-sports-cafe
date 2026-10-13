@@ -70,21 +70,57 @@ exports.getOverviewStats = async (req, res, next) => {
   try {
     const todayISO = new Date().toISOString().split('T')[0];
 
-    const totalBookings = await TableBooking.countDocuments();
-    const todayBookings = await TableBooking.countDocuments({ bookingDate: todayISO });
-    const pendingBookings = await TableBooking.countDocuments({ status: 'PENDING' });
-    const confirmedBookings = await TableBooking.countDocuments({ status: 'CONFIRMED' });
+    const totalTable = await TableBooking.countDocuments();
+    const totalGeneral = await Booking.countDocuments();
+    const totalBookings = totalTable + totalGeneral;
+
+    const todayBookings = (await TableBooking.countDocuments({ bookingDate: todayISO })) +
+      (await Booking.countDocuments({ date: todayISO }));
+
+    const pendingBookings = (await TableBooking.countDocuments({ status: 'PENDING' })) +
+      (await Booking.countDocuments({ status: { $in: ['PENDING', null] } }));
+
+    const confirmedBookings = (await TableBooking.countDocuments({ status: 'CONFIRMED' })) +
+      (await Booking.countDocuments({ status: 'CONFIRMED' }));
 
     const totalTables = await RestaurantTable.countDocuments();
     const activeAreas = await RestaurantArea.countDocuments({ active: true });
     const totalCustomers = await Customer.countDocuments();
 
-    const recentBookings = await TableBooking.find()
+    const recentTable = await TableBooking.find()
       .populate('customer', 'name phone email')
       .populate('area', 'name')
       .populate('table', 'name capacity')
       .sort({ createdAt: -1 })
-      .limit(6);
+      .limit(8)
+      .lean();
+
+    const recentGeneral = await Booking.find()
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean();
+
+    const formattedGeneral = recentGeneral.map(g => ({
+      _id: g._id,
+      bookingNumber: g.bookingNumber || ('ENQ-' + g._id.toString().slice(-4).toUpperCase()),
+      customer: { name: g.name, email: g.email, phone: g.phone || '-' },
+      name: g.name,
+      phone: g.phone || '-',
+      email: g.email || '-',
+      bookingDate: g.date || (g.createdAt ? new Date(g.createdAt).toISOString().split('T')[0] : 'TBD'),
+      startTime: g.time || '-',
+      guestCount: g.guests || g.guestCount || 2,
+      area: { name: g.service ? g.service.replace(/-/g, ' ').toUpperCase() : 'General Enquiry' },
+      table: { name: g.service ? g.service.replace(/-/g, ' ') : 'General' },
+      occasion: g.service ? g.service.replace(/-/g, ' ') : 'General Enquiry',
+      status: g.status || 'PENDING',
+      createdAt: g.createdAt,
+      isGeneral: true,
+    }));
+
+    const recentBookings = [...recentTable, ...formattedGeneral]
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 8);
 
     res.json({
       success: true,
@@ -99,6 +135,59 @@ exports.getOverviewStats = async (req, res, next) => {
         recentBookings,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * GET /api/admin/notifications
+ * Returns latest notifications & unread count
+ */
+exports.getNotifications = async (req, res, next) => {
+  try {
+    const Notification = require('../models/Notification');
+    const notifications = await Notification.find()
+      .populate('customer', 'name phone email')
+      .sort({ createdAt: -1 })
+      .limit(30);
+    const unreadCount = await Notification.countDocuments({ read: false });
+    res.json({
+      success: true,
+      data: {
+        notifications,
+        unreadCount,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * PATCH /api/admin/notifications/:id/read
+ * Mark a notification as read
+ */
+exports.markNotificationRead = async (req, res, next) => {
+  try {
+    const Notification = require('../models/Notification');
+    const { id } = req.params;
+    await Notification.findByIdAndUpdate(id, { read: true, readAt: new Date() });
+    res.json({ success: true, message: 'Notification marked as read' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * PATCH /api/admin/notifications/read-all
+ * Mark all notifications as read
+ */
+exports.markAllNotificationsRead = async (req, res, next) => {
+  try {
+    const Notification = require('../models/Notification');
+    await Notification.updateMany({ read: false }, { read: true, readAt: new Date() });
+    res.json({ success: true, message: 'All notifications marked as read' });
   } catch (err) {
     next(err);
   }
@@ -122,7 +211,7 @@ exports.getAllLegacyBookings = async (req, res, next) => {
 
 /**
  * GET /api/admin/table-bookings
- * Returns table bookings list with search & status filter
+ * Returns all bookings (both Table Reservations & General/Turf Enquiries)
  */
 exports.getAllTableBookings = async (req, res, next) => {
   try {
@@ -133,19 +222,46 @@ exports.getAllTableBookings = async (req, res, next) => {
       query.status = status;
     }
 
-    let bookings = await TableBooking.find(query)
+    let tableBookings = await TableBooking.find(query)
       .populate('customer', 'name phone email totalBookings')
       .populate('area', 'name')
       .populate('table', 'name capacity')
-      .sort({ createdAt: -1 });
+      .lean();
+
+    // Also load general bookings (homepage VIP, turf, dining, party enquiries)
+    let generalBookings = await Booking.find().lean();
+    const formattedGeneral = generalBookings
+      .filter((g) => !status || status === 'ALL' || (g.status || 'PENDING') === status)
+      .map((g) => ({
+        _id: g._id,
+        bookingNumber: g.bookingNumber || ('ENQ-' + g._id.toString().slice(-4).toUpperCase()),
+        customer: { name: g.name, email: g.email, phone: g.phone || '-' },
+        name: g.name,
+        phone: g.phone || '-',
+        email: g.email || '-',
+        bookingDate: g.date || (g.createdAt ? new Date(g.createdAt).toISOString().split('T')[0] : 'TBD'),
+        startTime: g.time || '-',
+        guestCount: g.guests || g.guestCount || 2,
+        area: { name: g.service ? g.service.replace(/-/g, ' ').toUpperCase() : 'General Enquiry' },
+        table: { name: g.service ? g.service.replace(/-/g, ' ') : 'Enquiry' },
+        occasion: g.service ? g.service.replace(/-/g, ' ') : 'General Enquiry',
+        status: g.status || 'PENDING',
+        createdAt: g.createdAt,
+        isGeneral: true,
+      }));
+
+    let bookings = [...tableBookings, ...formattedGeneral].sort((a, b) => {
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
 
     if (search) {
       const q = search.toLowerCase();
       bookings = bookings.filter((b) => {
-        const name = b.customer?.name?.toLowerCase() || '';
-        const phone = b.customer?.phone?.toLowerCase() || '';
-        const ref = b.bookingNumber?.toLowerCase() || '';
-        return name.includes(q) || phone.includes(q) || ref.includes(q);
+        const name = (b.customer?.name || b.name || '').toLowerCase();
+        const phone = (b.customer?.phone || b.phone || '').toLowerCase();
+        const ref = (b.bookingNumber || '').toLowerCase();
+        const service = (b.occasion || '').toLowerCase();
+        return name.includes(q) || phone.includes(q) || ref.includes(q) || service.includes(q);
       });
     }
 
@@ -159,8 +275,8 @@ exports.getAllTableBookings = async (req, res, next) => {
 };
 
 /**
- * PATCH /api/admin/bookings/:id/status
- * Updates status of a booking
+ * PATCH /api/admin/table-bookings/:id/status
+ * Updates status of a booking (handles both TableBooking and Booking models)
  */
 exports.updateBookingStatus = async (req, res, next) => {
   try {
@@ -175,8 +291,16 @@ exports.updateBookingStatus = async (req, res, next) => {
       });
     }
 
-    const booking = await TableBooking.findById(id);
+    let booking = await TableBooking.findById(id);
     if (!booking) {
+      // Check general/enquiry booking
+      const genBooking = await Booking.findById(id);
+      if (genBooking) {
+        genBooking.status = status;
+        await genBooking.save();
+        return res.json({ success: true, data: genBooking });
+      }
+
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Booking not found' },

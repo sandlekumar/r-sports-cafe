@@ -152,7 +152,7 @@ const TAB_TITLES = {
 };
 
 /* ─── Sidebar component ───────────────────────────────────────────────────── */
-function Sidebar({ activeTab, setActiveTab, onClose, handleLogout }) {
+function Sidebar({ activeTab, setActiveTab, onClose, handleLogout, unreadCount = 0 }) {
   return (
     <div className="glass-sidebar w-64 h-full flex flex-col justify-between p-5">
       <div>
@@ -186,7 +186,12 @@ function Sidebar({ activeTab, setActiveTab, onClose, handleLogout }) {
               className={`nav-pill ${activeTab === item.id ? 'nav-pill-active' : ''}`}
             >
               <span className="flex-shrink-0">{item.icon}</span>
-              <span>{item.label}</span>
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.id === 'bookings' && unreadCount > 0 && (
+                <span className="ml-auto px-1.5 py-0.5 text-[10px] font-bold bg-amber-500 text-white rounded-full">
+                  {unreadCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -282,6 +287,12 @@ export default function AdminDashboard() {
   const [bookingFormError, setBookingFormError] = useState('');
   const [bookingSaving, setBookingSaving] = useState(false);
 
+  /* ── Booking Notifications State ─────────────────────────────────────── */
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+  const notificationRef = useRef(null);
+
   /* ── All original logic preserved exactly ─────────────────────────────── */
   const getHeaders = () => {
     const token = localStorage.getItem('adminToken') || 'admin-session-token';
@@ -292,8 +303,8 @@ export default function AdminDashboard() {
     return { 'Authorization': `Bearer ${token}` };
   };
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
+  const fetchDashboardData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [statsRes, bookingsRes, tablesRes, customersRes] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/overview`, { headers: getHeaders() }),
@@ -306,7 +317,52 @@ export default function AdminDashboard() {
       if (tablesRes.ok)   { const d = await tablesRes.json();   if (d.success) setTablesData(d.data); }
       if (customersRes.ok){ const d = await customersRes.json();if (d.success) setCustomers(d.data); }
     } catch (err) { console.error('Failed to load dashboard data:', err); }
-    finally { setLoading(false); }
+    finally { if (!silent) setLoading(false); }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/notifications`, { headers: getHeaders() });
+      if (res.ok) {
+        const d = await res.json();
+        if (d.success) {
+          setNotifications(d.data?.notifications || []);
+          setUnreadCount(d.data?.unreadCount || 0);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/notifications/read-all`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        setUnreadCount(0);
+      }
+    } catch (err) {
+      console.error('Failed to mark all notifications read:', err);
+    }
+  };
+
+  const handleMarkNotificationRead = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+    } catch (err) {
+      console.error('Failed to mark notification read:', err);
+    }
   };
 
   const fetchEvents = async () => {
@@ -339,7 +395,27 @@ export default function AdminDashboard() {
     finally { setReelsLoading(false); }
   };
 
-  useEffect(() => { fetchDashboardData(); }, [activeTab, statusFilter]);
+  // Live polling: refresh data and notifications every 15 seconds
+  useEffect(() => {
+    fetchDashboardData();
+    fetchNotifications();
+    const timer = setInterval(() => {
+      fetchDashboardData(true);
+      fetchNotifications();
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [activeTab, statusFilter, search]);
+
+  // Click outside to close notification dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+        setShowNotificationDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   useEffect(() => { if (activeTab === 'events') fetchEvents(); }, [activeTab]);
   useEffect(() => { if (activeTab === 'menu') fetchMenuItems(); }, [activeTab]);
   useEffect(() => { if (activeTab === 'reels') fetchReels(); }, [activeTab]);
@@ -743,12 +819,12 @@ export default function AdminDashboard() {
       {/* ─── SIDEBAR — desktop: static column, mobile: drawer ──────────── */}
       {/* Desktop */}
       <div className="hidden md:flex flex-col w-64 min-h-screen" style={{ position: 'sticky', top: 0, height: '100vh' }}>
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onClose={() => {}} handleLogout={handleLogout} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onClose={() => {}} handleLogout={handleLogout} unreadCount={unreadCount} />
       </div>
 
       {/* Mobile drawer */}
       <div className={`admin-sidebar-drawer md:hidden ${sidebarOpen ? 'open' : ''}`}>
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onClose={() => setSidebarOpen(false)} handleLogout={handleLogout} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onClose={() => setSidebarOpen(false)} handleLogout={handleLogout} unreadCount={unreadCount} />
       </div>
 
       {/* ─── MAIN CONTENT ───────────────────────────────────────────────── */}
@@ -782,10 +858,126 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Right: date + refresh */}
+          {/* Right: notifications + refresh + date */}
           <div className="flex items-center gap-2">
+            {/* Notification Bell */}
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
+                className="relative glass-btn-secondary text-[12px] p-2 flex items-center justify-center transition-all"
+                style={{ borderRadius: 10, minWidth: 38, minHeight: 38 }}
+                title="Booking Notifications"
+                aria-label="Booking Notifications"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={unreadCount > 0 ? "text-amber-500 animate-pulse" : "text-[#4b5563]"}>
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-gradient-to-r from-red-500 to-rose-600 rounded-full shadow-sm animate-bounce">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Panel */}
+              <AnimatePresence>
+                {showNotificationDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl overflow-hidden z-50"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.96)',
+                      backdropFilter: 'blur(20px)',
+                      border: '1px solid rgba(229, 231, 235, 0.8)',
+                      boxShadow: '0 20px 40px -15px rgba(0,0,0,0.18)',
+                    }}
+                  >
+                    <div className="p-4 flex items-center justify-between border-b border-gray-100 bg-white/70">
+                      <div className="flex items-center gap-2">
+                        <span className="font-sans font-bold text-[14px] text-[#1a1a2e]">Booking Notifications</span>
+                        {unreadCount > 0 && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+                            {unreadCount} new
+                          </span>
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllNotificationsRead}
+                          className="text-[11px] font-medium text-violet-600 hover:text-violet-800 transition-colors"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-[13px] text-[#9ca3af]">
+                          <svg className="w-8 h-8 mx-auto mb-2 opacity-40 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                          </svg>
+                          No booking notifications yet
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n._id}
+                            onClick={() => {
+                              if (!n.read) handleMarkNotificationRead(n._id);
+                              setActiveTab('bookings');
+                              setShowNotificationDropdown(false);
+                            }}
+                            className={`p-3.5 transition-colors cursor-pointer hover:bg-violet-50/50 flex items-start gap-3 ${
+                              !n.read ? 'bg-amber-50/50' : 'bg-white'
+                            }`}
+                          >
+                            <div className="mt-1 flex-shrink-0">
+                              <span className={`inline-block w-2.5 h-2.5 rounded-full ${!n.read ? 'bg-amber-500 ring-2 ring-amber-200' : 'bg-gray-300'}`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-[12px] leading-snug ${!n.read ? 'font-semibold text-[#1a1a2e]' : 'text-[#4b5563]'}`}>
+                                {n.message}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] text-[#9ca3af]">
+                                  {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {new Date(n.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                </span>
+                                {n.customer?.phone && (
+                                  <span className="text-[10px] font-mono text-violet-600 bg-violet-50 px-1 rounded">
+                                    {n.customer.phone}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="p-2.5 text-center bg-gray-50/90 border-t border-gray-100">
+                      <button
+                        onClick={() => {
+                          setActiveTab('bookings');
+                          setShowNotificationDropdown(false);
+                        }}
+                        className="text-[11px] font-semibold text-violet-600 hover:text-violet-800"
+                      >
+                        View all bookings in Reservations tab →
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button
-              onClick={fetchDashboardData}
+              onClick={() => { fetchDashboardData(); fetchNotifications(); }}
               className="glass-btn-secondary text-[12px] py-2 px-3.5"
               style={{ borderRadius: 10 }}
             >
@@ -855,12 +1047,12 @@ export default function AdminDashboard() {
                             <tr key={b._id}>
                               <td className="font-mono font-bold text-[13px] text-violet-600 pr-4">{b.bookingNumber}</td>
                               <td className="pr-4">
-                                <div className="font-medium text-[13px] text-[#1a1a2e]">{b.customer?.name}</div>
-                                <div className="text-[11px] text-[#9ca3af]">{b.customer?.phone}</div>
+                                <div className="font-medium text-[13px] text-[#1a1a2e]">{b.customer?.name || b.name}</div>
+                                <div className="text-[11px] text-[#9ca3af]">{b.customer?.phone || b.phone || b.email}</div>
                               </td>
                               <td className="text-[13px] text-[#374151] pr-4">{b.bookingDate} · {b.startTime}</td>
                               <td className="text-[13px] text-[#374151] pr-4">{b.guestCount} guests</td>
-                              <td className="text-[13px] text-[#374151] pr-4">{b.table?.name || 'Auto'} ({b.area?.name})</td>
+                              <td className="text-[13px] text-[#374151] pr-4">{b.table?.name || 'Auto'} ({b.area?.name || 'General'})</td>
                               <td>
                                 <span className={`glass-badge ${getStatusBadge(b.status)}`}>{b.status}</span>
                               </td>
@@ -971,6 +1163,65 @@ export default function AdminDashboard() {
                         <p className="text-[12px] text-[#6b7280]">{court.slots}</p>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Turf Bookings Table */}
+                  <div className="glass-card overflow-hidden p-0 mt-6">
+                    <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-black/5">
+                      <div>
+                        <h3 className="font-sans font-bold text-[16px] text-[#1a1a2e] tracking-tight">Turf Reservations &amp; Enquiries</h3>
+                        <p className="text-[12px] text-[#6b7280]">Bookings submitted for Turf &amp; sports activities</p>
+                      </div>
+                      <span className="glass-badge badge-active">
+                        {bookings.filter(b => (b.area?.name || '').toUpperCase().includes('TURF') || (b.occasion || '').toUpperCase().includes('TURF') || (b.service || '').toUpperCase().includes('TURF')).length} Bookings
+                      </span>
+                    </div>
+                    <div className="overflow-x-auto px-6 py-4">
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Reference</th><th>Customer</th><th>Date &amp; Time</th>
+                            <th>Service</th><th>Occasion / Notes</th><th>Status</th><th className="text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bookings.filter(b => (b.area?.name || '').toUpperCase().includes('TURF') || (b.occasion || '').toUpperCase().includes('TURF') || (b.service || '').toUpperCase().includes('TURF')).length === 0 ? (
+                            <tr>
+                              <td colSpan={7} className="text-center py-8 text-[13px] text-[#9ca3af]">No turf bookings found.</td>
+                            </tr>
+                          ) : (
+                            bookings.filter(b => (b.area?.name || '').toUpperCase().includes('TURF') || (b.occasion || '').toUpperCase().includes('TURF') || (b.service || '').toUpperCase().includes('TURF')).map(b => (
+                              <tr key={b._id}>
+                                <td className="font-mono font-bold text-[13px] text-emerald-600 pr-4">{b.bookingNumber}</td>
+                                <td className="pr-4">
+                                  <div className="font-medium text-[13px] text-[#1a1a2e]">{b.customer?.name || b.name}</div>
+                                  <div className="text-[11px] text-[#9ca3af]">{b.customer?.phone || b.phone || b.email}</div>
+                                </td>
+                                <td className="text-[13px] text-[#374151] pr-4">{b.bookingDate} · {b.startTime}</td>
+                                <td className="text-[13px] font-semibold text-emerald-700 pr-4">{b.service || b.area?.name || 'Turf'}</td>
+                                <td className="text-[13px] text-[#374151] pr-4">{b.specialRequest || b.occasion || '-'}</td>
+                                <td className="pr-4">
+                                  <span className={`glass-badge ${getStatusBadge(b.status)}`}>{b.status}</span>
+                                </td>
+                                <td className="text-right">
+                                  <select
+                                    disabled={updatingId === b._id}
+                                    value={b.status}
+                                    onChange={(e) => handleStatusChange(b._id, e.target.value)}
+                                    className="glass-select glass-select-sm"
+                                    style={{ width: 'auto', minWidth: 100 }}
+                                  >
+                                    {['PENDING','CONFIRMED','COMPLETED','CANCELLED'].map(s => (
+                                      <option key={s} value={s}>{s}</option>
+                                    ))}
+                                  </select>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </motion.div>
               )}

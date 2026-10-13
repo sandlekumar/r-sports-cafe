@@ -55,7 +55,6 @@ const tableBookingSchema = new mongoose.Schema(
     },
     occasion: {
       type: String,
-      enum: ['casual_dining', 'birthday', 'anniversary', 'business_meeting', 'date', 'other'],
       default: 'casual_dining',
     },
     specialRequest: {

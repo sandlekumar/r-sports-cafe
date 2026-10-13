@@ -23,6 +23,11 @@ router.get('/health', (req, res) => {
 
 router.get('/overview', adminController.getOverviewStats);
 
+// In-App Notifications for Admin
+router.get('/notifications', adminController.getNotifications);
+router.patch('/notifications/read-all', adminController.markAllNotificationsRead);
+router.patch('/notifications/:id/read', adminController.markNotificationRead);
+
 // Legacy General Enquiry Bookings
 router.get('/bookings', adminController.getAllLegacyBookings);
 

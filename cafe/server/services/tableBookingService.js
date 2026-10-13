@@ -22,6 +22,7 @@ const { generateSlots, computeEndTime } = require('../utils/timeSlots');
 const { BOOKING_STATUS, BOOKING_SOURCE } = require('../constants');
 const { sendBookingConfirmation, sendAdminBookingNotification } = require('../utils/emailService');
 const { sendBookingConfirmationWhatsApp, sendAdminLeadNotificationWhatsApp } = require('../utils/whatsappService');
+const Notification = require('../models/Notification');
 
 /**
  * Create a new table booking atomically.
@@ -156,43 +157,44 @@ const createTableBooking = async (data) => {
         );
       });
     } catch (txErr) {
-      // Standalone MongoDB fallback (when replica set is not configured in local dev)
-      if (txErr.message && txErr.message.includes('Transaction numbers are only allowed')) {
-        [booking] = await TableBooking.create([{
-          customer: customer._id,
-          bookingDate: date,
-          startTime: time,
-          endTime,
-          durationMinutes: defaultDurationMinutes,
-          guestCount: guests,
-          area: resolvedAreaId,
-          table: resolvedTableId,
-          occasion: occasion || 'casual_dining',
-          specialRequest,
-          source,
-          status: BOOKING_STATUS.PENDING,
-          cancellationToken,
-        }]);
-
-        await BookingSlotLock.insertMany(
-          requiredSlots.map((slotStart) => ({
-            table: resolvedTableId,
-            booking: booking._id,
-            bookingDate: date,
-            slotStart,
-          })),
-          { ordered: true }
-        );
-
-        await BookingHistory.create([{
-          booking: booking._id,
-          action: 'CREATED',
-          newValue: { status: BOOKING_STATUS.PENDING, date, time, guests },
-          note: `Booking created via ${source}`,
-        }]);
-      } else {
+      if (txErr.code === 11000 || (txErr.writeErrors && txErr.writeErrors.some((e) => e.code === 11000))) {
         throw txErr;
       }
+      console.warn('MongoDB transaction unavailable or failed, executing direct reservation:', txErr.message);
+      [booking] = await TableBooking.create([{
+        customer: customer._id,
+        bookingDate: date,
+        startTime: time,
+        endTime,
+        durationMinutes: defaultDurationMinutes,
+        guestCount: guests,
+        area: resolvedAreaId,
+        table: resolvedTableId,
+        occasion: occasion || 'casual_dining',
+        specialRequest,
+        source,
+        status: BOOKING_STATUS.PENDING,
+        cancellationToken,
+      }]);
+
+      await BookingSlotLock.insertMany(
+        requiredSlots.map((slotStart) => ({
+          table: resolvedTableId,
+          booking: booking._id,
+          bookingDate: date,
+          slotStart,
+        })),
+        { ordered: true }
+      );
+
+      await BookingHistory.create([{
+        booking: booking._id,
+        action: 'CREATED',
+        newValue: { status: BOOKING_STATUS.PENDING, date, time, guests },
+        note: `Booking created via ${source}`,
+      }]);
+    } finally {
+      session.endSession();
     }
 
     // Increment customer booking count (outside transaction is fine — best-effort)
@@ -223,6 +225,19 @@ const createTableBooking = async (data) => {
 
     sendBookingConfirmationWhatsApp({ phone: customer.phone, name: customer.name, guests, date, time, bookingNumber: booking.bookingNumber });
     sendAdminLeadNotificationWhatsApp({ name: customer.name, phone: customer.phone, guests, date, time, bookingNumber: booking.bookingNumber });
+
+    // Internal notification for Admin Dashboard
+    try {
+      await Notification.create({
+        type: 'BOOKING_CREATED',
+        refModel: 'TableBooking',
+        ref: booking._id,
+        customer: customer._id,
+        message: `New Table Booking #${booking.bookingNumber} from ${customer.name} (${guests} Guests) for ${date} at ${time}`,
+      });
+    } catch (nErr) {
+      console.warn('Admin notification record creation warning:', nErr.message);
+    }
 
     return {
       bookingNumber: booking.bookingNumber,

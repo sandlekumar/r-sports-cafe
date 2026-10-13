@@ -19,22 +19,9 @@ const Reels = lazy(() => import('./components/Reels'));
 const Reviews = lazy(() => import('./components/Reviews'));
 const Booking = lazy(() => import('./components/Booking'));
 
-// Dynamic import of Cursor3D happens inside App's useEffect to prevent Vite from
-// injecting modulepreload link tags for Three.js into the main index.html.
-
 export default function App() {
   const [email, setEmail] = useState('');
   const [joinStatus, setJoinStatus] = useState('');
-  const [Cursor3DComponent, setCursor3DComponent] = useState(null);
-
-  React.useEffect(() => {
-    const mq = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)');
-    if (mq.matches) {
-      import('./components/cursor/Cursor3D').then((module) => {
-        setCursor3DComponent(() => module.default);
-      }).catch(() => {});
-    }
-  }, []);
 
   const handleJoin = async () => {
     if (!email) return;
@@ -73,9 +60,6 @@ export default function App() {
 
         {/* Background color morph between sections */}
         <SectionColorMorph />
-
-        {/* 3D Custom Cursor Overlay — desktop only, dynamically loaded to avoid modulepreload on mobile */}
-        {Cursor3DComponent && <Cursor3DComponent />}
 
         {/* Premium Luxury Navbar (Moved to main.jsx for global presence) */}
 

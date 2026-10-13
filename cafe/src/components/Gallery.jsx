@@ -57,7 +57,9 @@ export default function Gallery() {
   const textColRef = useRef(null);
   const mobileTrackRef = useRef(null);
   const [mobileActive, setMobileActive] = useState(0);
+  const [desktopActive, setDesktopActive] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const timelineRef = useRef(null);
 
   // ── Deferred src assignment for all 5 gallery images ──
   // Don't set src at all until the section is near the viewport. loading="lazy"
@@ -124,6 +126,13 @@ export default function Gallery() {
         scrub: 1,
         pin: true,
         invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const idx = Math.min(
+            galleryItems.length - 1,
+            Math.max(0, Math.round(self.progress * (galleryItems.length - 1)))
+          );
+          setDesktopActive(idx);
+        },
       },
     });
 
@@ -131,6 +140,8 @@ export default function Gallery() {
       x: -scrollVal,
       ease: 'none',
     });
+
+    timelineRef.current = mainTl;
 
     gsap.fromTo(
       textColRef.current,
@@ -154,8 +165,27 @@ export default function Gallery() {
     return () => {
       clearTimeout(timeout);
       ScrollTrigger.getAll().forEach(t => t.kill());
+      timelineRef.current = null;
     };
   }, [isMobile]);
+
+  const navigateDesktop = (dir) => {
+    const nextIdx = Math.min(
+      galleryItems.length - 1,
+      Math.max(0, desktopActive + dir)
+    );
+    const st = timelineRef.current?.scrollTrigger;
+    if (st) {
+      const targetProgress = nextIdx / (galleryItems.length - 1);
+      const targetY = st.start + targetProgress * (st.end - st.start);
+      if (window.__lenis) {
+        window.__lenis.scrollTo(targetY, { duration: 0.9 });
+      } else {
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      }
+      setDesktopActive(nextIdx);
+    }
+  };
 
   const scrollToMobileIndex = (index) => {
     if (mobileTrackRef.current) {
@@ -166,6 +196,39 @@ export default function Gallery() {
       }
     }
   };
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const track = mobileTrackRef.current;
+    if (!track) return;
+
+    let timeout;
+    const handleScroll = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const children = Array.from(track.children);
+        if (!children.length) return;
+        const trackCenter = track.scrollLeft + track.clientWidth / 2;
+        let closestIdx = 0;
+        let minDiff = Infinity;
+        children.forEach((child, i) => {
+          const childCenter = child.offsetLeft + child.offsetWidth / 2;
+          const diff = Math.abs(trackCenter - childCenter);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestIdx = i;
+          }
+        });
+        setMobileActive(closestIdx);
+      }, 50);
+    };
+
+    track.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      clearTimeout(timeout);
+      track.removeEventListener('scroll', handleScroll);
+    };
+  }, [isMobile]);
 
   return (
     <section
@@ -305,7 +368,7 @@ export default function Gallery() {
             <button
               onClick={() => scrollToMobileIndex(Math.max(0, mobileActive - 1))}
               disabled={mobileActive === 0}
-              className="w-8 h-8 xs:w-10 xs:h-10 rounded-full bg-white border border-black/10 text-darkText flex items-center justify-center shadow-md disabled:opacity-30"
+              className="gallery-nav-arrow-left w-9 h-9 xs:w-10 xs:h-10 rounded-full bg-white border border-black/10 text-darkText flex items-center justify-center shadow-md disabled:opacity-25 transition-transform active:scale-90"
               aria-label="Previous Slide"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -332,7 +395,7 @@ export default function Gallery() {
             <button
               onClick={() => scrollToMobileIndex(Math.min(galleryItems.length - 1, mobileActive + 1))}
               disabled={mobileActive === galleryItems.length - 1}
-              className="w-8 h-8 xs:w-10 xs:h-10 rounded-full bg-darkText text-white flex items-center justify-center shadow-md disabled:opacity-30"
+              className="gallery-nav-arrow-right w-9 h-9 xs:w-10 xs:h-10 rounded-full bg-darkText text-white flex items-center justify-center shadow-md disabled:opacity-25 transition-transform active:scale-90"
               aria-label="Next Slide"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -342,6 +405,85 @@ export default function Gallery() {
           </div>
         </div>
       )}
+
+      {/* ─── Animated Desktop Side Navigation Arrows ("<" and ">") ─── */}
+      {!isMobile && (
+        <>
+          {/* Left Side Arrow ("<") */}
+          <button
+            onClick={() => navigateDesktop(-1)}
+            disabled={desktopActive === 0}
+            aria-label="Previous gallery image"
+            className={`gallery-nav-arrow-left group absolute left-6 lg:left-10 top-1/2 -translate-y-1/2 z-30 w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-xl ${
+              desktopActive === 0
+                ? 'opacity-20 cursor-not-allowed bg-black/30 border border-black/10 text-neutral-400'
+                : 'bg-black/60 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/50 hover:border-[#D4AF37] shadow-[0_10px_35px_rgba(0,0,0,0.35),0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_10px_40px_rgba(212,175,55,0.45)] hover:scale-110 active:scale-95 cursor-pointer'
+            }`}
+          >
+            <span className="sr-only">Previous Slide</span>
+            <svg
+              className="w-5 h-5 lg:w-6 lg:h-6 transform transition-transform duration-300 group-hover:-translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            {desktopActive > 0 && (
+              <span className="absolute inset-0 rounded-full border border-[#D4AF37]/40 animate-ping pointer-events-none opacity-20" />
+            )}
+          </button>
+
+          {/* Right Side Arrow (">") */}
+          <button
+            onClick={() => navigateDesktop(1)}
+            disabled={desktopActive === galleryItems.length - 1}
+            aria-label="Next gallery image"
+            className={`gallery-nav-arrow-right group absolute right-6 lg:right-10 top-1/2 -translate-y-1/2 z-30 w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-xl ${
+              desktopActive === galleryItems.length - 1
+                ? 'opacity-20 cursor-not-allowed bg-black/30 border border-black/10 text-neutral-400'
+                : 'bg-black/60 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/50 hover:border-[#D4AF37] shadow-[0_10px_35px_rgba(0,0,0,0.35),0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_10px_40px_rgba(212,175,55,0.45)] hover:scale-110 active:scale-95 cursor-pointer'
+            }`}
+          >
+            <span className="sr-only">Next Slide</span>
+            <svg
+              className="w-5 h-5 lg:w-6 lg:h-6 transform transition-transform duration-300 group-hover:translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            {desktopActive < galleryItems.length - 1 && (
+              <span className="absolute inset-0 rounded-full border border-[#D4AF37]/40 animate-ping pointer-events-none opacity-20" />
+            )}
+          </button>
+        </>
+      )}
+
+      {/* Floating Micro-Animations CSS */}
+      <style>{`
+        @keyframes float-arrow-left {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50% { transform: translateY(-50%) translateX(-6px); }
+        }
+        @keyframes float-arrow-right {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50% { transform: translateY(-50%) translateX(6px); }
+        }
+        .gallery-nav-arrow-left {
+          animation: float-arrow-left 2.6s ease-in-out infinite;
+        }
+        .gallery-nav-arrow-right {
+          animation: float-arrow-right 2.6s ease-in-out infinite;
+        }
+        .gallery-nav-arrow-left:hover,
+        .gallery-nav-arrow-right:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </section>
   );
 }
