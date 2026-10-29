@@ -31,6 +31,13 @@ export default function SmoothScroll({ children }) {
   }, []);
 
   useEffect(() => {
+    // Use native 120Hz/60Hz touch momentum on mobile screens (< 768px) to eliminate mobile scroll lag.
+    // Lenis is kept on desktop for ultra-smooth mouse wheel scrolling.
+    if (window.innerWidth < 768) {
+      ScrollTrigger.config({ autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load,resize' });
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

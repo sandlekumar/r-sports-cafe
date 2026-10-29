@@ -88,24 +88,22 @@ export default function Events() {
       }
     })();
 
-    // GSAP Scroll Reveal for Cards
+    // GSAP Scroll Reveal for Events Header (doesn't interfere with card transforms)
     const section = document.getElementById('events');
     const ctx = gsap.context(() => {
-      const cards = document.querySelectorAll('.ev-stamp-shadow');
-      if (cards.length > 0) {
+      const header = document.querySelector('.ev-header');
+      if (header) {
         gsap.fromTo(
-          cards,
-          { opacity: 0, rotation: -3, y: 40 },
+          header,
+          { opacity: 0, y: 30 },
           {
             opacity: 1,
-            rotation: 0,
             y: 0,
-            stagger: 0.1,
-            duration: 1.2,
-            ease: 'power3.out',
+            duration: 0.8,
+            ease: 'power2.out',
             scrollTrigger: {
               trigger: section,
-              start: 'top 75%',
+              start: 'top 80%',
             },
           }
         );
@@ -166,6 +164,7 @@ export default function Events() {
     <section 
       id="events" 
       className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-between py-12 xs:py-14 sm:py-16 px-4 md:px-12 overflow-hidden font-sans select-none"
+      style={{ touchAction: 'pan-y' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -174,7 +173,7 @@ export default function Events() {
       <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`}}></div>
 
       {/* Top Bar Branding */}
-      <div className="w-full max-w-6xl flex justify-between items-center z-40 mb-6">
+      <div className="ev-header w-full max-w-6xl flex justify-between items-center z-40 mb-6">
         <div>
           <span className="font-sideheading font-bold text-[13px] md:text-[15px] tracking-[0.24em] text-neutral-500 uppercase block">
             Upcoming Gatherings
@@ -216,19 +215,32 @@ export default function Events() {
               }}
               className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[92vw] xs:w-[86vw] sm:w-[400px] md:w-[480px] max-w-[480px] aspect-[4/5]`}
               style={{
-                zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10
+                zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10,
+                willChange: 'transform, opacity',
+                transform: 'translateZ(0)',
               }}
               animate={getVariant(pos, isMobile)}
-              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+              transition={
+                isMobile
+                  ? { duration: 0.38, ease: [0.25, 1, 0.5, 1] }
+                  : { type: 'spring', damping: 28, stiffness: 280, mass: 0.6 }
+              }
             >
-              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden transition-all duration-300 rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)]">
                 
                 {/* Full Background Image */}
-                <div 
-                  className="absolute inset-0 w-full h-full bg-gray-900"
-                >
+                <div className="absolute inset-0 w-full h-full bg-gray-900">
                   {event.photo ? (
-                    <img src={event.photo.startsWith('http') ? event.photo : `${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.1]" alt={event.title || 'Event image'} loading="lazy" decoding="async" />
+                    <>
+                      <img 
+                        src={event.photo.startsWith('http') ? event.photo : `${BASE_URL}${event.photo}`} 
+                        className="w-full h-full object-cover" 
+                        alt={event.title || 'Event image'} 
+                        loading="lazy" 
+                        decoding="async" 
+                      />
+                      <div className="absolute inset-0 bg-black/25 pointer-events-none" />
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
                       <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>
@@ -237,55 +249,52 @@ export default function Events() {
                 </div>
 
                 {/* Gradient Overlay for Text Readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/10 pointer-events-none" />
 
                 {/* Category badge */}
                 {isCenter && (
-                  <div className="absolute top-4 right-4 bg-ev-accent text-white px-3 py-1 rounded uppercase font-bold text-[9px] sm:text-[10px] tracking-widest shadow-md z-20 backdrop-blur-md">
+                  <div className="absolute top-4 right-4 bg-ev-accent text-white px-3 py-1 rounded uppercase font-bold text-[9px] sm:text-[10px] tracking-widest shadow-md z-20">
                     {event.category || 'Special Event'}
                   </div>
                 )}
 
                 {/* Card Content - Center Only */}
-                <AnimatePresence mode="popLayout">
-                  {isCenter && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex flex-col justify-end flex-1 p-5 sm:p-8 relative z-10 w-full h-full"
-                    >
-                      <div className="flex justify-between items-end mb-3">
-                        <div>
-                          <h3 className="font-sans font-black text-xl sm:text-2xl uppercase text-white/90 tracking-tight leading-none mb-1 drop-shadow-md">
-                            {weekday}
-                          </h3>
-                          <h4 className="font-sans font-black text-2xl sm:text-3xl text-ev-accent tracking-tighter leading-none shadow-sm drop-shadow-md">
-                            {day}/{month}/{year}
-                          </h4>
-                        </div>
-                        
-                        <div className="border border-white/30 rounded px-2.5 py-1 flex items-center gap-1.5 bg-white/15 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
-                          <svg className="w-3.5 h-3.5 text-white/90 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                          <span className="font-bold text-[9px] tracking-[0.1em] uppercase text-white drop-shadow-sm">Thoothukudi</span>
-                        </div>
+                {isCenter && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex flex-col justify-end flex-1 p-5 sm:p-8 relative z-10 w-full h-full"
+                  >
+                    <div className="flex justify-between items-end mb-3">
+                      <div>
+                        <h3 className="font-sans font-black text-xl sm:text-2xl uppercase text-white/90 tracking-tight leading-none mb-1 drop-shadow-md">
+                          {weekday}
+                        </h3>
+                        <h4 className="font-sans font-black text-2xl sm:text-3xl text-ev-accent tracking-tighter leading-none shadow-sm drop-shadow-md">
+                          {day}/{month}/{year}
+                        </h4>
                       </div>
+                      
+                      <div className="border border-white/20 rounded px-2.5 py-1 flex items-center gap-1.5 bg-black/60 shadow-md">
+                        <svg className="w-3.5 h-3.5 text-white/90 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <span className="font-bold text-[9px] tracking-[0.1em] uppercase text-white drop-shadow-sm">Thoothukudi</span>
+                      </div>
+                    </div>
 
-                      <h2 className="font-sans font-black text-2xl sm:text-4xl leading-[1.05] text-white uppercase tracking-tighter line-clamp-2 mb-2 drop-shadow-lg">
-                        {event.title}
-                      </h2>
+                    <h2 className="font-sans font-black text-2xl sm:text-4xl leading-[1.05] text-white uppercase tracking-tighter line-clamp-2 mb-2 drop-shadow-lg">
+                      {event.title}
+                    </h2>
 
-                      {event.description && (
-                        <div className="mt-2 border-t border-white/10 pt-3">
-                          <p className="text-white/80 font-medium text-xs sm:text-sm leading-relaxed line-clamp-2 drop-shadow-sm">
-                            {event.description}
-                          </p>
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    {event.description && (
+                      <div className="mt-2 border-t border-white/10 pt-3">
+                        <p className="text-white/80 font-medium text-xs sm:text-sm leading-relaxed line-clamp-2 drop-shadow-sm">
+                          {event.description}
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
 
                 {/* Title for non-center cards */}
                 {!isCenter && (
