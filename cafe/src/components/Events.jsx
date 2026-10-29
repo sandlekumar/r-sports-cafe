@@ -10,15 +10,22 @@ const BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 
 function formatDate(dateStr) {
   if (!dateStr) return { day: '—', month: '—', year: '—', weekday: '', full: '—' };
-  const d = new Date(dateStr + 'T00:00:00');
-  if (isNaN(d.getTime())) return { day: '—', month: '—', year: '—', weekday: '', full: dateStr };
-  return {
-    day: d.getDate().toString().padStart(2, '0'),
-    month: d.toLocaleString('en-US', { month: 'short' }).toUpperCase(),
-    year: d.getFullYear(),
-    weekday: d.toLocaleString('en-US', { weekday: 'long' }).toUpperCase(),
-    full: d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }),
-  };
+  try {
+    const cleanStr = typeof dateStr === 'string' && dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`;
+    const d = new Date(cleanStr);
+    if (isNaN(d.getTime())) {
+      return { day: '—', month: '—', year: '—', weekday: '', full: String(dateStr) };
+    }
+    return {
+      day: d.getDate().toString().padStart(2, '0'),
+      month: d.toLocaleString('en-US', { month: 'short' }).toUpperCase(),
+      year: d.getFullYear(),
+      weekday: d.toLocaleString('en-US', { weekday: 'long' }).toUpperCase(),
+      full: d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }),
+    };
+  } catch {
+    return { day: '—', month: '—', year: '—', weekday: '', full: String(dateStr) };
+  }
 }
 
 function useMediaQuery(query) {
@@ -33,62 +40,50 @@ function useMediaQuery(query) {
   return matches;
 }
 
-const SportsWatermark = () => (
-  <div className="absolute inset-0 opacity-[0.03] overflow-hidden flex items-center justify-center pointer-events-none z-0">
-    <svg className="absolute -bottom-8 -right-8 w-48 h-48 rotate-[-15deg] text-black" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2A10 10 0 1022 12 10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm-1.5-3.6l-3.2-2.3.8-3.4 3.7-1.1 2.5 2.6-1.1 3.5-2.7.7zm4.2-1.2l2.4-1.8.1-2.9-2.2-1.7-2.3 1.2.1 3.1 1.9 2.1zm-7.6-3.8l-1.8.8-1.5-1.9.9-2.5 2.2-.8 1.8 1.5-1.6 2.9zm3.8-4.6l-1.4-2.5 2.8-.7 2.4 1.4-.4 2.8-2.6 1.1-1.8-2.1z"/>
-    </svg>
-    <svg className="absolute top-12 -left-10 w-32 h-32 rotate-[25deg] text-black" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M20 5h-2V3a1 1 0 00-1-1H7a1 1 0 00-1 1v2H4a1 1 0 00-1 1v4a5 5 0 005 5h1.16a5.95 5.95 0 003.84 2V19H9a1 1 0 000 2h6a1 1 0 000-2h-3v-1.02a5.95 5.95 0 003.84-2H17a5 5 0 005-5V6a1 1 0 00-1-1zM8 13H5V7h3v6zm9 0a3 3 0 01-3 3H10a3 3 0 01-3-3V7h10v6zm2-2h-3V7h3v4z"/>
-    </svg>
-  </div>
-);
-
 const getVariant = (pos, isMobile) => {
   if (isMobile) {
     switch (pos) {
       case 'center': return { x: 0, y: 0, rotate: 0, scale: 1, zIndex: 30, opacity: 1 };
-      case 'left': return { x: -45, y: -15, rotate: -6, scale: 0.90, zIndex: 10, opacity: 0.4 };
-      case 'right': return { x: 45, y: -15, rotate: 6, scale: 0.90, zIndex: 10, opacity: 0.4 };
-      case 'bottomRight': return { x: 0, y: 30, rotate: 0, scale: 0.8, zIndex: 5, opacity: 0.1 };
-      default: return { opacity: 0 };
+      case 'left': return { x: -36, y: -8, rotate: -5, scale: 0.88, zIndex: 10, opacity: 0.35 };
+      case 'right': return { x: 36, y: -8, rotate: 5, scale: 0.88, zIndex: 10, opacity: 0.35 };
+      case 'bottomRight': return { x: 0, y: 20, rotate: 0, scale: 0.80, zIndex: 5, opacity: 0.15 };
+      default: return { x: 0, y: 25, rotate: 0, scale: 0.75, zIndex: 0, opacity: 0 };
     }
   }
   // Desktop
   switch (pos) {
     case 'center': return { x: 0, y: 0, rotate: -1, scale: 1, zIndex: 30, opacity: 1 };
-    case 'left': return { x: -350, y: -60, rotate: -12, scale: 0.55, zIndex: 10, opacity: 0.95 };
-    case 'right': return { x: 380, y: -30, rotate: 15, scale: 0.6, zIndex: 10, opacity: 0.95 };
-    case 'bottomRight': return { x: 260, y: 220, rotate: -6, scale: 0.5, zIndex: 20, opacity: 0.9 };
-    default: return { opacity: 0 };
+    case 'left': return { x: -310, y: -45, rotate: -10, scale: 0.60, zIndex: 10, opacity: 0.95 };
+    case 'right': return { x: 330, y: -25, rotate: 12, scale: 0.64, zIndex: 10, opacity: 0.95 };
+    case 'bottomRight': return { x: 230, y: 190, rotate: -5, scale: 0.54, zIndex: 20, opacity: 0.9 };
+    default: return { x: 0, y: 50, rotate: 0, scale: 0.5, zIndex: 0, opacity: 0 };
   }
 };
 
 export default function Events() {
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const isMobile = useMediaQuery('(max-width: 768px)');
   
-  // Touch swipe handling
+  // Safe touch swipe handling
   const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
+  const touchStartY = useRef(0);
+  const isSwiping = useRef(false);
+  const justSwiped = useRef(false);
 
   useEffect(() => {
     (async () => {
       try {
         const d = await apiClient('/events?tab=upcoming');
-        if (d.success && d.data?.length > 0) {
+        if (d.success && Array.isArray(d.data) && d.data.length > 0) {
           setEvents(d.data);
         }
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     })();
 
-    // GSAP Scroll Reveal for Events Header (doesn't interfere with card transforms)
+    // GSAP Scroll Reveal for Events Header only
     const section = document.getElementById('events');
     const ctx = gsap.context(() => {
       const header = document.querySelector('.ev-header');
@@ -110,40 +105,53 @@ export default function Events() {
       }
     }, section);
 
-    setLoading(false);
     return () => ctx.revert();
   }, []);
 
-  const displayEvents = [...events];
+  const displayEvents = Array.isArray(events) ? events : [];
   
   if (displayEvents.length === 0) {
     return (
       <section id="events" className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-center py-12 xs:py-14 sm:py-16 px-4 md:px-12 overflow-hidden font-sans select-none">
-         <h2 className="text-[28px] md:text-[54px] font-bold text-charcoal tracking-tight">Stay tuned for events!</h2>
+        <h2 className="text-[28px] md:text-[54px] font-bold text-charcoal tracking-tight">Stay tuned for events!</h2>
       </section>
     );
   }
 
   const handleNext = () => {
+    if (displayEvents.length <= 1) return;
     setActiveIndex((prev) => (prev + 1) % displayEvents.length);
   };
 
   const handlePrev = () => {
+    if (displayEvents.length <= 1) return;
     setActiveIndex((prev) => (prev - 1 + displayEvents.length) % displayEvents.length);
   };
 
   const handleTouchStart = (e) => {
+    if (!e.touches || e.touches.length === 0) return;
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isSwiping.current = true;
   };
 
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
+  const handleTouchEnd = (e) => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
 
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) > 40) {
-      if (diff > 0) {
+    if (!e.changedTouches || e.changedTouches.length === 0) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+
+    const diffX = touchStartX.current - endX;
+    const diffY = touchStartY.current - endY;
+
+    // Only swipe if horizontal swipe is clearly dominant
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+      justSwiped.current = true;
+      setTimeout(() => { justSwiped.current = false; }, 300);
+
+      if (diffX > 0) {
         handleNext();
       } else {
         handlePrev();
@@ -152,30 +160,39 @@ export default function Events() {
   };
 
   const getPosition = (index) => {
-    const diff = (index - activeIndex + displayEvents.length) % displayEvents.length;
+    const len = displayEvents.length;
+    if (len <= 1) return 'center';
+    const diff = (index - activeIndex + len) % len;
     if (diff === 0) return 'center';
+    if (len === 2) {
+      return diff === 1 ? 'right' : 'hidden';
+    }
+    if (len === 3) {
+      if (diff === 1) return 'right';
+      if (diff === 2) return 'left';
+      return 'hidden';
+    }
     if (diff === 1) return 'right';
     if (diff === 2) return 'bottomRight';
-    if (diff === 3) return 'left';
+    if (diff === len - 1) return 'left';
     return 'hidden';
   };
 
   return (
     <section 
       id="events" 
-      className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-between py-12 xs:py-14 sm:py-16 px-4 md:px-12 overflow-hidden font-sans select-none"
+      className="relative w-full min-h-[100dvh] bg-gradient-to-b from-ivory via-[#F5F0E8] to-cream flex flex-col items-center justify-between py-10 xs:py-12 sm:py-16 px-4 md:px-12 overflow-hidden font-sans select-none"
       style={{ touchAction: 'pan-y' }}
       onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {/* Subtle warm grain texture */}
       <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`}}></div>
 
       {/* Top Bar Branding */}
-      <div className="ev-header w-full max-w-6xl flex justify-between items-center z-40 mb-6">
+      <div className="ev-header w-full max-w-6xl flex justify-between items-center z-40 mb-4 sm:mb-6">
         <div>
-          <span className="font-sideheading font-bold text-[13px] md:text-[15px] tracking-[0.24em] text-neutral-500 uppercase block">
+          <span className="font-sideheading font-bold text-[12px] md:text-[14px] tracking-[0.24em] text-neutral-500 uppercase block">
             Upcoming Gatherings
           </span>
           <h2 className="text-charcoal font-bold text-xl md:text-3xl tracking-tight uppercase">
@@ -191,14 +208,14 @@ export default function Events() {
         </div>
       </div>
 
-      {/* Interactive Card Canvas Area */}
-      <div className="relative w-full max-w-6xl h-[460px] xs:h-[500px] sm:h-[620px] md:h-[720px] flex items-center justify-center my-auto z-10">
+      {/* Interactive Card Canvas Area (Compact & Optimized size) */}
+      <div className="relative w-full max-w-5xl h-[400px] xs:h-[430px] sm:h-[520px] md:h-[600px] flex items-center justify-center my-auto z-10">
         {/* Mobile Swipe Indicator */}
-        {isMobile && (
-          <div className="absolute -top-6 sm:-top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[#111111]/50 pointer-events-none z-50">
-            <svg className="w-4 h-4 animate-bounce-horizontal rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            <span className="font-sans text-[10px] uppercase tracking-widest font-semibold">Swipe to explore</span>
-            <svg className="w-4 h-4 animate-bounce-horizontal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        {isMobile && displayEvents.length > 1 && (
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[#111111]/50 pointer-events-none z-50">
+            <svg className="w-3.5 h-3.5 animate-bounce-horizontal rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <span className="font-sans text-[9px] uppercase tracking-widest font-semibold">Swipe to explore</span>
+            <svg className="w-3.5 h-3.5 animate-bounce-horizontal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </div>
         )}
         
@@ -209,11 +226,13 @@ export default function Events() {
 
           return (
             <motion.div
-              key={event._id}
+              key={event._id || `event-${idx}`}
               onClick={() => {
-                if (!isCenter) setActiveIndex(idx);
+                if (!isCenter && !justSwiped.current) {
+                  setActiveIndex(idx);
+                }
               }}
-              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[92vw] xs:w-[86vw] sm:w-[400px] md:w-[480px] max-w-[480px] aspect-[4/5]`}
+              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[80vw] xs:w-[76vw] sm:w-[350px] md:w-[410px] max-w-[410px] aspect-[4/5]`}
               style={{
                 zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10,
                 willChange: 'transform, opacity',
@@ -222,11 +241,11 @@ export default function Events() {
               animate={getVariant(pos, isMobile)}
               transition={
                 isMobile
-                  ? { duration: 0.38, ease: [0.25, 1, 0.5, 1] }
+                  ? { duration: 0.35, ease: [0.25, 1, 0.5, 1] }
                   : { type: 'spring', damping: 28, stiffness: 280, mass: 0.6 }
               }
             >
-              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)]">
+              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-xl shadow-[0_15px_35px_-10px_rgba(0,0,0,0.65)]">
                 
                 {/* Full Background Image */}
                 <div className="absolute inset-0 w-full h-full bg-gray-900">
@@ -243,7 +262,7 @@ export default function Events() {
                     </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
-                      <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>
+                      <span className="text-white/40 font-bold uppercase tracking-widest text-xs sm:text-sm">R Sports &amp; Cafe Event</span>
                     </div>
                   )}
                 </div>
@@ -253,7 +272,7 @@ export default function Events() {
 
                 {/* Category badge */}
                 {isCenter && (
-                  <div className="absolute top-4 right-4 bg-ev-accent text-white px-3 py-1 rounded uppercase font-bold text-[9px] sm:text-[10px] tracking-widest shadow-md z-20">
+                  <div className="absolute top-3.5 right-3.5 bg-ev-accent text-white px-2.5 py-1 rounded uppercase font-bold text-[9px] sm:text-[10px] tracking-widest shadow-md z-20">
                     {event.category || 'Special Event'}
                   </div>
                 )}
@@ -264,31 +283,31 @@ export default function Events() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="flex flex-col justify-end flex-1 p-5 sm:p-8 relative z-10 w-full h-full"
+                    className="flex flex-col justify-end flex-1 p-5 sm:p-7 relative z-10 w-full h-full"
                   >
-                    <div className="flex justify-between items-end mb-3">
+                    <div className="flex justify-between items-end mb-2.5">
                       <div>
-                        <h3 className="font-sans font-black text-xl sm:text-2xl uppercase text-white/90 tracking-tight leading-none mb-1 drop-shadow-md">
+                        <h3 className="font-sans font-black text-lg sm:text-xl uppercase text-white/90 tracking-tight leading-none mb-1 drop-shadow-md">
                           {weekday}
                         </h3>
-                        <h4 className="font-sans font-black text-2xl sm:text-3xl text-ev-accent tracking-tighter leading-none shadow-sm drop-shadow-md">
+                        <h4 className="font-sans font-black text-xl sm:text-2xl text-ev-accent tracking-tighter leading-none shadow-sm drop-shadow-md">
                           {day}/{month}/{year}
                         </h4>
                       </div>
                       
-                      <div className="border border-white/20 rounded px-2.5 py-1 flex items-center gap-1.5 bg-black/60 shadow-md">
-                        <svg className="w-3.5 h-3.5 text-white/90 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                        <span className="font-bold text-[9px] tracking-[0.1em] uppercase text-white drop-shadow-sm">Thoothukudi</span>
+                      <div className="border border-white/20 rounded px-2 py-0.5 flex items-center gap-1.5 bg-black/60 shadow-md">
+                        <svg className="w-3 h-3 text-white/90 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <span className="font-bold text-[8px] sm:text-[9px] tracking-[0.1em] uppercase text-white drop-shadow-sm">Thoothukudi</span>
                       </div>
                     </div>
 
-                    <h2 className="font-sans font-black text-2xl sm:text-4xl leading-[1.05] text-white uppercase tracking-tighter line-clamp-2 mb-2 drop-shadow-lg">
+                    <h2 className="font-sans font-black text-xl sm:text-3xl leading-[1.08] text-white uppercase tracking-tighter line-clamp-2 mb-1.5 drop-shadow-lg">
                       {event.title}
                     </h2>
 
                     {event.description && (
-                      <div className="mt-2 border-t border-white/10 pt-3">
-                        <p className="text-white/80 font-medium text-xs sm:text-sm leading-relaxed line-clamp-2 drop-shadow-sm">
+                      <div className="mt-1.5 border-t border-white/10 pt-2">
+                        <p className="text-white/80 font-medium text-xs leading-relaxed line-clamp-2 drop-shadow-sm">
                           {event.description}
                         </p>
                       </div>
@@ -298,14 +317,10 @@ export default function Events() {
 
                 {/* Title for non-center cards */}
                 {!isCenter && (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="absolute inset-0 p-4 flex flex-col justify-end z-10"
-                  >
-                    <h3 className="font-sans font-black text-sm uppercase text-white leading-tight line-clamp-1 drop-shadow-md">{event.title}</h3>
-                    <p className="text-ev-accent font-bold text-[11px] mt-0.5 drop-shadow-md">{day} {month}</p>
-                  </motion.div>
+                  <div className="absolute inset-0 p-4 flex flex-col justify-end z-10">
+                    <h3 className="font-sans font-black text-xs uppercase text-white leading-tight line-clamp-1 drop-shadow-md">{event.title}</h3>
+                    <p className="text-ev-accent font-bold text-[10px] mt-0.5 drop-shadow-md">{day} {month}</p>
+                  </div>
                 )}
               </div>
 
@@ -313,15 +328,16 @@ export default function Events() {
               <AnimatePresence>
                 {isCenter && (
                   <motion.div 
-                    initial={{ opacity: 0, scale: 1.4, rotate: 0 }}
-                    animate={{ opacity: 1, scale: 1, rotate: -18 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    transition={{ delay: 0.2, duration: 0.4, type: 'spring' }}
-                    className="ev-ink-stamp absolute flex flex-col items-center justify-center w-20 h-20 sm:w-28 sm:h-28 -top-4 -left-3 sm:-top-6 sm:-left-8 origin-center bg-black border-2 sm:border-[3px] border-[#EFE7DB] text-[#EFE7DB] rounded-full z-40 shadow-xl"
+                    key="stamp"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1, rotate: -16 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ delay: 0.15, duration: 0.35, ease: 'easeOut' }}
+                    className="ev-ink-stamp absolute flex flex-col items-center justify-center w-16 h-16 sm:w-24 sm:h-24 -top-3 -left-3 sm:-top-5 sm:-left-6 origin-center bg-black border-2 border-[#EFE7DB] text-[#EFE7DB] rounded-full z-40 shadow-xl"
                   >
-                    <span className="text-[7px] sm:text-[9px] tracking-widest">JOIN US</span>
-                    <span className="text-[26px] sm:text-[34px] font-bold font-sans leading-none my-0.5 text-[#D4AF37] drop-shadow-md">R</span>
-                    <span className="text-[7px] sm:text-[9px] tracking-widest">SPORTS</span>
+                    <span className="text-[6px] sm:text-[8px] tracking-widest">JOIN US</span>
+                    <span className="text-[20px] sm:text-[28px] font-bold font-sans leading-none my-0.5 text-[#D4AF37] drop-shadow-md">R</span>
+                    <span className="text-[6px] sm:text-[8px] tracking-widest">SPORTS</span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -331,14 +347,14 @@ export default function Events() {
       </div>
 
       {/* ── Navigation Slider Controls (Arrows + Dot Indicators) ── */}
-      <div className="relative z-40 flex flex-col items-center gap-4 mt-4 w-full max-w-md">
-        <div className="flex items-center justify-center gap-6">
+      <div className="relative z-40 flex flex-col items-center gap-3 mt-2 w-full max-w-md">
+        <div className="flex items-center justify-center gap-5">
           <button
             onClick={handlePrev}
             aria-label="Previous Event"
-            className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-white/80 border border-black/10 text-charcoal flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-all active:scale-95"
+            className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/85 border border-black/10 text-charcoal flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-all active:scale-95"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -352,8 +368,8 @@ export default function Events() {
                 aria-label={`Go to event ${i + 1}`}
                 className="transition-all duration-300 rounded-full"
                 style={{
-                  width: i === activeIndex ? '28px' : '8px',
-                  height: '8px',
+                  width: i === activeIndex ? '24px' : '7px',
+                  height: '7px',
                   background: i === activeIndex ? '#C50337' : 'rgba(26,26,26,0.25)',
                 }}
               />
@@ -363,19 +379,18 @@ export default function Events() {
           <button
             onClick={handleNext}
             aria-label="Next Event"
-            className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-charcoal text-white flex items-center justify-center shadow-lg hover:bg-[#C50337] transition-all active:scale-95"
+            className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-charcoal text-white flex items-center justify-center shadow-md hover:bg-[#C50337] transition-all active:scale-95"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
 
-        <span className="text-[11px] font-semibold tracking-widest text-charcoal/50 uppercase">
+        <span className="text-[10px] font-semibold tracking-widest text-charcoal/50 uppercase">
           {isMobile ? 'Swipe left / right to browse' : 'Use controls or click side cards to browse'}
         </span>
       </div>
     </section>
   );
 }
-

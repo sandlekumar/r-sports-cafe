@@ -1,13 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 /**
  * RevealText
- * Splits text into individual characters and provides a signature 3D rotation/scale flash reveal.
- * Can be run standalone via its own ScrollTrigger, or driven by a parent GSAP timeline if standalone={false}.
+ * Splits text into individual characters and provides a signature 3D rotation/scale reveal.
+ * Uses IntersectionObserver for 100% reliable triggering across all mobile & desktop viewports.
  */
 export default function RevealText({
   text,
@@ -23,23 +20,21 @@ export default function RevealText({
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (!standalone || !containerRef.current) return;
+    const el = containerRef.current;
+    if (!standalone || !el) return;
 
-    const chars = containerRef.current.querySelectorAll(`.${charClassName}`);
+    const chars = el.querySelectorAll(`.${charClassName}`);
     if (chars.length === 0) return;
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 85%',
-        },
-      });
+    let animated = false;
 
-      // Signature Reveal (matches Hero)
-      tl.fromTo(
+    const triggerAnimation = () => {
+      if (animated) return;
+      animated = true;
+
+      gsap.fromTo(
         chars,
-        { opacity: 0, rotationX: 40, scale: 0.78, y: 12 },
+        { opacity: 0, rotationX: 35, scale: 0.85, y: 10 },
         {
           opacity: 1,
           rotationX: 0,
@@ -47,27 +42,45 @@ export default function RevealText({
           y: 0,
           stagger: stagger,
           duration: duration,
-          ease: 'power4.out',
+          ease: 'power3.out',
           transformOrigin: '50% 100%',
-        },
-        delay
+          delay: delay,
+          onComplete: () => {
+            chars.forEach((c) => {
+              c.style.opacity = '1';
+              c.style.transform = 'none';
+            });
+          },
+        }
       );
+    };
 
-      // Flash effect
-      tl.to(
-        chars,
-        {
-          keyframes: [
-            { color: '#F0D080', textShadow: '0 0 20px rgba(240,200,100,0.8)', duration: 0.1 },
-            { color: 'inherit', textShadow: '0 0 0px transparent', duration: 0.2 },
-          ],
-          stagger: stagger * 1.5,
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            triggerAnimation();
+            observer.disconnect();
+          }
         },
-        delay + 0.1
+        { threshold: 0.1, rootMargin: '50px 0px 0px 0px' }
       );
-    }, containerRef);
+      observer.observe(el);
 
-    return () => ctx.revert();
+      // Failsafe: After 1.5s, if not yet animated, ensure text is fully visible
+      const fallbackTimer = setTimeout(() => {
+        if (!animated) {
+          triggerAnimation();
+        }
+      }, 1500);
+
+      return () => {
+        observer.disconnect();
+        clearTimeout(fallbackTimer);
+      };
+    } else {
+      triggerAnimation();
+    }
   }, [standalone, stagger, duration, delay, charClassName]);
 
   return (
@@ -75,11 +88,12 @@ export default function RevealText({
       {text.split('').map((char, i) => (
         <span
           key={i}
-          className={`${charClassName} inline-block opacity-0`}
+          className={`${charClassName} inline-block`}
           style={{
             whiteSpace: char === ' ' ? 'pre' : 'normal',
-            willChange: 'opacity, transform, filter, color',
+            willChange: 'opacity, transform',
             transformOrigin: '50% 100%',
+            opacity: 1, // Fallback default visible so never blank
             ...charStyle,
           }}
         >
