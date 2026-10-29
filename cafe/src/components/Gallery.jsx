@@ -6,11 +6,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 // Asset URL strings — Vite hashes at build time. The IntersectionObserver
 // below withholds src assignment until the section nears the viewport.
-const img1 = new URL('../assets/tasteandplay/AHRPTWlu1JR_lh5ts1vV40632tiaqc_nhb_MS8dPelsIKVfO9cRWbf8KWukivxwU5Zzge_GCqfsMnKpzbUEuzoNR9rzoSlQCPFqkKEvhc9282SoYzNnKRfe3DsRaKCqYsLYxoFcrohlAMebbJ-cw2768-h1848-k-no.webp', import.meta.url).href;
-const img2 = new URL('../assets/tasteandplay/AHRPTWmyrrvDFAlqsutszgAbh8gJ7aTwYJFhbCUWUIZkKyiLq58KozZ34fTsHPNJoKIuBU72JZajnuiSWaw7bmfHGejtuf3a8N7LQmUCKIiDNSXFF8LKkL86WRiQTliQq0F0SBpRKxJDXEVINykNw2768-h1848-k-no.webp', import.meta.url).href;
-const img3 = new URL('../assets/tasteandplay/AHRPTWneCVL46nqAjOtuJbFWajiaGMg8gEBcUh1TaK23CN93aR_UB0JND9GEM7O7gCNDc0H_2MJ8bdA41WajR7-WvCJNIY7ubKU_AM7sDSjlFzuZSlNgDc6V5kay9SiuoqmBiRrT-QxTMpQ-5Hg_w2768-h1848-k-no.webp', import.meta.url).href;
-const img4 = new URL('../assets/tasteandplay/AHRPTWnepL3dlkb8RRpoq7W3g_jCmC7eULpDijSq81ecK7UqXV7mXvhMt7wiHjRBr7Y6SaAxS2rypxiEusSoCVvQ79Tl0R-gf89wdVz4qNvIR09FeMrHEzla3AJVJNRMm7_S5gqV6QTL80A2LsGxw2768-h1848-k-no.webp', import.meta.url).href;
-const img5 = new URL('../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.webp', import.meta.url).href;
+const img1 = new URL('../assets/tasteandplay/gallery-1.webp', import.meta.url).href;
+const img2 = new URL('../assets/tasteandplay/gallery-2.webp', import.meta.url).href;
+const img3 = new URL('../assets/tasteandplay/gallery-3.webp', import.meta.url).href;
+const img4 = new URL('../assets/tasteandplay/gallery-4.webp', import.meta.url).href;
+const img5 = new URL('../assets/tasteandplay/interior.webp', import.meta.url).href;
 
 const galleryItems = [
   {
@@ -257,7 +257,7 @@ export default function Gallery() {
         >
           <div className="max-w-sm pointer-events-auto">
             <div className="w-8 h-[2px] bg-gradient-to-r from-[#D4AF37] to-[#D8C3A5] mb-4" />
-            <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-neutral-400 mb-6 block">
+            <span className="font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-neutral-400 mb-6 block uppercase">
               VISUAL INDEX
             </span>
             <h2 className="font-sans font-bold text-[clamp(44px,12vw,88px)] text-darkText leading-[1] tracking-[-0.03em] mb-8 uppercase">
@@ -275,7 +275,7 @@ export default function Gallery() {
       {isMobile && (
         <div className="mb-8 text-center max-w-sm mx-auto">
           <div className="w-8 h-[2px] bg-gradient-to-r from-[#D4AF37] to-[#D8C3A5] mx-auto mb-3" />
-          <span className="font-inter font-medium text-[11px] tracking-[0.24em] text-neutral-400 mb-2 block uppercase">
+          <span className="font-sideheading font-bold text-[13px] tracking-[0.24em] text-neutral-400 mb-2 block uppercase">
             Visual Index
           </span>
           <h2 className="font-sans font-bold text-3xl xs:text-4xl text-darkText leading-none uppercase tracking-tight mb-3">
@@ -296,7 +296,7 @@ export default function Gallery() {
           <div className="flex-shrink-0 w-[32vw]" />
           {galleryItems.map((item, idx) => (
             <div key={item.id} className="gallery-item-card opacity-0 flex-shrink-0 flex flex-col group relative">
-              <div className="flex justify-between items-center mb-4 font-inter font-medium text-[12px] tracking-[0.24em] text-neutral-400 px-1 uppercase">
+              <div className="flex justify-between items-center mb-4 font-sideheading font-bold text-[13px] md:text-[14px] tracking-[0.22em] text-neutral-400 px-1 uppercase">
                 <span>MEMBER ARCHIVE // {item.id}</span>
                 <span className="font-inter font-normal text-[12px] opacity-60 normal-case">{item.technical}</span>
               </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import luxuryInterior from '../assets/tasteandplay/APNQkAF6krmLyqu1qzbpviSLO_qotKvNKHefiIctik_sxkZ2f67CFH0KvdJD6yEH34vMDiqxcPSDFy8G4biQO_OhHgOnW_KdPUkNcAHuSBaM7j_Y5WBoDDGHBn5ocmRurzlB2tTmExh_dIQmYkrxw2768-h1848-k-no.webp';
+import luxuryInterior from '../assets/tasteandplay/interior.webp';
 import sketchBg from '../assets/architectural-sketch-collage.png.webp';
 import RevealText from './RevealText';
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll';
@@ -107,7 +107,7 @@ export default function Philosophy() {
       </div>
       {/* Background Watermark Faded Text */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
-        <span className="font-sans font-bold text-[12vw] md:text-[9vw] text-neutral-900 opacity-[0.02] tracking-[0.08em] whitespace-nowrap">
+        <span className="font-logo font-bold text-[14vw] md:text-[10vw] text-neutral-900 opacity-[0.025] tracking-[0.08em] whitespace-nowrap">
           R SPORTS & CAFE
         </span>
       </div>
@@ -127,7 +127,7 @@ export default function Philosophy() {
           
           {/* Section Indicator */}
           <div className="space-y-4">
-            <span className="font-inter font-bold text-[12px] tracking-[0.24em] text-sandalAccent uppercase block">
+            <span className="font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-sandalAccent uppercase block">
               YOUR SPORTS & CAFE DESTINATION IN THOOTHUKUDI
             </span>
             <div ref={dividerRef} className="w-24 h-[2px] bg-gradient-to-r from-sandalAccent to-transparent reveal-up" />

@@ -82,7 +82,7 @@ export default function Turf() {
 
       {/* Main Campaign Message */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-5xl w-full">
-        <span ref={eyebrowRef} className="reveal-up font-inter font-medium text-[12px] tracking-[0.24em] text-white/60 mb-8 uppercase" style={{ '--delay': '0s' }}>
+        <span ref={eyebrowRef} className="reveal-up font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-white/70 mb-8 uppercase" style={{ '--delay': '0s' }}>
           TURF & SPORTS BOOKING
         </span>
 
@@ -124,7 +124,7 @@ export default function Turf() {
       </div>
 
       {/* Secondary technical markings */}
-      <div className="absolute bottom-12 left-10 right-10 flex justify-between items-center font-inter text-[12px] font-medium text-white/60 tracking-[0.24em] pointer-events-none z-10 hidden md:flex uppercase">
+      <div className="absolute bottom-12 left-10 right-10 flex justify-between items-center font-sideheading text-[13px] md:text-[14px] font-bold text-white/70 tracking-[0.22em] pointer-events-none z-10 hidden md:flex uppercase">
         <span>BOOK YOUR GAME IN THOOTHUKUDI</span>
         <span>CASUAL GAMES // PRACTICE // WEEKEND PLANS</span>
       </div>

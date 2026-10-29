@@ -5,6 +5,7 @@ services:
     rootDir: cafe/server
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
@@ -31,4 +32,10 @@ services:
       - key: WHATSAPP_PHONE_NUMBER_ID
         sync: false
       - key: ADMIN_WHATSAPP_NUMBER
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
         sync: false

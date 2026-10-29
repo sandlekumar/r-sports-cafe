@@ -54,7 +54,7 @@ export default function CancelBookingPage() {
             <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
             <path d="M13 13l4 4" />
           </svg>
-          <span className="font-sans font-bold text-[14px] tracking-[0.15em] text-[#D4AF37]">R SPORTS & CAFE</span>
+          <span className="font-logo font-bold text-[18px] tracking-[0.1em] text-[#D4AF37]">R SPORTS & CAFE</span>
         </div>
 
         {/* ── Invalid Link ── */}

@@ -3,6 +3,7 @@ const fs = require('fs');
 const multer = require('multer');
 const sharp = require('sharp');
 const Event = require('../models/Event');
+const { saveImage } = require('../services/cloudinaryService');
 
 // ─── Multer Config ────────────────────────────────────────────────────────────
 const storage = multer.memoryStorage();
@@ -274,17 +275,18 @@ exports.uploadEventPhoto = async (req, res, next) => {
       return res.status(400).json({ success: false, error: { code: 'NO_FILE', message: 'No image file provided' } });
     }
 
-    const filename = `event-${Date.now()}.webp`;
-    const uploadsDir = path.join(__dirname, '../uploads/events');
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-    const filepath = path.join(uploadsDir, filename);
-
-    await sharp(req.file.buffer)
+    const optimizedBuffer = await sharp(req.file.buffer)
       .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 80 })
-      .toFile(filepath);
+      .toBuffer();
 
-    const photoUrl = `/uploads/events/${filename}`;
+    const photoUrl = await saveImage({
+      buffer: optimizedBuffer,
+      folder: 'events',
+      filename: `event-${Date.now()}.webp`,
+      fallbackSubdir: 'events',
+    });
+
     const event = await Event.findByIdAndUpdate(id, { photo: photoUrl }, { new: true });
     if (!event) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Event not found' } });

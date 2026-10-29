@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
+import { getMenuPhoto, HIGHLIGHT_IMAGES } from '../data/menuImages';
 
 // Asset imports
 import burgerImg from '../assets/signature_burger.webp';
@@ -192,7 +193,9 @@ function LeafFlourish({ className }) {
 
 function ImageMarquee() {
   const marqueeRef = useRef(null);
-  const images = [burgerImg, pizzaImg, coffeeImg, juiceImg, chickenImg, fishImg, latteImg, shrimpImg, teaImg];
+  const images = HIGHLIGHT_IMAGES && HIGHLIGHT_IMAGES.length > 0 
+    ? HIGHLIGHT_IMAGES 
+    : [burgerImg, pizzaImg, coffeeImg, juiceImg, chickenImg, fishImg, latteImg, shrimpImg, teaImg];
 
   const handleScroll = (dir) => {
     if (marqueeRef.current) {
@@ -375,8 +378,8 @@ function MenuShowcase() {
       <section className="relative max-w-4xl mx-auto px-6 py-16">
         <LeafFlourish className="absolute top-12 right-4 w-16 opacity-80" />
         <h2
-          className="text-[30px] md:text-[40px] font-normal mb-1 relative z-10"
-          style={{ color: menuTheme.headerGreen, fontFamily: "Georgia, 'Times New Roman', serif" }}
+          className="text-[30px] md:text-[40px] font-bold mb-1 relative z-10 font-heading tracking-wider uppercase"
+          style={{ color: menuTheme.headerGreen }}
         >
           {MENU_CATEGORIES.find((c) => c.id === active)?.label}
         </h2>
@@ -384,22 +387,29 @@ function MenuShowcase() {
 
         <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
           {FULL_MENU[active]?.map((item, i) => {
-            const photoSrc = item.photo || getCategoryImage(active, item.name);
+            const photoSrc = item.photo || getMenuPhoto(item.name) || getCategoryImage(active, item.name);
             return (
-              <div key={i} className="flex gap-4 items-start pb-6 border-b" style={{ borderColor: `${menuTheme.textSec}20` }}>
+              <div key={i} className="group/item flex gap-4 items-start pb-6 border-b transition-colors hover:bg-black/[0.015] p-2 rounded-2xl" style={{ borderColor: `${menuTheme.textSec}20` }}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span
                       className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0"
                       style={{ background: item.veg ? menuTheme.vegGreen : menuTheme.nonVegRed }}
                     />
-                    <strong className="text-[15px]" style={{ color: menuTheme.textPri }}>{item.name}</strong>
+                    <strong className="text-[15px] group-hover/item:text-[#3F5A3A] transition-colors" style={{ color: menuTheme.textPri }}>{item.name}</strong>
                   </div>
                   {item.desc && <p className="text-[13px] mb-1.5 leading-relaxed" style={{ color: menuTheme.textSec }}>{item.desc}</p>}
                   <span className="text-[14px] font-semibold" style={{ color: menuTheme.gold }}>₹{item.price}</span>
                 </div>
                 {photoSrc && (
-                  <img src={photoSrc} alt={item.name} loading="lazy" className="w-18 h-18 rounded-xl object-cover flex-shrink-0" style={{ width: 72, height: 72 }} />
+                  <div className="relative w-20 h-20 md:w-22 md:h-22 flex-shrink-0 rounded-2xl overflow-hidden shadow-sm border border-[#B58A55]/25 bg-black/5">
+                    <img 
+                      src={photoSrc} 
+                      alt={item.name} 
+                      loading="lazy" 
+                      className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" 
+                    />
+                  </div>
                 )}
               </div>
             );
@@ -454,7 +464,7 @@ export default function MenuPage() {
           <div className="flex items-center gap-6 font-bold uppercase tracking-[0.12em] text-[11px]" style={{ color: menuTheme.textPri }}>
             <Link to="/" className="hover:text-[#B58A55] transition-colors">Home</Link>
             <Link to="/turf" className="hover:text-[#B58A55] transition-colors">Turf</Link>
-            <Link to="/booking" className="hover:text-[#B58A55] transition-colors">Reserve Table</Link>
+            <Link to="/book-table" className="hover:text-[#B58A55] transition-colors">Reserve Table</Link>
           </div>
         </div>
       </footer>

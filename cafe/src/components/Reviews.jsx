@@ -59,13 +59,15 @@ export default function Reviews() {
   const [direction, setDirection] = useState(1);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/reviews')
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
+    fetch(`${SERVER_URL}/api/reviews`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const processed = data.map(r => ({
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        if (list.length > 0) {
+          const processed = list.map(r => ({
             ...r,
-            imageUrl: r.imageUrl && r.imageUrl.startsWith('/uploads') ? `http://localhost:5000${r.imageUrl}` : r.imageUrl
+            imageUrl: r.imageUrl && r.imageUrl.startsWith('/uploads') ? `${SERVER_URL}${r.imageUrl}` : r.imageUrl
           }));
           setReviews(processed);
         }
@@ -137,13 +139,12 @@ export default function Reviews() {
       {/* Faint watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
         <span
-          className="font-bold uppercase whitespace-nowrap"
+          className="font-logo font-bold uppercase whitespace-nowrap"
           style={{
-            fontSize: '10vw',
+            fontSize: '13vw',
             color: '#1A1A1A',
-            opacity: 0.018,
+            opacity: 0.02,
             letterSpacing: '0.08em',
-            fontFamily: '"Inter", sans-serif',
           }}
         >
           R SPORTS &amp; CAFE
@@ -180,8 +181,8 @@ export default function Reviews() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span
-                className="block font-bold tracking-[0.24em] uppercase text-[12px]"
-                style={{ color: '#D8C3A5', fontFamily: '"Inter", sans-serif' }}
+                className="block font-sideheading font-bold tracking-[0.24em] uppercase text-[14px] md:text-[15px]"
+                style={{ color: '#D8C3A5' }}
               >
                 Customer Testimonials
               </span>
@@ -192,12 +193,11 @@ export default function Reviews() {
             </div>
             <div className="w-12 h-px" style={{ background: 'rgba(212,175,55,0.5)' }} />
             <h2
-              className="mt-5 font-bold leading-[1.05] uppercase"
+              className="mt-5 font-bold leading-[1.05] uppercase font-sans"
               style={{
-                fontFamily: '"Inter", "Satoshi", sans-serif',
                 fontSize: 'clamp(28px, 5vw, 60px)',
                 color: '#111111',
-                letterSpacing: '-0.02em',
+                letterSpacing: '0.02em',
               }}
             >
               What Our Guests<br />Are Saying

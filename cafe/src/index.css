@@ -2,7 +2,49 @@
 
 @config "../tailwind.config.js";
 
+/* ─── STEELFISH ROUNDED TYPOGRAPHY ─── */
+@font-face {
+  font-family: 'Steelfish Rounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Steelfish Rounded'),
+       url('/fonts/steelfish.woff') format('woff'),
+       url('https://fonts.cdnfonts.com/s/8620/steelfish.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Steelfish Rounded';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Steelfish Rounded'),
+       url('/fonts/steelfish-rounded-bd.woff') format('woff'),
+       url('https://fonts.cdnfonts.com/s/20253/steelfish%20rounded%20bd.woff') format('woff');
+}
+
+@theme {
+  --font-logo: 'Steelfish Rounded', 'Steelfish', 'Oswald', sans-serif;
+  --font-sideheading: 'Steelfish Rounded', 'Steelfish', 'Oswald', sans-serif;
+  --font-steelfish: 'Steelfish Rounded', 'Steelfish', 'Oswald', sans-serif;
+  --font-heading: 'Satoshi', 'Inter', sans-serif;
+}
+
 @layer base {
+  /* Steelfish Rounded is used ONLY for R SPORTS & CAFE branding and side headings */
+  .font-logo,
+  .brand-logo,
+  .brand-rsports,
+  .font-sideheading,
+  .side-heading {
+    font-family: 'Steelfish Rounded', 'Steelfish', 'Oswald', sans-serif !important;
+  }
+
+  /* General headings remain modern editorial sans-serif (Satoshi / Inter) */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading, 'Satoshi', 'Inter', sans-serif);
+  }
+
   html {
     @apply w-full m-0 p-0;
   }

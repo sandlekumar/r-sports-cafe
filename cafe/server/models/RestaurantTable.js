@@ -69,14 +69,13 @@ const restaurantTableSchema = new mongoose.Schema(
 );
 
 // Validate minimumCapacity <= capacity <= maximumCapacity
-restaurantTableSchema.pre('save', function (next) {
+restaurantTableSchema.pre('save', function () {
   if (this.minimumCapacity > this.capacity) {
-    return next(new Error('minimumCapacity cannot exceed capacity'));
+    throw new Error('minimumCapacity cannot exceed capacity');
   }
   if (this.maximumCapacity && this.maximumCapacity < this.capacity) {
-    return next(new Error('maximumCapacity cannot be less than capacity'));
+    throw new Error('maximumCapacity cannot be less than capacity');
   }
-  next();
 });
 
 restaurantTableSchema.index({ area: 1, active: 1 });

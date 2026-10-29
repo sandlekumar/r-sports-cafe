@@ -15,10 +15,14 @@ export default {
     },
     extend: {
       fontFamily: {
+        logo: ["'Steelfish Rounded'", "'Steelfish'", 'Oswald', 'sans-serif'],
+        sideheading: ["'Steelfish Rounded'", "'Steelfish'", 'Oswald', 'sans-serif'],
+        steelfish: ["'Steelfish Rounded'", "'Steelfish'", 'Oswald', 'sans-serif'],
+        heading: ['Satoshi', 'Inter', 'sans-serif'],
         sans: ['Satoshi', 'Inter', 'Neue Haas Grotesk', 'Helvetica Neue', 'Arial', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
         oswald: ['Oswald', 'sans-serif'],
-        stamp: ['Oswald', 'Impact', 'sans-serif'],
+        stamp: ["'Steelfish Rounded'", 'Oswald', 'Impact', 'sans-serif'],
         utility: ['"JetBrains Mono"', 'Consolas', 'monospace'],
       },
       letterSpacing: {

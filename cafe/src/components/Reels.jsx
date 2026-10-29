@@ -221,7 +221,7 @@ export default function Reels() {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-[2px] bg-gradient-to-r from-[#D4AF37] to-transparent" />
-              <span className="font-inter font-medium text-[11px] tracking-[0.25em] text-[#D4AF37] uppercase">
+              <span className="font-sideheading font-bold text-[13px] md:text-[15px] tracking-[0.25em] text-[#D4AF37] uppercase">
                 REELS • HIGHLIGHTS
               </span>
             </div>

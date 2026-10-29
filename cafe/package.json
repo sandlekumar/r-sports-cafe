@@ -9,7 +9,8 @@
     "server": "node server/index.js",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "optimize:menu": "node scripts/optimize-menuitems.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

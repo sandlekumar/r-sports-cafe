@@ -3,6 +3,7 @@ const fs = require('fs');
 const multer = require('multer');
 const sharp = require('sharp');
 const Review = require('../models/Review');
+const { saveImage } = require('../services/cloudinaryService');
 
 // ─── Multer Config ────────────────────────────────────────────────────────────
 const storage = multer.memoryStorage();
@@ -29,10 +30,10 @@ exports.upload = multer({
 exports.getReviews = async (req, res) => {
   try {
     const reviews = await Review.find().sort({ order: 1, createdAt: -1 });
-    res.json(reviews);
+    res.json({ success: true, data: reviews });
   } catch (error) {
     console.error('Error fetching reviews:', error);
-    res.status(500).json({ message: 'Server error fetching reviews' });
+    res.status(500).json({ success: false, error: { message: 'Server error fetching reviews' } });
   }
 };
 
@@ -51,24 +52,19 @@ exports.createReview = async (req, res) => {
       return res.status(400).json({ message: 'Review image is required' });
     }
 
-    // Process image with sharp
+    // Process and save image with saveImage
     const filename = `review-${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
-    const uploadDir = path.join(__dirname, '../uploads/reviews');
-    
-    // Ensure directory exists
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    const filepath = path.join(uploadDir, filename);
-
-    // Optimize image (resize width to max 1200 to keep quality but reduce size)
-    await sharp(req.file.buffer)
+    const optimizedBuffer = await sharp(req.file.buffer)
       .resize({ width: 1200, withoutEnlargement: true })
       .webp({ quality: 85 })
-      .toFile(filepath);
+      .toBuffer();
 
-    const imageUrl = `/uploads/reviews/${filename}`;
+    const imageUrl = await saveImage({
+      buffer: optimizedBuffer,
+      folder: 'reviews',
+      filename,
+      fallbackSubdir: 'reviews',
+    });
 
     const newReview = new Review({
       name,
@@ -98,7 +94,7 @@ exports.deleteReview = async (req, res) => {
     // Delete image file if it exists
     if (review.imageUrl) {
       const filename = path.basename(review.imageUrl);
-      const filepath = path.join(__dirname, '../../public/uploads/reviews', filename);
+      const filepath = path.join(__dirname, '../uploads/reviews', filename);
       if (fs.existsSync(filepath)) {
         fs.unlinkSync(filepath);
       }

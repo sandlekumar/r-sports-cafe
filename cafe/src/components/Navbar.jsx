@@ -97,7 +97,7 @@ export default function Navbar() {
             <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
             <path d="M13 13l4 4" />
           </svg>
-          <span className={`font-sans font-semibold text-[14px] xs:text-[16px] sm:text-[18px] md:text-[22px] tracking-[0.08em] whitespace-nowrap transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}>
+          <span className={`font-logo font-bold text-[18px] xs:text-[20px] sm:text-[22px] md:text-[26px] tracking-[0.08em] whitespace-nowrap transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}>
             R SPORTS <span className="hidden xs:inline">&amp; CAFE</span>
           </span>
         </Link>

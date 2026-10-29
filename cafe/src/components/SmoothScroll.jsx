@@ -52,7 +52,7 @@ export default function SmoothScroll({ children }) {
     };
     gsap.ticker.add(updateGsap);
 
-    // Disable lag smoothing to prevent visual jumps
+    // Enable GSAP lag smoothing to smoothly absorb frame drops
     gsap.ticker.lagSmoothing(0);
 
     // Expose lenis and ScrollTrigger globally

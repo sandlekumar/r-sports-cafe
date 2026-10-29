@@ -68,11 +68,11 @@ export default function Preloader() {
             transition={{ duration: 1.2, ease: 'easeOut' }}
             className="flex flex-col items-center"
           >
-            <span className="font-sans font-bold text-[32px] md:text-[48px] text-transparent bg-clip-text bg-gradient-to-r from-[#AA771C] via-[#F4E27C] to-[#AA771C] tracking-[0.3em] uppercase drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-              R SPORTS
+            <span className="font-logo font-bold text-[36px] md:text-[54px] text-transparent bg-clip-text bg-gradient-to-r from-[#AA771C] via-[#F4E27C] to-[#AA771C] tracking-[0.16em] uppercase drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+              R SPORTS &amp; CAFE
             </span>
-            <span className="font-inter font-medium text-[10px] md:text-[12px] tracking-[0.4em] text-[#D4AF37]/60 mt-4 uppercase">
-              Taste & Play
+            <span className="font-sideheading font-bold text-[12px] md:text-[14px] tracking-[0.35em] text-[#D4AF37]/80 mt-3 uppercase">
+              Taste &amp; Play
             </span>
           </motion.div>
 

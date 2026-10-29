@@ -30,44 +30,48 @@ const seedData = async () => {
     // 3. Restaurant Areas & Tables
     const areaCount = await RestaurantArea.countDocuments();
     if (areaCount === 0) {
-      const mainIndoor = await RestaurantArea.create({
-        name: 'Main Indoor',
-        description: 'Indoor dining with live sports broadcasts & air conditioning',
+      const indoorArea = await RestaurantArea.create({
+        name: 'Indoor Seating',
+        description: 'Air-conditioned dining with sports broadcasts & premium seating',
         displayOrder: 1,
         active: true,
       });
 
-      const outdoorTerrace = await RestaurantArea.create({
-        name: 'Outdoor Terrace',
-        description: 'Al-fresco seating surrounded by greenery and cool breeze',
+      const outdoorArea = await RestaurantArea.create({
+        name: 'Outdoor Seating',
+        description: 'Al-fresco open air garden seating surrounded by lush greenery',
         displayOrder: 2,
-        active: true,
-      });
-
-      const vipLounge = await RestaurantArea.create({
-        name: 'VIP Lounge',
-        description: 'Exclusive lounge tables for special celebrations & privacy',
-        displayOrder: 3,
         active: true,
       });
 
       // Seed tables
       await RestaurantTable.insertMany([
-        // Main Indoor
-        { name: 'Table 1', area: mainIndoor._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 50, positionY: 50, shape: 'square', bookable: true, active: true },
-        { name: 'Table 2', area: mainIndoor._id, capacity: 4, minimumCapacity: 2, maximumCapacity: 4, positionX: 200, positionY: 50, shape: 'square', bookable: true, active: true },
-        { name: 'Table 3', area: mainIndoor._id, capacity: 4, minimumCapacity: 2, maximumCapacity: 4, positionX: 350, positionY: 50, shape: 'square', bookable: true, active: true },
-        { name: 'Table 4', area: mainIndoor._id, capacity: 6, minimumCapacity: 4, maximumCapacity: 8, positionX: 500, positionY: 50, shape: 'rectangle', bookable: true, active: true },
+        // Row A (6 seats)
+        { name: 'A1', area: indoorArea._id, capacity: 6, minimumCapacity: 1, maximumCapacity: 6, positionX: 40, positionY: 30, width: 90, height: 60, shape: 'rectangle', bookable: true, active: true },
+        { name: 'A2', area: indoorArea._id, capacity: 6, minimumCapacity: 1, maximumCapacity: 6, positionX: 160, positionY: 30, width: 90, height: 60, shape: 'rectangle', bookable: true, active: true },
 
-        // Outdoor Terrace
-        { name: 'Terrace 1', area: outdoorTerrace._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 50, positionY: 200, shape: 'round', bookable: true, active: true },
-        { name: 'Terrace 2', area: outdoorTerrace._id, capacity: 4, minimumCapacity: 2, maximumCapacity: 4, positionX: 200, positionY: 200, shape: 'round', bookable: true, active: true },
-        { name: 'Terrace 3', area: outdoorTerrace._id, capacity: 4, minimumCapacity: 2, maximumCapacity: 4, positionX: 350, positionY: 200, shape: 'round', bookable: true, active: true },
-        { name: 'Terrace 4', area: outdoorTerrace._id, capacity: 6, minimumCapacity: 4, maximumCapacity: 8, positionX: 500, positionY: 200, shape: 'rectangle', bookable: true, active: true },
+        // Row B (4 seats)
+        { name: 'B1', area: indoorArea._id, capacity: 4, minimumCapacity: 1, maximumCapacity: 4, positionX: 40, positionY: 120, width: 70, height: 60, shape: 'square', bookable: true, active: true },
+        { name: 'B2', area: indoorArea._id, capacity: 4, minimumCapacity: 1, maximumCapacity: 4, positionX: 130, positionY: 120, width: 70, height: 60, shape: 'square', bookable: true, active: true },
+        { name: 'B3', area: indoorArea._id, capacity: 4, minimumCapacity: 1, maximumCapacity: 4, positionX: 220, positionY: 120, width: 70, height: 60, shape: 'square', bookable: true, active: true },
+        { name: 'B4', area: indoorArea._id, capacity: 4, minimumCapacity: 1, maximumCapacity: 4, positionX: 310, positionY: 120, width: 70, height: 60, shape: 'square', bookable: true, active: true },
 
-        // VIP Lounge
-        { name: 'VIP 1', area: vipLounge._id, capacity: 8, minimumCapacity: 4, maximumCapacity: 10, positionX: 100, positionY: 350, shape: 'rectangle', bookable: true, active: true },
-        { name: 'VIP 2', area: vipLounge._id, capacity: 12, minimumCapacity: 6, maximumCapacity: 15, positionX: 350, positionY: 350, shape: 'rectangle', bookable: true, active: true },
+        // Row C (2 seats)
+        { name: 'C1', area: indoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 40, positionY: 210, width: 55, height: 50, shape: 'square', bookable: true, active: true },
+        { name: 'C2', area: indoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 130, positionY: 210, width: 55, height: 50, shape: 'square', bookable: true, active: true },
+        { name: 'C3', area: indoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 220, positionY: 210, width: 55, height: 50, shape: 'square', bookable: true, active: true },
+
+        // Outdoor 01 - 10 (2 seats)
+        { name: 'Outdoor 01', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 30, positionY: 30, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 02', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 100, positionY: 30, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 03', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 170, positionY: 30, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 04', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 240, positionY: 30, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 05', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 310, positionY: 30, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 06', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 30, positionY: 110, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 07', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 100, positionY: 110, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 08', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, shape: 'round', positionX: 170, positionY: 110, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 09', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 240, positionY: 110, width: 50, height: 50, shape: 'round', bookable: true, active: true },
+        { name: 'Outdoor 10', area: outdoorArea._id, capacity: 2, minimumCapacity: 1, maximumCapacity: 2, positionX: 310, positionY: 110, width: 50, height: 50, shape: 'round', bookable: true, active: true },
       ]);
 
       console.log('🌱 Seeded default RestaurantAreas and RestaurantTables');

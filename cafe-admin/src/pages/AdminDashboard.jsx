@@ -1289,7 +1289,7 @@ export default function AdminDashboard() {
                           <div className="relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center"
                             style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.85)' }}>
                             {ev.photo ? (
-                              <img src={`${SERVER_BASE_URL}${ev.photo}`} alt={ev.title} className="w-full h-full object-cover" />
+                              <img src={ev.photo.startsWith('http') ? ev.photo : `${SERVER_BASE_URL}${ev.photo}`} alt={ev.title} className="w-full h-full object-cover" />
                             ) : (
                               <span className="text-[22px]">📷</span>
                             )}
@@ -1735,7 +1735,7 @@ export default function AdminDashboard() {
                                 {/* Photo Thumbnail */}
                                 {tbl.photo ? (
                                   <div className="w-12 h-12 rounded-xl mx-auto mb-3 overflow-hidden border border-black/10">
-                                    <img src={`${SERVER_BASE_URL}${tbl.photo}`} alt={tbl.name} className="w-full h-full object-cover" />
+                                    <img src={tbl.photo.startsWith('http') ? tbl.photo : `${SERVER_BASE_URL}${tbl.photo}`} alt={tbl.name} className="w-full h-full object-cover" />
                                   </div>
                                 ) : (
                                   <div className="w-12 h-12 rounded-xl mx-auto mb-3 bg-black/5 border border-black/10 flex items-center justify-center text-[18px]">
@@ -2669,7 +2669,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-4">
                         {tableForm.photo ? (
                           <div className="w-16 h-16 rounded-xl overflow-hidden border border-black/10 flex-shrink-0">
-                            <img src={`${SERVER_BASE_URL}${tableForm.photo}`} alt="Table" className="w-full h-full object-cover" />
+                            <img src={tableForm.photo.startsWith('http') ? tableForm.photo : `${SERVER_BASE_URL}${tableForm.photo}`} alt="Table" className="w-full h-full object-cover" />
                           </div>
                         ) : (
                           <div className="w-16 h-16 rounded-xl bg-black/5 border border-black/10 flex items-center justify-center text-[24px] flex-shrink-0">

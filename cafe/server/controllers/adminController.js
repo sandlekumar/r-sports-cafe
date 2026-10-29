@@ -8,6 +8,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
+const { saveImage } = require('../services/cloudinaryService');
 
 const uploadTablePhoto = multer({
   storage: multer.memoryStorage(),
@@ -459,18 +460,21 @@ exports.uploadTablePhotoHandler = [
         return res.status(400).json({ success: false, error: { message: 'No photo provided' } });
       }
 
-      const dir = path.join(__dirname, '../uploads/tables');
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-      const filename = `table-${Date.now()}.webp`;
-      await sharp(req.file.buffer)
+      const optimizedBuffer = await sharp(req.file.buffer)
         .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
         .webp({ quality: 80 })
-        .toFile(path.join(dir, filename));
+        .toBuffer();
+
+      const photoUrl = await saveImage({
+        buffer: optimizedBuffer,
+        folder: 'tables',
+        filename: `table-${Date.now()}.webp`,
+        fallbackSubdir: 'tables',
+      });
 
       const table = await RestaurantTable.findByIdAndUpdate(
         req.params.id,
-        { photo: `/uploads/tables/${filename}` },
+        { photo: photoUrl },
         { new: true }
       );
 

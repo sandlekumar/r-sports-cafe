@@ -76,7 +76,7 @@ export default function Booking() {
         {/* Left Side: Aesthetic Typography */}
         <div className="lg:w-1/2 text-white">
           <div ref={titleRef} className="mb-8 reveal-up" style={{ '--delay': '0s' }}>
-            <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-[#D4AF37] mb-6 block">
+            <span className="font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-[#D4AF37] mb-6 block uppercase">
               YOUR TABLE. YOUR TIME.
             </span>
             <h2 className="font-sans font-bold text-[clamp(32px,9vw,72px)] text-white leading-[0.95] tracking-[-0.03em] uppercase">
@@ -94,13 +94,13 @@ export default function Booking() {
           </div>
           <div ref={locationDividerRef} className="mt-12 flex items-center gap-4 reveal-up" style={{ '--delay': '0.3s' }}>
             <div className="w-12 h-[1px] bg-gradient-to-r from-[#D4AF37] to-transparent" />
-            <span className="font-inter text-[11px] tracking-[0.2em] text-[#D4AF37] uppercase">
+            <span className="font-sideheading font-bold text-[13px] md:text-[14px] tracking-[0.2em] text-[#D4AF37] uppercase">
               Find Us in Thoothukudi
             </span>
           </div>
           <div ref={addressRef} className="mt-8 reveal-up" style={{ '--delay': '0.45s' }}>
             <p className="font-inter text-white text-[14px] leading-relaxed mb-6 opacity-80">
-              <strong className="text-white">R SPORTS & CAFE</strong><br/>
+              <strong className="font-logo font-bold text-white text-[16px] tracking-wider">R SPORTS & CAFE</strong><br/>
               SNR Nagar, 4/4,<br/>
               Caldwell Colony,<br/>
               Thoothukudi,<br/>

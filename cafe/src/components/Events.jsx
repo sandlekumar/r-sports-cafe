@@ -176,7 +176,7 @@ export default function Events() {
       {/* Top Bar Branding */}
       <div className="w-full max-w-6xl flex justify-between items-center z-40 mb-6">
         <div>
-          <span className="font-inter font-medium text-[11px] md:text-[12px] tracking-[0.24em] text-neutral-400 uppercase block">
+          <span className="font-sideheading font-bold text-[13px] md:text-[15px] tracking-[0.24em] text-neutral-500 uppercase block">
             Upcoming Gatherings
           </span>
           <h2 className="text-charcoal font-bold text-xl md:text-3xl tracking-tight uppercase">
@@ -185,10 +185,10 @@ export default function Events() {
         </div>
 
         <div className="text-right hidden sm:block">
-          <h3 className="text-charcoal font-bold text-base md:text-xl tracking-widest uppercase">
+          <h3 className="font-logo text-charcoal font-bold text-lg md:text-2xl tracking-widest uppercase">
             R SPORTS <span className="opacity-60">&amp; CAFE</span>
           </h3>
-          <p className="text-charcoal/50 font-medium tracking-[0.2em] text-[10px] uppercase">Thoothukudi</p>
+          <p className="font-sideheading text-charcoal/60 font-bold tracking-[0.2em] text-[12px] uppercase">Thoothukudi</p>
         </div>
       </div>
 
@@ -228,7 +228,7 @@ export default function Events() {
                   className="absolute inset-0 w-full h-full bg-gray-900"
                 >
                   {event.photo ? (
-                    <img src={`${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.1]" alt={event.title || 'Event image'} loading="lazy" decoding="async" />
+                    <img src={event.photo.startsWith('http') ? event.photo : `${BASE_URL}${event.photo}`} className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.1]" alt={event.title || 'Event image'} loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
                       <span className="text-white/40 font-bold uppercase tracking-widest text-sm sm:text-base">R Sports &amp; Cafe Event</span>

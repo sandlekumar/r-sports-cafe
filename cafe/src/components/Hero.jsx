@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import heroVideo from '../assets/hero-video-opt.mp4';
-import nightImage from '../assets/night.png';
+import nightImage from '../assets/night.webp';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -174,7 +174,7 @@ export default function Hero({ setShowLogo }) {
             <div
               key={idx}
               ref={(el) => (brandLettersRef.current[idx] = el)}
-              className={`font-logo font-light text-2xl md:text-[38px] text-black tracking-widest leading-none text-center ${
+              className={`font-heading font-bold text-2xl md:text-[38px] text-black tracking-widest leading-none text-center ${
                 item.gap ? 'my-3 md:my-5 opacity-75' : 'my-0.5 md:my-1'
               }`}
               style={{ textShadow: '0 0 1px rgba(255,255,255,0.1)' }}

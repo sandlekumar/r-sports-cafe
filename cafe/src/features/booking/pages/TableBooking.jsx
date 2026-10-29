@@ -7,12 +7,12 @@ const SERVER_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:500
 import { trackEvent } from '../../../utils/analytics';
 import { TableSketch } from '../../../components/decor/SketchMotifs';
 import { useRevealOnScroll } from '../../../hooks/useRevealOnScroll';
-import img1 from '../../../assets/tables/center.jpg';
-import img2 from '../../../assets/tables/indoor.jpg';
-import img3 from '../../../assets/tables/outdoor.jpg';
-import img4 from '../../../assets/tables/reservetable.jpeg';
-import img5 from '../../../assets/tables/sideangle.jpg';
-import img6 from '../../../assets/tables/tabkes.jpg';
+import img1 from '../../../assets/tables/center.webp';
+import img2 from '../../../assets/tables/indoor.webp';
+import img3 from '../../../assets/tables/outdoor.webp';
+import img4 from '../../../assets/tables/reservetable.webp';
+import img5 from '../../../assets/tables/sideangle.webp';
+import img6 from '../../../assets/tables/tabkes.webp';
 
 const sliderImages = [img1, img2, img3, img4, img5, img6];
 
@@ -81,17 +81,42 @@ const isTimeSlotPast = (dateISO, timeSlot) => {
 };
 
 /* ─── Floor Plan Component ───────────────────────────────────────────── */
-const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
-  // Static layout of Tables 1-6 for the design.
-  const tables = [
-    { id: 'T01', name: 'Table 1', capacity: 2, x: 10, y: 15, w: 20, h: 20, shape: 'square' },
-    { id: 'T02', name: 'Table 2', capacity: 2, x: 10, y: 55, w: 20, h: 20, shape: 'square' },
-    { id: 'T03', name: 'Table 3', capacity: 4, x: 45, y: 15, w: 30, h: 25, shape: 'rect' },
-    { id: 'T04', name: 'Table 4', capacity: 4, x: 45, y: 55, w: 30, h: 25, shape: 'rect' },
-    { id: 'T05', name: 'Terrace 1', capacity: 6, x: 78, y: 15, w: 20, h: 65, shape: 'rect' },
-  ];
+/* ─── Floor Plan Component ───────────────────────────────────────────── */
+const indoorTables = [
+  // Row A: 6 Seats
+  { id: 'A1', name: 'A1', row: 'Row A', capacity: 6, x: 8, y: 12, w: 39, h: 22, shape: 'rect' },
+  { id: 'A2', name: 'A2', row: 'Row A', capacity: 6, x: 53, y: 12, w: 39, h: 22, shape: 'rect' },
 
-  const normalize = (str) => (str || '').toLowerCase().replace(/0(\d)/g, '$1').replace(/[\s\-_]/g, '');
+  // Row B: 4 Seats
+  { id: 'B1', name: 'B1', row: 'Row B', capacity: 4, x: 6, y: 43, w: 20, h: 22, shape: 'square' },
+  { id: 'B2', name: 'B2', row: 'Row B', capacity: 4, x: 29, y: 43, w: 20, h: 22, shape: 'square' },
+  { id: 'B3', name: 'B3', row: 'Row B', capacity: 4, x: 52, y: 43, w: 20, h: 22, shape: 'square' },
+  { id: 'B4', name: 'B4', row: 'Row B', capacity: 4, x: 75, y: 43, w: 20, h: 22, shape: 'square' },
+
+  // Row C: 2 Seats
+  { id: 'C1', name: 'C1', row: 'Row C', capacity: 2, x: 12, y: 73, w: 22, h: 20, shape: 'square' },
+  { id: 'C2', name: 'C2', row: 'Row C', capacity: 2, x: 39, y: 73, w: 22, h: 20, shape: 'square' },
+  { id: 'C3', name: 'C3', row: 'Row C', capacity: 2, x: 66, y: 73, w: 22, h: 20, shape: 'square' },
+];
+
+const outdoorTables = [
+  // 10 tables of 2 seats each
+  { id: 'O01', name: 'Outdoor 01', shortName: '01', capacity: 2, x: 4, y: 16, w: 16, h: 32, shape: 'round' },
+  { id: 'O02', name: 'Outdoor 02', shortName: '02', capacity: 2, x: 23, y: 16, w: 16, h: 32, shape: 'round' },
+  { id: 'O03', name: 'Outdoor 03', shortName: '03', capacity: 2, x: 42, y: 16, w: 16, h: 32, shape: 'round' },
+  { id: 'O04', name: 'Outdoor 04', shortName: '04', capacity: 2, x: 61, y: 16, w: 16, h: 32, shape: 'round' },
+  { id: 'O05', name: 'Outdoor 05', shortName: '05', capacity: 2, x: 80, y: 16, w: 16, h: 32, shape: 'round' },
+  { id: 'O06', name: 'Outdoor 06', shortName: '06', capacity: 2, x: 4, y: 56, w: 16, h: 32, shape: 'round' },
+  { id: 'O07', name: 'Outdoor 07', shortName: '07', capacity: 2, x: 23, y: 56, w: 16, h: 32, shape: 'round' },
+  { id: 'O08', name: 'Outdoor 08', shortName: '08', capacity: 2, x: 42, y: 56, w: 16, h: 32, shape: 'round' },
+  { id: 'O09', name: 'Outdoor 09', shortName: '09', capacity: 2, x: 61, y: 56, w: 16, h: 32, shape: 'round' },
+  { id: 'O10', name: 'Outdoor 10', shortName: '10', capacity: 2, x: 80, y: 56, w: 16, h: 32, shape: 'round' },
+];
+
+const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
+  const [activeArea, setActiveArea] = useState('indoor');
+
+  const normalize = (str) => (str || '').toLowerCase().replace(/[\s\-_]/g, '');
 
   const isAvailable = (tableName) => {
     if (!availability || !availability.availableTables) return false;
@@ -108,30 +133,70 @@ const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
     return availability.availableTables.find(t => {
       const name = normalize(t.name);
       return name === target || name.includes(target) || target.includes(name);
-    }) || availability.availableTables[0];
+    }) || null;
   };
 
+  const currentAreaTables = activeArea === 'indoor' ? indoorTables : outdoorTables;
   const availableTablesList = availability?.availableTables || [];
 
   return (
     <div className="space-y-4">
-      <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-4" style={{ background: theme.bgSec, border: `1px solid ${theme.border}` }}>
-        
-        {/* Decorative floor plan lines */}
+      {/* Area Switcher Tabs */}
+      <div className="flex gap-2 p-1.5 rounded-xl border" style={{ background: theme.bgSec, borderColor: theme.border }}>
+        <button
+          type="button"
+          onClick={() => setActiveArea('indoor')}
+          className="flex-1 py-2 px-3 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-2"
+          style={{
+            background: activeArea === 'indoor' ? theme.cta : 'transparent',
+            color: activeArea === 'indoor' ? theme.card : theme.textPri,
+          }}
+        >
+          <span>🏢 Indoor Seating</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded-full opacity-80" style={{ background: activeArea === 'indoor' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)' }}>
+            9 Tables
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveArea('outdoor')}
+          className="flex-1 py-2 px-3 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-2"
+          style={{
+            background: activeArea === 'outdoor' ? theme.cta : 'transparent',
+            color: activeArea === 'outdoor' ? theme.card : theme.textPri,
+          }}
+        >
+          <span>🌿 Outdoor Seating</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded-full opacity-80" style={{ background: activeArea === 'outdoor' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)' }}>
+            10 Tables
+          </span>
+        </button>
+      </div>
+
+      {/* Visual Floor Map */}
+      <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden" style={{ background: theme.bgSec, border: `1px solid ${theme.border}` }}>
+        {/* Subtle grid lines */}
         <div className="absolute top-0 bottom-0 left-1/3 border-l border-dashed" style={{ borderColor: `${theme.border}80` }}></div>
         <div className="absolute top-0 bottom-0 left-2/3 border-l border-dashed" style={{ borderColor: `${theme.border}80` }}></div>
-        <div className="absolute top-1/2 left-0 right-0 border-t border-dashed" style={{ borderColor: `${theme.border}80` }}></div>
-        
-        <div className="absolute top-4 left-4 font-sans text-[10px] tracking-widest uppercase" style={{ color: theme.textSec }}>
-          Main Dining Area
-        </div>
-        <div className="absolute bottom-4 right-4 font-sans text-[10px] tracking-widest uppercase" style={{ color: theme.textSec }}>
-          Window Side
+        <div className="absolute top-1/3 left-0 right-0 border-t border-dashed" style={{ borderColor: `${theme.border}80` }}></div>
+        <div className="absolute top-2/3 left-0 right-0 border-t border-dashed" style={{ borderColor: `${theme.border}80` }}></div>
+
+        {/* Area Header Label */}
+        <div className="absolute top-3 left-4 font-sans text-[10px] font-semibold tracking-widest uppercase flex items-center gap-2" style={{ color: theme.textSec }}>
+          {activeArea === 'indoor' ? (
+            <>
+              <span>Row A (6-Seater) • Row B (4-Seater) • Row C (2-Seater)</span>
+            </>
+          ) : (
+            <>
+              <span>Al-Fresco Garden Terrace • 2-Seaters (Outdoor 01 – 10)</span>
+            </>
+          )}
         </div>
 
-        <div className="absolute inset-0 p-8 pt-12">
+        <div className="absolute inset-0 p-4 pt-10">
           <div className="relative w-full h-full">
-            {tables.map(table => {
+            {currentAreaTables.map((table) => {
               const isAvail = isAvailable(table.name);
               const backendTbl = getBackendTable(table.name);
               const isSelected = selectedTable?._id === backendTbl?._id || selectedTable?.name === table.name;
@@ -143,25 +208,37 @@ const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
                   type="button"
                   disabled={isReserved || !availability}
                   onClick={() => {
-                    if (backendTbl) onSelectTable(backendTbl);
+                    if (backendTbl) {
+                      onSelectTable(backendTbl);
+                    }
                   }}
-                  whileHover={!isReserved && availability ? { scale: 1.04 } : {}}
-                  transition={{ duration: 0.2 }}
-                  className="absolute flex flex-col items-center justify-center rounded-md font-sans transition-colors"
+                  whileHover={!isReserved && availability ? { scale: 1.05 } : {}}
+                  transition={{ duration: 0.18 }}
+                  className={`absolute flex flex-col items-center justify-center font-sans transition-all select-none shadow-sm ${
+                    table.shape === 'round' ? 'rounded-full' : 'rounded-xl'
+                  }`}
                   style={{
                     left: `${table.x}%`,
                     top: `${table.y}%`,
                     width: `${table.w}%`,
                     height: `${table.h}%`,
                     background: isSelected ? theme.cta : isReserved ? `${theme.textSec}20` : theme.card,
-                    border: `1px solid ${isSelected ? theme.cta : isReserved ? 'transparent' : theme.textPri}`,
-                    color: isSelected ? theme.card : isReserved ? `${theme.textSec}80` : theme.textPri,
-                    opacity: isReserved ? 0.6 : 1,
+                    border: `1.5px solid ${isSelected ? theme.accent : isReserved ? 'transparent' : `${theme.textPri}30`}`,
+                    color: isSelected ? theme.card : isReserved ? `${theme.textSec}70` : theme.textPri,
+                    opacity: isReserved ? 0.45 : 1,
                     cursor: isReserved || !availability ? 'not-allowed' : 'pointer',
                   }}
+                  title={`${table.name} (${table.capacity} seats) - ${isAvail ? 'Available' : 'Unavailable'}`}
                 >
-                  <span className="text-[12px] font-medium tracking-wide mb-0.5">{table.id}</span>
-                  <span className="text-[9px] tracking-widest uppercase" style={{ color: isSelected ? theme.bgSec : theme.textSec }}>{table.capacity} Seats</span>
+                  <span className="text-[12px] font-bold tracking-tight leading-none mb-0.5">
+                    {table.shortName || table.id}
+                  </span>
+                  <span
+                    className="text-[8px] font-medium tracking-wider uppercase leading-none opacity-80"
+                    style={{ color: isSelected ? theme.accent : undefined }}
+                  >
+                    {table.capacity}P
+                  </span>
                 </motion.button>
               );
             })}
@@ -170,12 +247,18 @@ const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
       </div>
 
       {/* Direct Available Tables Selection Grid */}
-      {availableTablesList.length > 0 && (
+      {availableTablesList.length > 0 ? (
         <div className="mt-4">
-          <h4 className="font-sans text-[13px] font-medium uppercase tracking-wider mb-2.5" style={{ color: theme.textSec }}>
-            Available Tables ({availableTablesList.length})
-          </h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <h4 className="font-sans text-[12px] font-bold uppercase tracking-wider" style={{ color: theme.textSec }}>
+              Available Tables ({availableTablesList.length})
+            </h4>
+            <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              ● Live Availability
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {availableTablesList.map((tbl) => {
               const isSel = selectedTable?._id === tbl._id || selectedTable?.name === tbl.name;
               return (
@@ -183,21 +266,37 @@ const FloorPlan = ({ selectedTable, onSelectTable, availability }) => {
                   key={tbl._id || tbl.name}
                   type="button"
                   onClick={() => onSelectTable(tbl)}
-                  className="p-3 rounded-xl flex flex-col items-start text-left transition-all font-sans"
+                  className="p-3 rounded-xl flex flex-col items-start text-left transition-all font-sans hover:border-[#B58A55]"
                   style={{
                     background: isSel ? theme.cta : theme.card,
                     color: isSel ? theme.card : theme.textPri,
-                    border: `1px solid ${isSel ? theme.cta : theme.border}`,
+                    border: `1.5px solid ${isSel ? theme.accent : theme.border}`,
+                    boxShadow: isSel ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
                   }}
                 >
-                  <span className="text-[13px] font-semibold">{tbl.name}</span>
-                  <span className="text-[11px] opacity-80">{tbl.capacity || 2} Guests • {tbl.area?.name || 'Indoor'}</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="text-[13px] font-bold">{tbl.name}</span>
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{
+                        background: isSel ? 'rgba(255,255,255,0.2)' : `${theme.accent}15`,
+                        color: isSel ? theme.card : theme.accent,
+                      }}
+                    >
+                      {tbl.capacity} Seats
+                    </span>
+                  </div>
+                  <span className="text-[11px] opacity-75">{tbl.area?.name || 'Seating Area'}</span>
                 </button>
               );
             })}
           </div>
         </div>
-      )}
+      ) : availability ? (
+        <div className="p-4 rounded-xl text-center text-[12px] bg-amber-50 border border-amber-200 text-amber-800">
+          No tables available for this specific guest count and time. Please adjust guest count or pick another time slot.
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -237,10 +336,23 @@ export default function TableBooking() {
     return () => clearInterval(timer);
   }, []);
 
+  const initialSlot = useMemo(() => {
+    const nextDays = getNext30Days();
+    const now = new Date();
+    const currentH = now.getHours();
+    // If it's 20:00 or later, default to tomorrow at 12:00
+    if (currentH >= 20) {
+      return { date: nextDays[1].iso, time: '12:00' };
+    }
+    const targetH = Math.max(11, currentH + 2);
+    const validH = targetH >= 22 ? 21 : targetH;
+    return { date: nextDays[0].iso, time: `${String(validH).padStart(2, '0')}:00` };
+  }, []);
+
   const [booking, setBooking] = useState({
     guests: 2,
-    date: getNext30Days()[0].iso,
-    time: '19:00',
+    date: initialSlot.date,
+    time: initialSlot.time,
     table: null, // the selected table object from backend
     name: '',
     phone: '',
@@ -285,14 +397,32 @@ export default function TableBooking() {
         });
         setAvailability(res.data);
       } catch (e) {
-        console.warn('Backend unavailable, using mock availability data.', e.message);
-        setAvailability({
-          availableTables: [
-            { _id: 'mock-1', name: 'Table 01', capacity: 2 },
-            { _id: 'mock-3', name: 'Table 03', capacity: 4 },
-            { _id: 'mock-5', name: 'Table 05', capacity: 6 }
-          ]
-        });
+        console.warn('Live availability error:', e.message);
+        setAvailError(e.message || 'Selected time is unavailable.');
+        // Fallback for offline/preview matching the actual layout
+        const fallbackTables = [
+          { _id: 't-a1', name: 'A1', capacity: 6, area: { name: 'Indoor Seating' } },
+          { _id: 't-a2', name: 'A2', capacity: 6, area: { name: 'Indoor Seating' } },
+          { _id: 't-b1', name: 'B1', capacity: 4, area: { name: 'Indoor Seating' } },
+          { _id: 't-b2', name: 'B2', capacity: 4, area: { name: 'Indoor Seating' } },
+          { _id: 't-b3', name: 'B3', capacity: 4, area: { name: 'Indoor Seating' } },
+          { _id: 't-b4', name: 'B4', capacity: 4, area: { name: 'Indoor Seating' } },
+          { _id: 't-c1', name: 'C1', capacity: 2, area: { name: 'Indoor Seating' } },
+          { _id: 't-c2', name: 'C2', capacity: 2, area: { name: 'Indoor Seating' } },
+          { _id: 't-c3', name: 'C3', capacity: 2, area: { name: 'Indoor Seating' } },
+          { _id: 't-o1', name: 'Outdoor 01', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o2', name: 'Outdoor 02', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o3', name: 'Outdoor 03', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o4', name: 'Outdoor 04', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o5', name: 'Outdoor 05', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o6', name: 'Outdoor 06', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o7', name: 'Outdoor 07', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o8', name: 'Outdoor 08', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o9', name: 'Outdoor 09', capacity: 2, area: { name: 'Outdoor Seating' } },
+          { _id: 't-o10', name: 'Outdoor 10', capacity: 2, area: { name: 'Outdoor Seating' } },
+        ].filter(t => t.capacity >= booking.guests);
+
+        setAvailability({ availableTables: fallbackTables });
       } finally {
         setLoadingAvail(false);
       }

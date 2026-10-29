@@ -14,26 +14,26 @@ const DUST_PARTICLES = Array.from({ length: 22 }, (_, i) => ({
   id: i,
   w: 1 + (i % 3) * 0.6,
   left: ((5 + i * 7.7) % 90).toFixed(2),
-  top:  ((8 + i * 9.3) % 88).toFixed(2),
+  top: ((8 + i * 9.3) % 88).toFixed(2),
   delay: (i * 0.55).toFixed(2),
   animClass: `animate-dust-${(i % 3) + 1}`,
 }));
 
 /* ─── Title character data ──────────────────────────────────────────────── */
-const TITLE_STR   = 'R SPORTS & CAFE';
+const TITLE_STR = 'R SPORTS & CAFE';
 const TITLE_CHARS = TITLE_STR.split('');
 
 export default function ScrollVideoHero() {
-  const containerRef  = useRef(null);
-  const pinRef        = useRef(null);
+  const containerRef = useRef(null);
+  const pinRef = useRef(null);
   const imageFrameRef = useRef(null);
-  const artworkRef    = useRef(null);
-  const ctaBoxRef     = useRef(null);
-  const sweepRef      = useRef(null);
-  const titleGlowRef  = useRef(null);
-  const videoRef      = useRef(null);
+  const artworkRef = useRef(null);
+  const ctaBoxRef = useRef(null);
+  const sweepRef = useRef(null);
+  const titleGlowRef = useRef(null);
+  const videoRef = useRef(null);
   const scrollIndicatorRef = useRef(null);
-  const muralImgRef   = useRef(null);
+  const muralImgRef = useRef(null);
 
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' && window.innerWidth < 768
@@ -45,7 +45,7 @@ export default function ScrollVideoHero() {
     let rafId = null;
     let nx = 0, ny = 0;
     const onMove = (e) => {
-      nx = ((e.clientX / window.innerWidth)  - 0.5) * 2;
+      nx = ((e.clientX / window.innerWidth) - 0.5) * 2;
       ny = ((e.clientY / window.innerHeight) - 0.5) * 2;
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
@@ -128,8 +128,8 @@ export default function ScrollVideoHero() {
       // ═══════════════════════════════════════════════════════════════════════
 
       const videoEl = canvasEl;
-      const pinEl   = pinRef.current;
-      const cntEl   = containerRef.current;
+      const pinEl = pinRef.current;
+      const cntEl = containerRef.current;
       if (!pinEl || !cntEl) return;
 
       // ── Make pinRef sticky via inline style ────────────────────────────
@@ -142,7 +142,7 @@ export default function ScrollVideoHero() {
       gsap.set(imageFrameRef.current, { xPercent: -50, yPercent: -50 });
       // Everything starts hidden except the video frame
       gsap.set([artworkRef.current, '.svh-title-char', titleGlowRef.current,
-                '.svh-energy-line', ctaBoxRef.current], { autoAlpha: 0 });
+        '.svh-energy-line', ctaBoxRef.current], { autoAlpha: 0 });
 
       // ── Scroll indicator entrance ──────────────────────────────────────
       if (scrollIndicatorRef.current) {
@@ -171,12 +171,12 @@ export default function ScrollVideoHero() {
       // ── Video autoPlay setup (mobile) ──────────────────────────────────
       if (videoEl && videoEl.tagName === 'VIDEO') {
         // Attempt to play just in case autoPlay is blocked initially
-        videoEl.play().catch(() => {});
+        videoEl.play().catch(() => { });
       }
 
       // ── Easing helpers ─────────────────────────────────────────────────
-      const ease4 = (t) => t < 0.5 ? 8*t*t*t*t : 1-Math.pow(-2*t+2,4)/2; // power4.inOut
-      const ease3out = (t) => 1 - Math.pow(1-t, 3);
+      const ease4 = (t) => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2; // power4.inOut
+      const ease3out = (t) => 1 - Math.pow(1 - t, 3);
       const clamp01 = (v) => Math.max(0, Math.min(1, v));
       const remap = (v, a, b) => clamp01((v - a) / (b - a)); // remap v from [a,b] to [0,1]
 
@@ -189,13 +189,13 @@ export default function ScrollVideoHero() {
 
       // ── Main scroll handler ────────────────────────────────────────────
       const onScroll = ({ scroll }) => {
-        const rect  = cntEl.getBoundingClientRect();
-        const vh    = window.innerHeight;
+        const rect = cntEl.getBoundingClientRect();
+        const vh = window.innerHeight;
         // How far has the container scrolled into the page?
         // When rect.top = 0, progress = 0. When rect.top = -(containerH - vh), progress = 1.
         const containerH = cntEl.offsetHeight;
         const raw = -rect.top / (containerH - vh);
-        const p   = clamp01(raw);
+        const p = clamp01(raw);
 
         if (Math.abs(p - lastProgress) < 0.001) return; // Skip if no meaningful change
         lastProgress = p;
@@ -217,7 +217,7 @@ export default function ScrollVideoHero() {
         const curR = parseFloat(shrinkR) * shrinkP;
         const curBorder = shrinkP > 0.05 ? `1px solid rgba(17,17,17,${0.12 * shrinkP})` : '1px solid transparent';
         const curShadow = shrinkP > 0.05
-          ? `0 ${15*shrinkP}px ${40*shrinkP}px rgba(0,0,0,${0.12*shrinkP})`
+          ? `0 ${15 * shrinkP}px ${40 * shrinkP}px rgba(0,0,0,${0.12 * shrinkP})`
           : 'none';
         gsap.set(imageFrameRef.current, {
           width: curW, height: curH,
@@ -240,7 +240,7 @@ export default function ScrollVideoHero() {
           const goldenT = remap(muralP, 0.7, 1);
           gsap.set(imageFrameRef.current, {
             border: `1px solid rgba(235,203,139,${0.6 * goldenT})`,
-            boxShadow: `0 0 ${50*goldenT}px rgba(235,203,139,${0.3*goldenT}), 0 30px 80px rgba(0,0,0,0.22)`,
+            boxShadow: `0 0 ${50 * goldenT}px rgba(235,203,139,${0.3 * goldenT}), 0 30px 80px rgba(0,0,0,0.22)`,
           });
         }
 
@@ -248,7 +248,7 @@ export default function ScrollVideoHero() {
         const titleP = ease3out(remap(p, 0.40, 0.58));
         const lineP = ease3out(remap(p, 0.58, 0.68)); // Wait until title fully forms
         gsap.set(titleGlowRef.current, { autoAlpha: titleP, scale: 0.6 + 0.4 * titleP });
-        
+
         // Prevent 1px artifact/flashing before it's supposed to reveal
         if (p < 0.57) {
           gsap.set('.svh-energy-line', { autoAlpha: 0, scaleX: 0 });
@@ -522,7 +522,7 @@ export default function ScrollVideoHero() {
       // ── PHASE 5 (0.92–1.0): Exit — dissolve & lift ──────────────────────
       tl.to(
         [artworkRef.current, '.svh-title-char', titleGlowRef.current,
-         '.svh-energy-line', ctaBoxRef.current],
+          '.svh-energy-line', ctaBoxRef.current],
         { opacity: 0, y: -10, duration: 0.04, ease: 'power3.in', stagger: 0.002 },
         0.92
       );
@@ -663,11 +663,11 @@ export default function ScrollVideoHero() {
               />
 
               <h1
-                className="font-sans font-semibold uppercase relative z-10 flex flex-wrap justify-center text-[#111111]"
+                className="font-logo font-bold uppercase relative z-10 flex flex-wrap justify-center text-[#111111]"
                 style={{
-                  fontSize: 'clamp(24px, 5.5vw, 52px)',
-                  letterSpacing: 'clamp(0.04em, 1.5vw, 0.3em)',
-                  lineHeight: 1.15,
+                  fontSize: 'clamp(30px, 6.5vw, 68px)',
+                  letterSpacing: 'clamp(0.04em, 1.5vw, 0.2em)',
+                  lineHeight: 1.1,
                   filter: 'drop-shadow(0 0 28px rgba(231,201,138,0.3))',
                 }}
               >
@@ -706,7 +706,7 @@ export default function ScrollVideoHero() {
               >
                 {/* Heritage Plaque Style */}
                 <p
-                  className="font-sans font-medium uppercase tracking-[0.25em] text-[11px] md:text-[12px]"
+                  className="font-sideheading font-bold uppercase tracking-[0.25em] text-[12px] md:text-[14px]"
                   style={{ color: 'rgba(27,27,27,0.7)' }}
                 >
                   Since 2026
@@ -720,8 +720,8 @@ export default function ScrollVideoHero() {
 
                 {/* Tagline */}
                 <p
-                  className="font-inter font-medium uppercase text-[8px] md:text-[9px] tracking-[0.18em]"
-                  style={{ color: 'rgba(27,27,27,0.55)' }}
+                  className="font-sideheading font-bold uppercase text-[10px] md:text-[12px] tracking-[0.2em]"
+                  style={{ color: 'rgba(27,27,27,0.6)' }}
                 >
                   PLAY &bull; EAT &bull; CHILL &bull; REPEAT
                 </p>

@@ -228,7 +228,7 @@ export default function Menu() {
               desc: m.desc,
               price: m.price,
               photo: m.photo,
-              image: m.photo ? `${SERVER_URL}${m.photo}` : null,
+              image: m.photo ? (m.photo.startsWith('http') ? m.photo : `${SERVER_URL}${m.photo}`) : null,
               video: m.video_loop_url || null,
               video_loop_url: m.video_loop_url,
               is_trending: Boolean(m.is_trending),
@@ -343,7 +343,7 @@ export default function Menu() {
 
       <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 mb-12 lg:mb-16 mt-20 text-center lg:text-left flex flex-col lg:flex-row items-center lg:items-end justify-between">
         <div ref={headerCardRef} className="max-w-2xl reveal-up" style={{ '--delay': '0s' }}>
-          <span className="font-inter font-medium text-[12px] tracking-[0.24em] text-orange-400 mb-4 uppercase block">Stay for the Food.</span>
+          <span className="font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-orange-400 mb-4 uppercase block">Stay for the Food.</span>
           <h2 className="font-sans font-bold text-3xl md:text-5xl lg:text-6xl text-lightText mb-6 uppercase tracking-tight">Worth Coming Back For.</h2>
           <p className="font-inter text-lightText/60 text-base leading-relaxed">
             Fresh flavours. Good coffee. Comfortable spaces.

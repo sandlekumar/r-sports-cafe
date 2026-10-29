@@ -97,14 +97,14 @@ export default function App() {
         <footer className="bg-gradient-to-b from-[#0A0A0A] to-[#050505] text-lightText pt-32 pb-12 px-6 md:px-20 border-t border-t-[#D4AF37]/30 shadow-[inset_0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden">
           {/* Huge background text */}
           <div className="absolute inset-0 pointer-events-none opacity-[0.08] overflow-hidden">
-            <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-sans font-bold text-[15vw] leading-none whitespace-nowrap tracking-[-0.05em] text-gradient-gold" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>R SPORTS & CAFE</h2>
+            <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-logo font-bold text-[15vw] leading-none whitespace-nowrap tracking-[-0.02em] text-gradient-gold" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>R SPORTS & CAFE</h2>
           </div>
 
           <div className="max-w-7xl mx-auto relative z-10 flex flex-col justify-between h-full">
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 pb-32">
               <div className="md:col-span-5 space-y-8">
-                <div className="flex items-center gap-3 font-sans font-bold text-[28px] tracking-[0.1em] text-white">
+                <div className="flex items-center gap-3 font-logo font-bold text-[28px] md:text-[32px] tracking-[0.08em] text-white">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <rect x="3" y="3" width="18" height="18" rx="4" />
                     <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
@@ -126,7 +126,7 @@ export default function App() {
               </div>
 
               <div className="md:col-span-3 space-y-6">
-                <h4 className="font-inter font-medium text-[11px] tracking-[0.2em] text-white/30 uppercase">Quick Links</h4>
+                <h4 className="font-sideheading font-bold text-[13px] tracking-[0.2em] text-[#D4AF37] uppercase">Quick Links</h4>
                 <ul className="space-y-3 font-inter text-[14px] tracking-[0.1em] text-white/70 uppercase">
                   <li><Link to="/" className="hover:text-white transition-colors duration-300 hover-underline-gold">Home</Link></li>
                   <li><Link to="/turf" className="hover:text-white transition-colors duration-300 hover-underline-gold">Sports</Link></li>
@@ -139,7 +139,7 @@ export default function App() {
               </div>
 
               <div className="md:col-span-4 space-y-6">
-                <h4 className="font-inter font-medium text-[11px] tracking-[0.2em] text-white/30 uppercase">Services</h4>
+                <h4 className="font-sideheading font-bold text-[13px] tracking-[0.2em] text-[#D4AF37] uppercase">Services</h4>
                 <ul className="space-y-3 font-inter text-[14px] tracking-[0.1em] text-white/70 uppercase">
                   <li><Link to="/turf" className="hover:text-white transition-colors duration-300 hover-underline-gold">Turf Booking</Link></li>
                   <li><Link to="/book-table" className="hover:text-white transition-colors duration-300 hover-underline-gold">Table Reservation</Link></li>

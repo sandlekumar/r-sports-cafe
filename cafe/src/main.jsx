@@ -7,6 +7,8 @@ import './index.css'
 
 import PageTransition from './components/PageTransition.jsx'
 import Navbar from './components/Navbar.jsx'
+import ScrollToTop from './components/ScrollToTop.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { initGA } from './utils/analytics.js'
 
 // Lazy-loaded pages
@@ -70,8 +72,11 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider>
       <BrowserRouter>
-        <Navbar />
-        <AnimatedRoutes />
+        <ErrorBoundary>
+          <ScrollToTop />
+          <Navbar />
+          <AnimatedRoutes />
+        </ErrorBoundary>
       </BrowserRouter>
     </HelmetProvider>
   </StrictMode>,

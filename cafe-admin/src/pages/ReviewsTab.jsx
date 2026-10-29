@@ -23,9 +23,8 @@ export default function ReviewsTab({ getHeaders, getAuthHeaders }) {
     try {
       const res = await fetch(`${API_BASE_URL}/reviews`);
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setReviews(data);
-      }
+      const list = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+      setReviews(list);
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
     } finally {
@@ -119,7 +118,7 @@ export default function ReviewsTab({ getHeaders, getAuthHeaders }) {
           <div key={review._id} className="glass-card flex flex-col overflow-hidden relative group">
             <div className="aspect-[4/3] bg-[#f8f9fa] relative border-b border-[rgba(0,0,0,0.05)]">
               {review.imageUrl ? (
-                <img src={`${SERVER_BASE_URL}${review.imageUrl}`} alt={review.name} className="w-full h-full object-contain" />
+                <img src={review.imageUrl.startsWith('http') ? review.imageUrl : `${SERVER_BASE_URL}${review.imageUrl}`} alt={review.name} className="w-full h-full object-contain" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#9ca3af] text-[12px]">No Image</div>
               )}

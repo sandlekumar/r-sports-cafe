@@ -5,6 +5,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 ffmpeg.setFfmpegPath(ffmpegPath);
 const Reel = require('../models/Reel');
+const { saveVideo, uploadFile, isConfigured } = require('../services/cloudinaryService');
 
 // ─── Multer Storage Config ───────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -212,8 +213,29 @@ exports.uploadReelVideo = async (req, res, next) => {
       console.error('Could not delete original reel video:', e);
     }
 
-    const videoUrl = `/uploads/reels/${videoFilename}`;
-    const thumbnailUrl = `/uploads/reels/${thumbFilename}`;
+    let videoUrl = `/uploads/reels/${videoFilename}`;
+    let thumbnailUrl = `/uploads/reels/${thumbFilename}`;
+
+    if (isConfigured) {
+      try {
+        videoUrl = await saveVideo({
+          filePath: videoFilepath,
+          folder: 'reels',
+          filename: videoFilename,
+          fallbackSubdir: 'reels',
+        });
+        const thumbUpload = await uploadFile(thumbFilepath, {
+          folder: 'r-sports-cafe/reels/thumbs',
+          resource_type: 'image',
+        });
+        thumbnailUrl = thumbUpload.secure_url;
+        if (fs.existsSync(thumbFilepath)) {
+          try { fs.unlinkSync(thumbFilepath); } catch (e) { /* ignore */ }
+        }
+      } catch (err) {
+        console.error('Cloudinary upload failed, using local reel files:', err);
+      }
+    }
     
     const reel = await Reel.findByIdAndUpdate(id, { videoUrl, thumbnailUrl }, { new: true });
     if (!reel) {

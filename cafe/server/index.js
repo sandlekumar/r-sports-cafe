@@ -1,5 +1,5 @@
-require('dotenv').config();
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -45,10 +45,10 @@ app.use('/api/admin/login', authLimiter);
 
 // ─── Middleware & Request Limits ──────────────────────────────────────────────
 // Allow both the customer app and admin dashboard origins
-const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : true;
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(s => s.trim()) : true;
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins === true || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins === true || allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && (origin.includes('localhost') || origin.includes('127.0.0.1')))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -75,6 +75,11 @@ mongoose.connect(MONGO_URI)
     await seedData();
   })
   .catch(err => console.error('❌ MongoDB Error:', err));
+
+// ─── Health Check for Keep-Alive & Monitoring (UptimeRobot / Render) ─────────
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: Math.floor(process.uptime()), timestamp: new Date().toISOString() });
+});
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 const publicRoutes = require('./routes/publicRoutes');

@@ -6,6 +6,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 ffmpeg.setFfmpegPath(ffmpegPath);
 const MenuItem = require('../models/MenuItem');
+const { saveImage, saveVideo, isConfigured } = require('../services/cloudinaryService');
 
 // ─── Multer Storage Config ───────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -192,23 +193,26 @@ exports.uploadMenuPhoto = async (req, res, next) => {
 
     const originalPath = req.file.path;
     const filename = `menu-photo-${Date.now()}.webp`;
-    const uploadsDir = path.join(__dirname, '../uploads/menu');
-    const filepath = path.join(uploadsDir, filename);
 
     const buffer = fs.readFileSync(originalPath);
-    await sharp(buffer)
+    const optimizedBuffer = await sharp(buffer)
       .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 80 })
-      .toFile(filepath);
+      .toBuffer();
 
-    // Delete the original uploaded file safely
+    // Delete the temporary multer file safely
     try {
       if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
     } catch (e) {
       console.error('Could not delete original menu photo:', e);
     }
 
-    const photoUrl = `/uploads/menu/${filename}`;
+    const photoUrl = await saveImage({
+      buffer: optimizedBuffer,
+      folder: 'menu',
+      filename,
+      fallbackSubdir: 'menu',
+    });
     const item = await MenuItem.findByIdAndUpdate(id, { photo: photoUrl }, { new: true });
     if (!item) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Menu item not found' } });
@@ -258,7 +262,19 @@ exports.uploadMenuVideo = async (req, res, next) => {
       console.error('Could not delete original menu video:', e);
     }
 
-    const videoUrl = `/uploads/menu/${filename}`;
+    let videoUrl = `/uploads/menu/${filename}`;
+    if (isConfigured) {
+      try {
+        videoUrl = await saveVideo({
+          filePath: filepath,
+          folder: 'menu',
+          filename,
+          fallbackSubdir: 'menu',
+        });
+      } catch (err) {
+        console.error('Cloudinary menu video upload error:', err);
+      }
+    }
     const item = await MenuItem.findByIdAndUpdate(id, { video_loop_url: videoUrl, is_trending: true }, { new: true });
     if (!item) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Menu item not found' } });
