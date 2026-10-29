@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
+const BASE_URL = import.meta.env.VITE_SERVER_URL || (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : '') || 'http://localhost:5000';
 
 function formatDate(dateStr) {
   if (!dateStr) return { day: '—', month: '—', year: '—', weekday: '', full: '—' };
@@ -63,6 +63,7 @@ const getVariant = (pos, isMobile) => {
 export default function Events() {
   const [events, setEvents] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [imgErrors, setImgErrors] = useState({});
   const isMobile = useMediaQuery('(max-width: 768px)');
   
   // Safe touch swipe handling
@@ -186,8 +187,8 @@ export default function Events() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Subtle warm grain texture */}
-      <div className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`}}></div>
+      {/* Subtle Ambient Background Gradient (Zero GPU Overhead) */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#D4AF37]/5 via-transparent to-transparent" />
 
       {/* Top Bar Branding */}
       <div className="ev-header w-full max-w-6xl flex justify-between items-center z-40 mb-4 sm:mb-6">
@@ -213,8 +214,10 @@ export default function Events() {
         
         {displayEvents.map((event, idx) => {
           const pos = getPosition(idx);
+          if (pos === 'hidden') return null;
           const isCenter = pos === 'center';
           const { day, month, year, weekday } = formatDate(event.date);
+          const hasPhoto = event.photo && !imgErrors[event._id || idx];
 
           return (
             <motion.div
@@ -224,7 +227,7 @@ export default function Events() {
                   setActiveIndex(idx);
                 }
               }}
-              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[80vw] xs:w-[76vw] sm:w-[350px] md:w-[410px] max-w-[410px] aspect-[4/5]`}
+              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[80vw] xs:w-[76vw] sm:w-[350px] md:w-[410px] max-w-[410px] aspect-[4/5] rounded-2xl`}
               style={{
                 zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10,
                 willChange: 'transform, opacity',
@@ -233,15 +236,15 @@ export default function Events() {
               animate={getVariant(pos, isMobile)}
               transition={
                 isMobile
-                  ? { duration: 0.35, ease: [0.25, 1, 0.5, 1] }
+                  ? { duration: 0.28, ease: 'easeOut' }
                   : { type: 'spring', damping: 28, stiffness: 280, mass: 0.6 }
               }
             >
-              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-xl shadow-[0_15px_35px_-10px_rgba(0,0,0,0.65)]">
+              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
                 
                 {/* Full Background Image */}
                 <div className="absolute inset-0 w-full h-full bg-gray-900">
-                  {event.photo ? (
+                  {hasPhoto ? (
                     <>
                       <img 
                         src={event.photo.startsWith('http') ? event.photo : `${BASE_URL}${event.photo}`} 
@@ -249,12 +252,14 @@ export default function Events() {
                         alt={event.title || 'Event image'} 
                         loading="lazy" 
                         decoding="async" 
+                        onError={() => setImgErrors(prev => ({ ...prev, [event._id || idx]: true }))}
                       />
                       <div className="absolute inset-0 bg-black/25 pointer-events-none" />
                     </>
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-black flex items-center justify-center">
-                      <span className="text-white/40 font-bold uppercase tracking-widest text-xs sm:text-sm">R Sports &amp; Cafe Event</span>
+                    <div className="w-full h-full bg-gradient-to-br from-neutral-800 via-neutral-900 to-black flex flex-col items-center justify-center p-6 text-center">
+                      <span className="font-logo text-3xl font-bold tracking-widest text-[#D4AF37] mb-1">R SPORTS</span>
+                      <span className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs">VIP &amp; Featured Event</span>
                     </div>
                   )}
                 </div>
