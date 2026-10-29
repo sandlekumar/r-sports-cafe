@@ -210,14 +210,6 @@ export default function Events() {
 
       {/* Interactive Card Canvas Area (Compact & Optimized size) */}
       <div className="relative w-full max-w-5xl h-[400px] xs:h-[430px] sm:h-[520px] md:h-[600px] flex items-center justify-center my-auto z-10">
-        {/* Mobile Swipe Indicator */}
-        {isMobile && displayEvents.length > 1 && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[#111111]/50 pointer-events-none z-50">
-            <svg className="w-3.5 h-3.5 animate-bounce-horizontal rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            <span className="font-sans text-[9px] uppercase tracking-widest font-semibold">Swipe to explore</span>
-            <svg className="w-3.5 h-3.5 animate-bounce-horizontal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          </div>
-        )}
         
         {displayEvents.map((event, idx) => {
           const pos = getPosition(idx);

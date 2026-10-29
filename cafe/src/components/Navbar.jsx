@@ -80,20 +80,17 @@ export default function Navbar() {
         }}
       >
         
-        {/* Left: Floating Brand Logo with small R monogram icon */}
+        {/* Left: Floating Brand Logo */}
         <Link 
           to="/"
-          className="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full select-none transition-all duration-300 hover:scale-102"
+          className="pointer-events-auto flex items-center px-1 sm:px-2 py-1 select-none transition-all duration-300 hover:scale-105"
         >
           {/* R Sports & Cafe Logo */}
           <img 
             src={isDark ? "/logo-white.webp" : "/logo.webp"} 
             alt="R Sports & Cafe" 
-            className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-all duration-300"
+            className="h-9 sm:h-10 md:h-11 w-auto object-contain transition-all duration-300"
           />
-          <span className={`font-logo font-bold text-[18px] xs:text-[20px] sm:text-[22px] md:text-[26px] tracking-[0.08em] whitespace-nowrap transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}>
-            R SPORTS <span className="hidden xs:inline">&amp; CAFE</span>
-          </span>
         </Link>
 
         {/* Center: Rounded Pill Navbar in premium glass style */}

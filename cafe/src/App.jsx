@@ -104,9 +104,8 @@ export default function App() {
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 pb-32">
               <div className="md:col-span-5 space-y-8">
-                <div className="flex items-center gap-3 font-logo font-bold text-[28px] md:text-[32px] tracking-[0.08em] text-white">
-                  <img src="/logo-white.webp" alt="R Sports & Cafe Logo" className="h-9 md:h-11 w-auto object-contain" />
-                  R SPORTS & CAFE
+                <div className="flex items-center">
+                  <img src="/logo-white.webp" alt="R Sports & Cafe Logo" className="h-10 md:h-12 w-auto object-contain" />
                 </div>
                 <p className="font-inter font-normal text-[16px] md:text-[20px] leading-[1.6] text-white/50 max-w-[340px]">
                   Play well. Eat well. Stay awhile.

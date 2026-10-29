@@ -60,7 +60,7 @@ export default function Preloader() {
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center pointer-events-auto"
           style={{ background: 'radial-gradient(ellipse at center, #0a0a0a 0%, #050505 70%)' }}
         >
-          {/* Glowing luxury text */}
+          {/* Glowing luxury logo */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
             animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
@@ -71,14 +71,8 @@ export default function Preloader() {
             <img 
               src="/logo-white.webp" 
               alt="R Sports & Cafe" 
-              className="w-16 h-16 md:w-20 md:h-20 object-contain mb-4 drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]" 
+              className="w-44 sm:w-60 md:w-72 h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.4)]" 
             />
-            <span className="font-logo font-bold text-[36px] md:text-[54px] text-transparent bg-clip-text bg-gradient-to-r from-[#AA771C] via-[#F4E27C] to-[#AA771C] tracking-[0.16em] uppercase drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-              R SPORTS &amp; CAFE
-            </span>
-            <span className="font-sideheading font-bold text-[12px] md:text-[14px] tracking-[0.35em] text-[#D4AF37]/80 mt-3 uppercase">
-              Taste &amp; Play
-            </span>
           </motion.div>
 
           {/* Loading bar line */}

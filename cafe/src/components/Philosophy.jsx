@@ -114,7 +114,7 @@ export default function Philosophy() {
 
       {/* Large Decorative Quotation Mark in Background */}
       <div className="absolute -top-10 left-6 md:top-12 md:left-20 pointer-events-none select-none z-0">
-        <span className="font-sans font-bold text-[180px] md:text-[500px] text-[#9E6D38] opacity-[0.06] md:opacity-[0.12] leading-none select-none">
+        <span className="font-sans font-bold text-[180px] md:text-[500px] text-sandalAccent opacity-[0.06] md:opacity-[0.12] leading-none select-none">
           “
         </span>
       </div>
@@ -127,10 +127,10 @@ export default function Philosophy() {
           
           {/* Section Indicator */}
           <div className="space-y-4">
-            <span className="font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-[#9E6D38] uppercase block">
+            <span className="font-sideheading font-bold text-[14px] md:text-[16px] tracking-[0.24em] text-sandalAccent uppercase block">
               YOUR SPORTS & CAFE DESTINATION IN THOOTHUKUDI
             </span>
-            <div ref={dividerRef} className="w-24 h-[2px] bg-gradient-to-r from-[#9E6D38] to-transparent reveal-up" />
+            <div ref={dividerRef} className="w-24 h-[2px] bg-gradient-to-r from-sandalAccent to-transparent reveal-up" />
           </div>
 
           {/* Massive Editorial Typography Heading */}
@@ -138,13 +138,13 @@ export default function Philosophy() {
             <div className="overflow-hidden py-1">
               <RevealText text={word1} />
             </div>
-            <div className="overflow-hidden py-1 text-[#9E6D38]">
+            <div className="overflow-hidden py-1 text-sandalAccent">
               <RevealText text={word2} />
             </div>
             <div className="overflow-hidden py-1">
               <RevealText text={word3} />
             </div>
-            <div className="overflow-hidden py-1 text-[#9E6D38]">
+            <div className="overflow-hidden py-1 text-sandalAccent">
               <RevealText text={word4} />
             </div>
           </h2>
