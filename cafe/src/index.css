@@ -458,10 +458,24 @@ body.no-cursor, body.no-cursor * {
    EVENTS SECTION — "Deep Red Scrapbook Stamp"
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── Modern Luxury Card Mask & Smooth Corners ───────────────────────────── */
+/* ─── Responsive Card Mask: Clean Rounded on Mobile, Postage Stamp on Desktop ─── */
 .ev-stamp-mask {
   border-radius: 1.25rem;
   overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .ev-stamp-mask {
+    border-radius: 0;
+    -webkit-mask: 
+      linear-gradient(#000 0 0) center/calc(100% - 12px) calc(100% - 12px) no-repeat,
+      radial-gradient(circle at 8px 8px, transparent 0, transparent 4.5px, black 5px) -8px -8px / 16px 16px;
+    -webkit-mask-composite: source-over;
+    mask: 
+      linear-gradient(#000 0 0) center/calc(100% - 12px) calc(100% - 12px) no-repeat,
+      radial-gradient(circle at 8px 8px, transparent 0, transparent 4.5px, black 5px) -8px -8px / 16px 16px;
+    mask-composite: add;
+  }
 }
 
 /* ─── Circular postal ink stamp ──────────────────────────────────────────── */
@@ -504,9 +518,18 @@ body.no-cursor, body.no-cursor * {
   animation: stamp-settle 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* ─── GPU-Accelerated Smooth Shadow for Cards (Zero GPU Lag) ─────────────── */
+/* ─── Responsive Shadow: Fast Box-Shadow on Mobile, Deep 3D Shadow on Desktop ─── */
 .ev-stamp-shadow {
   box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.5), 0 8px 18px -6px rgba(0, 0, 0, 0.35);
+}
+
+@media (min-width: 768px) {
+  .ev-stamp-shadow {
+    box-shadow: none;
+    filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.55)) 
+            drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35))
+            drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
+  }
 }
 
 /* ─── Ribbon/Banner Style ────────────────────────────────────────────────── */

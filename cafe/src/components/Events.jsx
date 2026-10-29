@@ -227,7 +227,7 @@ export default function Events() {
                   setActiveIndex(idx);
                 }
               }}
-              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[80vw] xs:w-[76vw] sm:w-[350px] md:w-[410px] max-w-[410px] aspect-[4/5] rounded-2xl`}
+              className={`absolute ev-stamp-shadow flex flex-col ${!isCenter ? 'cursor-pointer' : ''} w-[80vw] xs:w-[76vw] sm:w-[350px] md:w-[410px] max-w-[410px] aspect-[4/5] rounded-2xl md:rounded-none`}
               style={{
                 zIndex: isCenter ? 30 : pos === 'bottomRight' ? 20 : 10,
                 willChange: 'transform, opacity',
@@ -240,7 +240,7 @@ export default function Events() {
                   : { type: 'spring', damping: 28, stiffness: 280, mass: 0.6 }
               }
             >
-              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+              <div className="ev-stamp-mask bg-black w-full h-full flex flex-col relative overflow-hidden rounded-2xl md:rounded-none border border-white/10 md:border-none shadow-2xl md:shadow-none">
                 
                 {/* Full Background Image */}
                 <div className="absolute inset-0 w-full h-full bg-gray-900">
