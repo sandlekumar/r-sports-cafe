@@ -159,14 +159,11 @@ function Sidebar({ activeTab, setActiveTab, onClose, handleLogout, unreadCount =
         {/* Logo */}
         <div className="mb-8">
           <Link to="/" onClick={onClose} className="flex items-center gap-2.5 mb-3 group">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.24)' }}>
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2.2">
-                <rect x="3" y="3" width="18" height="18" rx="4"/>
-                <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
-                <path d="M13 13l4 4"/>
-              </svg>
-            </div>
+            <img 
+              src="/logo.webp" 
+              alt="R Sports & Cafe" 
+              className="w-8 h-8 object-contain flex-shrink-0" 
+            />
             <span className="font-sans font-bold text-[14px] tracking-[0.06em] text-[#1a1a2e] group-hover:text-violet-700 transition-colors leading-tight">
               R SPORTS &amp; CAFE
             </span>

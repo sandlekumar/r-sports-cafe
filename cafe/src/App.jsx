@@ -105,11 +105,7 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 pb-32">
               <div className="md:col-span-5 space-y-8">
                 <div className="flex items-center gap-3 font-logo font-bold text-[28px] md:text-[32px] tracking-[0.08em] text-white">
-                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <rect x="3" y="3" width="18" height="18" rx="4" />
-                    <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
-                    <path d="M13 13l4 4" />
-                  </svg>
+                  <img src="/logo-white.webp" alt="R Sports & Cafe Logo" className="h-9 md:h-11 w-auto object-contain" />
                   R SPORTS & CAFE
                 </div>
                 <p className="font-inter font-normal text-[16px] md:text-[20px] leading-[1.6] text-white/50 max-w-[340px]">

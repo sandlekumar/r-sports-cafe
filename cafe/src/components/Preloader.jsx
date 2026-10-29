@@ -68,6 +68,11 @@ export default function Preloader() {
             transition={{ duration: 1.2, ease: 'easeOut' }}
             className="flex flex-col items-center"
           >
+            <img 
+              src="/logo-white.webp" 
+              alt="R Sports & Cafe" 
+              className="w-16 h-16 md:w-20 md:h-20 object-contain mb-4 drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]" 
+            />
             <span className="font-logo font-bold text-[36px] md:text-[54px] text-transparent bg-clip-text bg-gradient-to-r from-[#AA771C] via-[#F4E27C] to-[#AA771C] tracking-[0.16em] uppercase drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]">
               R SPORTS &amp; CAFE
             </span>

@@ -85,18 +85,12 @@ export default function Navbar() {
           to="/"
           className="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full select-none transition-all duration-300 hover:scale-102"
         >
-          {/* Custom luxury R logo SVG monogram */}
-          <svg 
-            className={`w-3.5 h-3.5 transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="4" />
-            <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
-            <path d="M13 13l4 4" />
-          </svg>
+          {/* R Sports & Cafe Logo */}
+          <img 
+            src={isDark ? "/logo-white.webp" : "/logo.webp"} 
+            alt="R Sports & Cafe" 
+            className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-all duration-300"
+          />
           <span className={`font-logo font-bold text-[18px] xs:text-[20px] sm:text-[22px] md:text-[26px] tracking-[0.08em] whitespace-nowrap transition-colors duration-500 ${isDark ? 'text-white' : 'text-darkText'}`}>
             R SPORTS <span className="hidden xs:inline">&amp; CAFE</span>
           </span>
